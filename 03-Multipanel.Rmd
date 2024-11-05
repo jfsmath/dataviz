@@ -1,0 +1,322 @@
+---
+title: 'Multi-panel plots'
+author: "Data350"
+date: "2024-10-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(socviz)
+library(gapminder)
+library(ggplot2)
+```
+
+# facet_wrap()
+
+1.  Recall that the following block of codes produce a bar chart of political inclination in the US. Modify the code to produce a 2-by-2 plot and a 1-by-1 plot according to big region. Try wrapping around different (categorical) variables.
+
+```{r}
+p <- ggplot(
+  data = subset(gss_sm, partyid !="NA"),
+  mappping = aes(
+    x = partyid,
+  )
+)
+p + geom_bar(
+  position = "dodge",
+  mapping = aes(
+    x = partyid,
+    y = ..prop..,
+    group = bigregion
+  )
+) + coord_flip() + facet_wrap(~happy, ncol = 1)
+
+```
+
+2.  In the diamonds dataset, create a $1\times 5$ grid of boxplots of *clarity vs price*, each one corresponding to the quality of the cut. Scale the y-axis by $\log_{10}$.
+
+```{r}
+ggplot(
+  data = diamonds,
+  mapping = aes(x = clarity, y = price)
+) + 
+  geom_boxplot(aes(color = cut)) + 
+  facet_wrap(~cut, nrow = 1) + 
+  scale_y_log10(labels = scales::dollar)
+```
+
+# facet_grid()
+
+The formula:
+
+-   "facet_grid(var1 ~ var2)" spread var1 across the rows and var2 across the columns
+-   "facet_grid(. ~ var)" spreads var across the columns. "facet_grid(var ~ .)" spreads var across rows.
+
+1.    In the mpg dataset, create a suitable grid of point plots of *engine displacement vs highway mileage*, and each point plot corresponds to a certain vehicle class and drive mode. Use color to differentiate the years made. 
+
+```{r}
+ggplot(
+  data = mpg,
+  mapping = aes(x = displ, y = hwy)
+) + 
+  geom_point(aes(color = as.factor(year)), size = 0.5) + 
+  facet_grid(class ~ drv)
+```
+
+2.    Insert the labels by putting "labeller = labeller(drv = drv_labs, class = class_labs)" into facet_grid()
+
+```{r}
+library(scales)
+drv_labs <- c("4" = "4 wheel drive", "f" = "Front wheel drive", "r" = "Rear wheel drive")
+class_labs <- c("2seater" = "Two seater", "compact" = "Compact, my money don't jiggle jiggle", "midsize" = "Mid-size", "minivan" = "Minivan", "pickup" = "Pickup Truck", "subcompact" = "Subcompact", "suv" = "SUV")
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = displ)
+) + 
+  geom_point(aes(color = as.factor(year)), size = 0.5) + 
+  facet_grid(
+    drv ~ class,
+    labeller = labeller(drv = as_labeller(drv_labs), 
+                        class = as_labeller(class_labs, label_wrap_gen(width = 10)) # 10 here is the character limit
+                        )
+    ) 
+
+```
+In the example above, the "label_wrap_gen()" function helps you wrap long texts according to the specified widths. 
+
+
+
+In facet_wrap() and facet_grid(), can control if
+position scales are the same in all panels (fixed) or allowed to
+vary between panels (free) with the scales parameter:
+
+-   scales = "fixed” : x and y scales fixed
+-   scales = "free_x” : x scale is free, y scale is fixed.
+-   scales = "free_y” : y scale is free, x scale is fixed.
+-   scales = "free” : x and y scales free.
+
+3.    Consider the economics_long dataset and create a grid of plots for each of the "variable" (dimension of your own choosing) of *date vs value* (so you get some kind of time-series). Which parameter should you free up? The title_labs is for your labeling convenience. 
+
+```{r}
+title_labs <- c(
+  pce = "Personal Consumption Expenditures (in $B)", 
+  pop = "Total population in thousands", 
+  psavert = "Personal savings rate", 
+  uempmed = "Median duration of unemployment, in weeks", 
+  unemploy = "Number of unemployed, in thousands"
+)
+
+ggplot(
+  data = economics_long,
+  mapping = aes(x = date, y = value)
+) + 
+  geom_line() + 
+  facet_wrap(
+    ~ variable,
+    labeller = labeller(variable = title_labs),
+    nrow = 2,
+    scales = "free_y", # free up y variable to make trends more transparent,
+  ) + 
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+4.    Consider joining the dataset oecd_le and gapminder by doing the following:
+
+```{r}
+library(tidyverse)
+oecd2 <- left_join(oecd_le, gapminder, by = "country")
+```
+
+Create a point plot where:
+
+-   each row is corresponds to a country, and the x-axis corresponds to the life expectancy
+-   all the countries in the same continent are grouped together
+-   set the scales and the space to the appropriate parameter (look up ?facet_grid())
+-   Anything to fix?
+
+
+
+
+5.    A time-series plot of flight delay for each airline using "stat_summary()". 
+
+```{r}
+library(nycflights13)
+flights$date <- ISOdate(flights$year, flights$month, flights$day)
+ggplot() + 
+  stat_summary(
+    fun = "mean",
+    geom = "line",
+    na.rm = T,
+    col = "blue"
+  )
+```
+
+Sort the airline by descending alphabetical order. Compare the average delay of the first five airlines vs the rest throughout a year. 
+
+```{r}
+
+```
+
+
+
+
+# Manually arranging plot
+
+```{r}
+library(patchwork)
+```
+
+
+Create 4 plots p1 -- p4 for the mpg dataset:
+
+1.  p1 is a scatter plot with engine displacement vs highway
+2.  p2 is a bar chart with year vs drv
+3.  p3 is a multipanel density plot of highway mpg according to drv
+4.  p4 is given below:
+
+```{r}
+p1 <- ggplot(mpg) + geom_point(aes(x = displ, y = hwy))
+p1
+```
+
+```{r}
+p2 <- ggplot(mpg) + geom_bar(aes(
+  x = as.factor(year),
+  fill = drv
+), position = "dodge") + labs(x = "year")
+
+p2
+```
+
+```{r}
+p3 <- ggplot(mpg) + geom_density(
+  aes(x = hwy, fill = drv), color = NA
+) + facet_wrap(~drv, ncol = 1)
+p3
+```
+
+
+```{r}
+p4 <- ggplot(mpg) + 
+  stat_summary(
+    aes(x = drv, y = hwy, fill = drv),
+    geom= "col",
+    fun.data = mean_se
+    ) + 
+  stat_summary(
+    aes(x = drv, y = hwy),
+    geom = "errorbar",
+    fun.data = mean_se,
+    width = 0.3
+  )
+p4
+```
+
+Try the following
+
+```{r}
+p1 + p2 + p3 + p4
+```
+
+-   You can use plot_layout() to manually arrange the plots.
+
+```{r}
+p1 + p2 + p3 + plot_layout(ncol = 2)
+```
+
+-   You can use | or / to force a single row or a single column, respectively:
+
+```{r}
+(p1 | p2) / (p3|p4)
+```
+
+-   You can use more complex layout:
+
+```{r}
+p1 + p2 + p3 + p4 + plot_layout(widths = c(5,2))
+```
+or design your own. 
+```{r}
+layout <- "
+AABBB
+C#BBB
+C##DD
+"
+p1 + p2 + p3 + p4 + 
+  plot_layout(
+  design = layout,
+  guides = "collect"
+  )
+
+```
+
+```{r}
+layout <- c(
+  area(t = 2, l = 1, b = 5, r = 4),
+  area(t = 1, l = 3, b = 3, r = 5)
+)
+p1 + p2 +
+  plot_layout(design = layout)
+```
+
+
+-   You can use guides = "collect" in plot_layout() to remove redundant legends:
+
+```{r}
+p1 + p2 + p3 + plot_layout(ncol = 2, guides = "collect")
+
+# p1 + p2 + p3 + guide_area() + plot_layout(ncol = 2, guides = "collect")
+```
+
+-   You can also join the plots (just like in powerpoint) to modify them collectively:
+
+```{r}
+p12 <- p1 + p2
+```
+
+To update each individual component:
+```{r}
+p12[[2]] <- p12[[2]] + theme_void()
+```
+
+You can use "&" to modify all plots
+
+```{r}
+# p1 + p4 & theme_void()
+
+p_y_scale <- p1 + p4 & scale_y_continuous(limits = c(0,50))
+p_y_scale
+```
+
+To summarize: patchwork shows mutiple plots side-by-side to tell a compelling story. After assemply, plots become a single object and anotation works on the whole figure:
+
+```{r}
+p34 <- p3 + p4 + plot_annotation(
+  title= " A closer look at the effect of drve train in cars",
+  caption = "Source: mpg dataset in ggplot2"
+)
+p34
+```
+
+-   Take a closer look at plot_annotation().
+
+
+# Plots within plots
+
+The star here is the inset_element() function. 
+
+```{r}
+p1 + inset_element(
+  p2, 
+  left = 0.5,
+  bottom = 0.4,
+  right = 0.9,
+  top = 0.95
+)
+```
+
+
+
+
