@@ -318,5 +318,111 @@ p1 + inset_element(
 ```
 
 
+# Pairs Plots
+
+“Pairs plots” are a convenient way to plot the relationships between multiple data dimensions.
+
+-   Think of them as multidimensional scatterplots
+-   Base *R* produces OK pairs plots (quick and dirty but...)
+-   Shine with **ggplot2**
+
+
+## Fisher's or Anderson's Iris data using Base R
+
+From R: “This famous (Fisher’s or Anderson’s) iris data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.”
+
+```{r}
+X <- iris3
+```
+
+Take a look at iris3. What's its dimension. How to interpret read the entries?
+
+1.  Suppose you want to create a dataframe/tibble called X_setosa that contains all the observations about the Setosa sepcies. What would you do?
+
+```{r}
+X_setosa <- X[,,1] #selecting every row and every column from the first slice
+```
+
+
+2.    How would you interpret the output?
+
+```{r}
+pairs(X_setosa)
+```
+
+
+3.    Recall rbind(). Create a dataframe called X_iris3 that includes all of the sepal and petal information for all species. Create a pairs plot. What do you notice about the (i,j)-th and the (j,i)-th grid?
+
+```{r}
+X_iris3 <- rbind(X[,,1], X[,,2], X[,,3])
+pairs(X_iris3, 
+      lower.panel = panel.smooth,
+      upper.panel = NULL,
+      lwd = 3
+      )
+```
+
+4.    That means you have some extra room to insert more information. Try each of the following lines. 
+
+```{r}
+pairs(X_iris3, lower.panel = panel.smooth, lwd = 2, color = "blue")
+pairs(X_iris3, lower.panel = panel.smooth, lwd = 2, color = "blue", upper.panel = NULL, main = "Iris Data")
+pairs(X_iris3, col=c(rep(1,50),rep(2,50),rep(4,50)), main = "Iris Data")
+```
+
+```{r}
+pairs(X_iris3, 
+      col=c(rep(2,50),rep(3,50),rep(4,50)), 
+      lower.panel = panel.smooth, lwd = 2,
+      upper.panel = NULL,
+      main = "Iris Data")
+```
+
+## Better plots using *GGally* package
+
+```{r}
+library(GGally)
+```
+
+
+1.    First we need to create a dataframe. Start with the following. What's missing after running the following line of code? How to fix it?
+
+```{r}
+df <- data.frame(X_iris3) # the species information is missing
+df <- df |> mutate(
+  species = c(
+    rep("Setosa",50),
+    rep("Versicolor",50),
+    rep("Virginica" ,50)
+  )
+)
+```
+
+
+2.    Try the following.
+
+```{r}
+ggpairs(df)
+```
+
+3.    We can make things prettier. Modify the following block of code so that color corresponds to the species, tune the parameters (the syntax for ggpairs is the same as ggplot for all the basic layers).
+
+```{r}
+ggpairs(df, 
+        columns = 1:4, # ignore the species column
+        aes(color = species),
+        upper = list(continuous = wrap("cor", size = 2.5)), # upper right corner
+        lower = list(continuous = wrap("points", size = 1.0)), # lower left corner
+        diag = list(continuous = wrap("densityDiag", alpha = 0.5)), # diagonal
+        title = "Pairs Plot of Iris Data",
+        )
+```
+
+
+3.    Pairs-plot columns (1,2,3,5) and see what you get:
+
+```{r}
+
+```
 
 
