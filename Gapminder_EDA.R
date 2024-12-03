@@ -4,6 +4,11 @@ library(ggplot2)
 library(tidyverse)
 
 
+# the plotly library is for interactivity with the plots
+library(plotly) 
+
+
+
 ui <- fluidPage(
   
   titlePanel("Gapminder Dataset EDA Example App"),
@@ -91,7 +96,7 @@ ui <- fluidPage(
                     "LOESS" = "loess", 
                     "Generalized Additive Model" = "gam", 
                     "None" = "none"),
-        selected = "gam"
+        selected = "lm"
       ),
       
       
@@ -103,7 +108,7 @@ ui <- fluidPage(
     # display the plot and some statistics using summary()
     
     mainPanel(
-      fluidRow(h3("ScatterPlot Visualization"), plotOutput("scatterPlot")),
+      fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
       fluidRow(
         # half of the column for data summary
         column(6, h3("Data Summary"), verbatimTextOutput("dataSummary")),
@@ -145,7 +150,8 @@ server <- function(input, output, session) {
   
   
   # plot rending
-  output$scatterPlot <- renderPlot({
+  # renderPlot is now renderPlotly
+  output$scatterPlot <- renderPlotly({
     
     # code goes here
     
@@ -155,9 +161,10 @@ server <- function(input, output, session) {
                  aes(
                    x = .data[[input$x_var]], # .data is the placeholder in the pipeline
                    y = .data[[input$y_var]],
-                   color = continent
+                   color = continent,
+                   size = pop,
                  )) + 
-      geom_point(aes(size = pop), alpha = 0.3) + 
+      geom_point(aes(text = paste("Country:", country)), alpha = 0.3) + 
       labs(
         x = dyna_labels[[input$x_var]],
         y = dyna_labels[[input$y_var]],
@@ -174,12 +181,32 @@ server <- function(input, output, session) {
     # conditional structure for regression model
     if (input$regression) {gg <- gg + stat_smooth(
       se = input$std_err,
-      method = input$reg_model
+      method = input$reg_model,
+      size = 0.8,
     )}
     
     
-    gg
+    # this converts a ggplot to ggplotly
+    # the tooltip displays the text aesthetics (country name)
+    # along with the x and y aesthetics being plotted
+    ggplotly(gg, tooltip = c("text","x","y"))
+    
+    
+    
+    
   })
+  
+  
+  
+  
+  
+  
+  
+  
+  ## the statistics output for the plot
+  # one for data summary
+  # the other one for regression statitistcs
+  
   
   output$dataSummary <- renderPrint({
     
@@ -190,9 +217,9 @@ server <- function(input, output, session) {
   })
   
   
+  
   # code for regression statistics for geom_smooth
   output$dataStat <- renderPrint({
-    
     data <- filtered_data()
     
     # Check if smoothing method is "none"
@@ -200,31 +227,53 @@ server <- function(input, output, session) {
       return("No smoothing model applied.")
     }
     
-    # Dynamically fit the model based on the selected method
+    # Fit the model based on the selected method
     model_formula <- as.formula(paste(input$y_var, "~", input$x_var))
     
-    # Fit and summarize based on the method
-    if (input$reg_model == "lm") {
-      # Linear model
-      model <- lm(model_formula, data = data)
-      return(summary(model))
-    } else if (input$reg_model == "loess") {
-      # LOESS model
-      model <- loess(model_formula, data = data)
-      return(list(
-        "LOESS Model Summary" = summary(model),
-        "Smoothing Parameters" = model$span
-      ))
-    } else if (input$reg_model == "gam") {
-      # GAM model 
-      library(mgcv) # this requires the mgcv package
-      model <- gam(model_formula, data = data)
-      return(summary(model))
-    } else {
-      return("Unsupported smoothing method.")
+    
+    results <- data |>
+      group_by(continent) |>  # Group by continent first
+      group_map(~ {
+        df <- .
+        continent_name <- unique(df$continent)
+        
+        if (input$reg_model == "lm") {
+          model <- lm(model_formula, data = df)
+          list(
+            Continent = continent_name,
+            Summary = summary(model)
+          )
+        } else if (input$reg_model == "loess") {
+          model <- loess(model_formula, data = df)
+          list(
+            Continent = continent_name,
+            Summary = list(
+              "LOESS Model Summary" = summary(model),
+              "Smoothing Parameters" = model$span
+            )
+          )
+        } else if (input$reg_model == "gam") {
+          library(mgcv) # GAM models require mgcv package
+          model <- gam(model_formula, data = df)
+          list(
+            Continent = continent_name,
+            Summary = summary(model)
+          )
+        } else {
+          list(
+            Continent = continent_name,
+            Summary = "Unsupported smoothing method."
+          )
+        }
+      })
+    
+    # Printing the result
+    for (result in results) {
+      continent_name <- result$Continent
+      cat("Continent:", continent_name, "\n")
+      print(result$Summary)
+      cat("\n-----------------------------\n")
     }
-    
-    
   })
   
 }
