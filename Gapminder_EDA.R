@@ -111,9 +111,9 @@ ui <- fluidPage(
       fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
       fluidRow(
         # half of the column for data summary
-        column(6, h3("Data Summary"), verbatimTextOutput("dataSummary")),
+        column(5, h3("Data Summary"), verbatimTextOutput("dataSummary")),
         # the other half for regression statistics
-        column(6, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
+        column(7, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
       )
       
     )
@@ -162,9 +162,8 @@ server <- function(input, output, session) {
                    x = .data[[input$x_var]], # .data is the placeholder in the pipeline
                    y = .data[[input$y_var]],
                    color = continent,
-                   size = pop,
                  )) + 
-      geom_point(aes(text = paste("Country:", country)), alpha = 0.3) + 
+      geom_point(aes(size = pop, text = paste("Country:", country)), alpha = 0.3) + 
       labs(
         x = dyna_labels[[input$x_var]],
         y = dyna_labels[[input$y_var]],
@@ -205,13 +204,11 @@ server <- function(input, output, session) {
   
   ## the statistics output for the plot
   # one for data summary
-  # the other one for regression statitistcs
+  # the other one for regression statistics
   
   
+  # data summary for life exp, pop, and gdppercap
   output$dataSummary <- renderPrint({
-    
-    # code goes here
-    
     data <- filtered_data()
     data |> select(lifeExp, pop, gdpPercap) |> summary()
   })
@@ -223,9 +220,9 @@ server <- function(input, output, session) {
     data <- filtered_data()
     
     # Check if smoothing method is "none"
-    if (input$reg_model == "none") {
-      return("No smoothing model applied.")
-    }
+    if (input$reg_model == "none" | input$regression == FALSE) {
+      cat("No smoothing model applied.")
+    } else {
     
     # Fit the model based on the selected method
     model_formula <- as.formula(paste(input$y_var, "~", input$x_var))
@@ -235,18 +232,15 @@ server <- function(input, output, session) {
       group_by(continent) |>  # Group by continent first
       group_map(~ {
         df <- .
-        continent_name <- unique(df$continent)
         
         if (input$reg_model == "lm") {
           model <- lm(model_formula, data = df)
           list(
-            Continent = continent_name,
             Summary = summary(model)
           )
         } else if (input$reg_model == "loess") {
           model <- loess(model_formula, data = df)
           list(
-            Continent = continent_name,
             Summary = list(
               "LOESS Model Summary" = summary(model),
               "Smoothing Parameters" = model$span
@@ -256,24 +250,30 @@ server <- function(input, output, session) {
           library(mgcv) # GAM models require mgcv package
           model <- gam(model_formula, data = df)
           list(
-            Continent = continent_name,
             Summary = summary(model)
           )
         } else {
           list(
-            Continent = continent_name,
-            Summary = "Unsupported smoothing method."
+            Summary = "Unsupported regression model."
           )
         }
+        
+        
       })
     
     # Printing the result
+    i = 0 # a counter for continent
     for (result in results) {
-      continent_name <- result$Continent
+      i <- i + 1
+      continent_name <- unique(as.character(data$continent))[i]
       cat("Continent:", continent_name, "\n")
       print(result$Summary)
       cat("\n-----------------------------\n")
     }
+    
+    
+    }
+    
   })
   
 }
