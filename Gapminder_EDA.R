@@ -119,7 +119,12 @@ ui <- fluidPage(
                
                fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
                
-               fluidRow(h3("Data Summary"), verbatimTextOutput("dataSummary"))
+               fluidRow(
+                 
+                 column(8,h3("Data Summary"), verbatimTextOutput("dataSummary")),
+                 column(4,h3("P-value"), verbatimTextOutput("pValueOutput"))
+                 
+               )
                
                
                ),
@@ -223,9 +228,11 @@ server <- function(input, output, session) {
   
   
   
+  
+  
+  
   ## the statistics output for the plot
-  # one for data summary
-  # the other one for regression statistics
+  
   
   
   # data summary for life exp, pop, and gdppercap
@@ -295,6 +302,25 @@ server <- function(input, output, session) {
     
     }
     
+  })
+  
+  
+  
+  ## p values for the regression
+  output$pValueOutput <- renderPrint({
+    data <- filtered_data()
+    
+    # Ensure regression model and data are valid for computation
+    if (input$reg_model == "none" | input$regression == FALSE) {
+      cat("No regression model applied.")
+    } else {
+      model_formula <- as.formula(paste(input$y_var, "~", input$x_var))
+      model <- lm(model_formula, data = data) # Using linear model for demonstration
+      
+      # Extract p-value from model summary
+      p_value <- summary(model)$coefficients[2, 4] # p-value for the slope
+      cat(p_value)
+    }
   })
   
 }
