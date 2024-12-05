@@ -19,6 +19,9 @@ ui <- fluidPage(
     # sidebar for variable selections
     sidebarPanel(
       
+      # specify the width
+      width = 2,
+      
       # header for the sidebar
       h3("Variable Selections"),
       
@@ -108,13 +111,31 @@ ui <- fluidPage(
     # display the plot and some statistics using summary()
     
     mainPanel(
-      fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
+      
+      
       fluidRow(
-        # half of the column for data summary
-        column(5, h3("Data Summary"), verbatimTextOutput("dataSummary")),
-        # the other half for regression statistics
-        column(7, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
-      )
+        
+        column(8, 
+               
+               fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
+               
+               fluidRow(h3("Data Summary"), verbatimTextOutput("dataSummary"))
+               
+               
+               ),
+        
+        column(4, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
+        
+        
+        ),
+      
+      
+      # fluidRow(
+      #   # half of the column for data summary
+      #   column(5, h3("Data Summary"), verbatimTextOutput("dataSummary")),
+      #   # the other half for regression statistics
+      #   # column(7, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
+      # )
       
     )
     
