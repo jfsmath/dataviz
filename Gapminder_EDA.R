@@ -311,11 +311,35 @@ server <- function(input, output, session) {
       cat("No regression model applied.")
     } else {
       model_formula <- as.formula(paste(input$y_var, "~", input$x_var))
-      model <- lm(model_formula, data = data) # Using linear model for demonstration
       
-      # Extract p-value from model summary
-      p_value <- summary(model)$coefficients[2, 4] # p-value for the slope
-      cat(p_value)
+      # Group data by continent and compute p-values for each group
+      results <- data |>
+        group_by(continent) |>
+        group_map(~ {
+          df <- .
+          if (nrow(df) < 2) {
+            return("Insufficient data for regression")
+          }
+          
+          tryCatch({
+            model <- lm(model_formula, data = df)
+            p_value <- summary(model)$coefficients[2, 4] # p-value for the slope
+            list(continent = unique(df$continent), p_value = p_value)
+          }, error = function(e) {
+            list(continent = unique(df$continent), p_value = NA)
+          })
+        })
+      
+      # Display results
+      i = 0
+      for (result in results) {
+        i <- i + 1
+        continent_name <- unique(as.character(data$continent))[i]
+        p_value <- result$p_value
+        cat("Continent:", continent_name, "\n")
+        cat("P-value:", ifelse(is.na(p_value), "Error/Insufficient Data", format(p_value, digits = 3)), "\n")
+        cat("\n-------------------\n")
+      }
     }
   })
   
