@@ -115,21 +115,21 @@ ui <- fluidPage(
       
       fluidRow(
         
-        column(8, 
+        column(7, 
                
                fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
                
                fluidRow(
                  
                  column(8,h3("Data Summary"), verbatimTextOutput("dataSummary")),
-                 column(4,h3("P-value"), verbatimTextOutput("pValueOutput"))
+                 column(4,h3("P-value for\n Regression"), verbatimTextOutput("pValueOutput"))
                  
                )
                
                
                ),
         
-        column(4, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
+        column(5, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
         
         
         ),
@@ -141,12 +141,8 @@ ui <- fluidPage(
       #   # the other half for regression statistics
       #   # column(7, h3("Regression Statistics"), verbatimTextOutput("dataStat"))
       # )
-      
     )
-    
-    
   )
-  
 )
 
 
