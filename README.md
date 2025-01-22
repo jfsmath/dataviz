@@ -2,7 +2,7 @@ This is a (hopefully) evolving set of markdown files for data visualization in R
 Resources that I used:
 
   -  Vince Lyzinski's notes: https://www.math.umd.edu/~vlyzinsk/
-  -  https://socviz.co/
-  -  https://r4ds.hadley.nz/
-  -  https://ggplot2-book.org/
-  -  https://mastering-shiny.org/index.html
+  -  Data Visualization - A practical introduction: https://socviz.co/
+  -  R for Data Science (2e) - https://r4ds.hadley.nz/
+  -  ggplot2: Elegant Graphics for Data Analysis (3e) - https://ggplot2-book.org/
+  -  Mastering Shiny - https://mastering-shiny.org/index.html
