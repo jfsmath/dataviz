@@ -121,8 +121,7 @@ ui <- fluidPage(
                
                fluidRow(
                  
-                 column(8,h3("Data Summary"), verbatimTextOutput("dataSummary")),
-                 column(4,h3("P-value"), verbatimTextOutput("pValueOutput"))
+                 column(8,h3("Data Summary"), verbatimTextOutput("dataSummary"))
                  
                )
                
