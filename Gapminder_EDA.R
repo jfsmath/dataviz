@@ -43,6 +43,8 @@ ui <- fluidPage(
         selected = unique(gapminder$continent) # default selection
       ),
       
+      
+      
       # Year Range Selection
       # consider the min() and max() functions
       # this will produce c(min, max)
@@ -90,6 +92,9 @@ ui <- fluidPage(
         column(5, checkboxInput("std_err", "Plot standard error", FALSE)),
       ),
       
+      # a checkbox for grouping the continent
+      checkboxInput("group_continent", "Group by Continents", FALSE),
+      
       # a dropdown for choosing regression model
       # Dropdown for selecting regression model
       selectInput(
@@ -99,7 +104,7 @@ ui <- fluidPage(
                     "LOESS" = "loess", 
                     "Generalized Additive Model" = "gam", 
                     "None" = "none"),
-        selected = "lm"
+        selected = "gam"
       ),
       
       
@@ -117,11 +122,11 @@ ui <- fluidPage(
         
         column(8, 
                
-               fluidRow(h3("ScatterPlot Visualization"), plotlyOutput("scatterPlot")),
+               fluidRow(h3("ScatterPlot Visualization"), plotOutput("scatterPlot")),
                
                fluidRow(
                  
-                 column(8,h3("Data Summary"), verbatimTextOutput("dataSummary"))
+                 h3("Data Summary"), verbatimTextOutput("dataSummary"),
                  
                )
                
@@ -176,25 +181,39 @@ server <- function(input, output, session) {
   
   # plot rending
   # renderPlot is now renderPlotly
-  output$scatterPlot <- renderPlotly({
+  output$scatterPlot <- renderPlot({
     
     # code goes here
     
     data <- filtered_data()
     
-    gg <- ggplot(data,
-                 aes(
-                   x = .data[[input$x_var]], # .data is the placeholder in the pipeline
-                   y = .data[[input$y_var]],
-                   color = continent,
-                 )) + 
+    
+    # conditional structure for grouping the continents or not
+    # will affect the smoothing models
+    if (input$group_continent == TRUE) {
+      gg <- ggplot(data,
+                   aes(
+                     x = .data[[input$x_var]], # .data is the placeholder in the pipeline
+                     y = .data[[input$y_var]],
+                     color = continent,
+                   )) + 
+        labs(color = "Continents")
+    }
+    else {
+      gg <- ggplot(data,
+                   aes(
+                     x = .data[[input$x_var]], 
+                     y = .data[[input$y_var]],
+                   )) 
+    }
+    
+    gg <- gg +  
       geom_point(aes(size = pop, text = paste("Country:", country)), alpha = 0.3) + 
       labs(
         x = dyna_labels[[input$x_var]],
         y = dyna_labels[[input$y_var]],
         title = "Gapminder Data Visualization",
         caption = "Source: gapminder dataset",
-        color = "Continents",
         size = "Population"
       ) + 
       theme_bw()
@@ -213,21 +232,14 @@ server <- function(input, output, session) {
     # this converts a ggplot to ggplotly
     # the tooltip displays the text aesthetics (country name)
     # along with the x and y aesthetics being plotted
-    ggplotly(gg, tooltip = c("text","x","y"))
+    # ggplotly(gg, tooltip = c("text","x","y"))
     
-    
+    gg
     
     
   })
   
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   
   ## the statistics output for the plot
