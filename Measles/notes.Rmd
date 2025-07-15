@@ -1,0 +1,141 @@
+---
+title: "Measles"
+author: "Fushuai Jiang"
+date: "2025-05-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(ggplot2)
+library(tidyverse)
+library(sf)
+library(readr)
+library(leaflet)
+library(gridExtra)
+library(patchwork)
+```
+
+
+
+## Loading data
+```{r}
+
+path = "C:/Users/black/Documents/GitHub/dataviz/Measles"
+setwd(path)
+remove(path)
+
+measles_state <- read_csv('measles_by_state.csv') 
+measles_year <- read_csv('measles_by_year.csv')
+measles_week <- read_csv('measles_by_week.csv')
+vaccine_state <- read_csv('vaccine_by_state.csv')
+```
+
+## Cleaning the dataset
+
+
+
+- The "measles_by_year" dataset has a column named "filered_by..." and it is not relevant to us
+
+- We want to add a single "week" column to "measles_by_week" for plotting purpose, and we set it to be the start of the week. We also want to change the variable type from chr to date using the function "as.Date()"
+
+- The "measles_by_state" dataset has a column named "cases_range", which are stored as characters. We would like to create a new column taking a numeric value representing the range, say the average or the max. 
+
+- The percentage in vaccine dataset is stored as character so we need to change it into numerics
+
+
+```{r}
+# remove the "filtered by..." columns since it is irrelevant
+measles_year$filter <- NULL 
+
+# adding a single "week" column
+# changing the data type from chr to date
+measles_week <- measles_week |> mutate(week = week_start) |> select(week, everything())
+measles_week$week <- as.Date(measles_week$week)
+
+
+# cleaning the measles_by_state data
+# we are choosing the max except for 250+
+temp <- rep(0, length(measles_state$cases_range))
+temp[measles_state$cases_range == "0"] <- 0
+temp[measles_state$cases_range == "1-9"] <- 9
+temp[measles_state$cases_range == "10-49"] <- 49
+temp[measles_state$cases_range == "50-99"] <- 99
+temp[measles_state$cases_range == "250+"] <- 250
+
+measles_state <- measles_state |> mutate(case_num = temp)
+remove(temp)
+
+# cleaning the vaccine_by_state data
+vaccine_state$estimate_pct <- as.numeric(gsub("%","", vaccine_state$estimate_pct))
+
+```
+
+Time series plot for measles cases
+
+```{r}
+measles_week_plot <- ggplot(measles_week, aes(x = week, y = cases)) + 
+  geom_line() + 
+  labs(
+    x = "Date",
+    y = "Cases",
+    title = "Measles Cases Since 2023",
+    caption = "Source: CDC"
+  ) + 
+  geom_vline(xintercept = as.Date("2025-01-20"), color = 'red', linewidth = 1.2) + 
+  theme_bw()
+measles_week_plot
+```
+
+
+## Preparation for geospatial data
+
+```{r}
+
+us_states <- map_data('state')
+
+measles_state <- measles_state |> mutate(region = tolower(geography))
+measles_map <- left_join(us_states, measles_state, by = 'region', relationship = "many-to-many")
+
+
+vaccine_state <- vaccine_state |> mutate(region = tolower(geography))
+
+
+vacc_map <- left_join(us_states, vaccine_state, by = "region", relationship = "many-to-many")
+
+```
+
+
+
+## Visualizting infection rates and vaccination by states
+
+```{r}
+plot_measles <- plot_vaccine <- ggplot(measles_map |> filter(year == "2025"), aes(x = long, y = lat, group = group, fill = case_num)) +
+  geom_polygon(color = "darkgrey") +
+  coord_fixed(1.3) +
+  scale_fill_gradient(name = "Measles Cases", high = "red", low = "white") +
+  labs(
+    x = "Longitude",
+    y = "Latitude",
+    title = "Measles Cases by State",
+    caption = "Source: CDC"
+    ) + 
+  theme_minimal()
+
+
+plot_vaccine <- ggplot(vacc_map, aes(x = long, y = lat, group = group, fill = estimate_pct)) +
+  geom_polygon(color = "darkgrey") +
+  coord_fixed(1.3) +
+  scale_fill_gradient(name = "Vaccination Rate (%)", high = "green", low = "red") +
+  labs(
+    x = "Longitude",
+    y = "Latitude",
+    title = "Vaccination Rates by State",
+    caption = "Source: CDC"
+    ) + 
+  theme_minimal()
+
+ggsave("cases_vs_vaccine.png", plot = plot_measles + plot_vaccine, width = 18, height = 8, dpi = 300)
+```
+
