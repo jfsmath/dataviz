@@ -1,0 +1,512 @@
+---
+title: "Weather Data"
+author: "Fushuai Jiang"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+Notes for real-time visualizing weather data for the Four-Corner neighborhood MD 20901. 
+
+
+```{r setup, include = FALSE}
+
+# Global options for chunks
+# echo set to TRUE so all codes are displayed unless specified otherwise
+knitr::opts_chunk$set(echo = TRUE)
+
+library(httr)
+library(jsonlite)
+library(lubridate)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+```
+
+# Loading the weather data
+
+First, we load the data from Open-Meteo from <https://api.open-meteo.com/v1/forecast>.The data is open-sourced so no api key is needed. 
+
+```{r data loading}
+# Define URL and parameters
+url <- "https://api.open-meteo.com/v1/forecast"
+
+params <- list(
+  latitude = 39.02,
+  longitude = 77.01,
+  hourly = "temperature_2m,relative_humidity_2m,rain,visibility,wind_speed_10m", # we select variables including temperature, humidity, rainfall, visibility, and windspeed. Make sure there is no space between the variable names
+  current = "temperature_2m,relative_humidity_2m,rain",
+  timezone = "America/New_York",
+  past_days = 7,
+  wind_speed_unit = "mph",
+  temperature_unit = "fahrenheit",
+  precipitation_unit = "inch"
+)
+
+response <- GET(url, query = params)
+
+# Parse JSON content
+weather_data <- fromJSON(content(response, "text"))
+
+# Convert hourly data into a dataframe
+hourly_data <- weather_data$hourly
+df <- as.data.frame(hourly_data)
+df$time <- ymd_hm(df$time, tz = "America/New_York")
+
+# Convert current data into a dataframe
+df_current <- as.data.frame(weather_data$current)
+df_current$time <- ymd_hm(df_current$time, tz = "America/New_York")
+```
+
+We can also save the dataset locally, with the date including in its name. 
+
+```{r}
+
+today_str <- format(Sys.Date(), "%Y%m%d")
+write.csv(df, file = paste0("weather_data_prediction", today_str,".csv"), row.names = FALSE)
+write.csv(df_current, file = paste0("weather_data_today", today_str,".csv"), row.names = FALSE)
+message("Data saved locally.")
+
+```
+
+
+A quick look at the weather_data.
+
+```{r data quick view}
+str(df)
+slice_sample(df, n = 20)
+```
+
+
+
+# Temperature visualization
+
+```{r temperature viz}
+
+
+# Plot the temperature
+g_temp <- ggplot(df, aes(x = time, y = temperature_2m)) + 
+  geom_line(linewidth=0.5, linetype = 1, color = "steelblue") + 
+  geom_smooth(color = "darkgreen") + 
+  geom_point(data = df_current, shape = 17, size = 5, color = "red") + 
+  geom_text(data = df_current, 
+            aes(
+              x = time, 
+              y = temperature_2m, 
+              label = paste0("Now: ", round(temperature_2m, 1), "°F")
+              ),
+            vjust = -1, color = "red", fontface = "bold") +
+  scale_x_datetime(
+    date_breaks = "1 day"
+  ) +
+  labs(
+    title = "Temperature in Four Corners (+/- 7 days)",
+    x = "Time and Date", 
+    y = "Temperature (Fahrenheit)",
+    caption = "Source: Open-Meteo weather data"
+    ) + 
+  theme_bw() + 
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+g_temp
+
+```
+# Humidinity visualization
+
+```{r humidity viz}
+
+# Plot the temperature
+g_humid <- ggplot(df, aes(x = time, y = relative_humidity_2m)) + 
+  geom_line(linewidth=0.5, linetype = 1, color = "steelblue") + 
+  geom_smooth(color = "darkgreen") + 
+  geom_point(data = df_current, shape = 17, size = 5, color = "red") + 
+  geom_text(data = df_current, 
+            aes(x = time, y = relative_humidity_2m, 
+                label = paste0("Now: ", round(relative_humidity_2m, 1), "%")),
+            vjust = -1, color = "red", fontface = "bold") +
+  labs(
+    title = "Relative Humidity in Four Corners (+/- 7 days)",
+    x = "Time and Date", 
+    y = "Temperature (Fahrenheit)",
+    caption = "Source: Open-Meteo weather data"
+    ) + 
+  theme_bw()
+g_humid
+
+```
+
+# Overlay temperature and humidity
+
+
+```{r}
+# Compute scaling factor to align the two y-axes visually
+# E.g., if temp ~ 70°F and humidity ~ 50%, scale humidity to same range
+# range_temp <- range(df$temperature_2m, na.rm = TRUE)
+# range_humidity <- range(df$relative_humidity_2m, na.rm = TRUE)
+
+range_temp <- c(60,100)
+range_humidity <- range(0,100)
+
+scale_factor <- diff(range_temp) / diff(range_humidity)
+# scale_factor <- 50/100
+
+# Build plot
+g_temp_vs_humid <- ggplot(df, aes(x = time)) +
+  # Temperature line
+  geom_line(aes(y = temperature_2m, color = "temp_color"), size = 0.8) +
+  # Humidity line, scaled to match temp range
+  geom_line(aes(y = relative_humidity_2m * scale_factor + min(range_temp), color = "humid_color"), size = 0.8, linetype = 4) +
+  
+  # Primary y-axis for temperature
+  scale_y_continuous(
+    name = "Temperature (F)",
+    limits = range_temp,
+    # Secondary y-axis: rescale back to humidity
+    sec.axis = sec_axis(~ (. - (min(range_temp)))/scale_factor, 
+                        name = "Humidity (%)", 
+                        breaks = seq(0,100,20)
+                        )
+  ) +
+  scale_x_datetime(
+    date_breaks = "1 day"
+  ) + 
+  # Colors
+  scale_color_manual(values = c("temp_color" = "firebrick", 
+                                "humid_color" = "darkgreen")) +
+  
+  labs(
+    title = "Temperature and Humidity in Four Corners MD 20901 (+/- Days)",
+    x = "Time", 
+    color = "", 
+    caption = "Source: Open-Meteo https://api.open-meteo.com") +
+  theme_minimal() +
+  theme(
+    axis.title.y.left = element_text(color = "firebrick"),
+    axis.text.y.left = element_text(color = "firebrick"),
+    axis.title.y.right = element_text(color = "darkgreen"),
+    axis.text.y.right = element_text(color = "darkgreen"),
+    legend.position = "top",
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+g_temp_vs_humid
+```
+We see a potential negative correlation between temperature and relative humidity. A further look into the correlation factor confirms this. 
+
+```{r}
+corr_temp_humid <- cor(df$temperature_2m,df$relative_humidity_2m)
+cat(paste0("The correlation factor between temperature and the relative humidity is ", round(corr_temp_humid, 2), ".\n"))
+```
+
+Here, we also showcase the in-line code mode of Rmarkdown, where R code can be embedded. For instance, the correlation computed above was `r cor(df$temperature_2m,df$relative_humidity_2m)`. 
+
+
+
+# Rain and Wind
+
+We now take a look at the wind data. 
+
+```{r}
+
+g_storm <- ggplot(df, aes(x = time)) + 
+  geom_col(aes(x = time, y = wind_speed_10m), fill = "blue") + 
+  scale_x_datetime(
+    date_breaks = "1 day"
+  ) + 
+  labs(
+    y = "Wind Speed (mph)",
+    x = "Time & Date",
+    caption = "Source: Open-Meteo",
+    title = "Wind Speed in Four Corners MD 20901 +/-7 days"
+  )+ 
+  theme_solarized() + 
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+g_storm
+
+```
+After examing the correlation between wind speed and other variables, we see that wind speed is the most (negatively) correlated with the relative humidity with a correlation factor of `r cor(df$wind_speed_10m,df$relative_humidity_2m)`, so let's overlay the plot.
+
+```{r, include = FALSE}
+
+cor(df$wind_speed_10m, df$temperature_2m)
+cor(df$wind_speed_10m,df$rain)
+cor(df$wind_speed_10m,df$relative_humidity_2m)
+```
+
+
+```{r}
+# Compute scaling factor to align the two y-axes visually
+# E.g., if temp ~ 70°F and humidity ~ 50%, scale humidity to same range
+# range_temp <- range(df$temperature_2m, na.rm = TRUE)
+# range_humidity <- range(df$relative_humidity_2m, na.rm = TRUE)
+
+range_wind <- c(0,20)
+range_humidity <- range(0,100)
+
+scale_factor <- diff(range_wind) / diff(range_humidity)
+# scale_factor <- 50/100
+
+# Build plot
+g_wind_vs_humid <- ggplot(df, aes(x = time)) +
+  # Temperature line
+  geom_line(aes(y = wind_speed_10m, color = "Wind Speed"), size = 0.8) +
+  # Humidity line, scaled to match temp range
+  geom_line(aes(y = relative_humidity_2m * scale_factor + min(range_wind), color = "Humidity"), size = 0.8, linetype = 4) +
+  
+  # Primary y-axis for temperature
+  scale_y_continuous(
+    name = "Wind Speed (mph)",
+    limits = range_wind,
+    # Secondary y-axis: rescale back to humidity
+    sec.axis = sec_axis(~ (. - (min(range_wind)))/scale_factor, 
+                        name = "Humidity (%)", 
+                        breaks = seq(0,100,20)
+                        )
+  ) +
+  scale_x_datetime(
+    date_breaks = "1 day"
+  ) + 
+  scale_color_manual(
+    values = c(
+      "Wind Speed" = "blue",
+      "Humidity" = "darkgreen"
+    )
+  ) + 
+  labs(
+    title = "Wind Speed and Humidity in Four Corners MD 20901 (+/- 7 Days)",
+    x = "Date/Time", 
+    color = "", 
+    caption = "Source: Open-Meteo https://api.open-meteo.com") +
+  theme_minimal() +
+  theme(
+    axis.title.y.left = element_text(color = "blue"),
+    axis.text.y.left = element_text(color = "blue"),
+    axis.title.y.right = element_text(color = "darkgreen"),
+    axis.text.y.right = element_text(color = "darkgreen"),
+    legend.position = "top",
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  )
+
+g_wind_vs_humid
+```
+
+
+# Data transformation
+
+Suppose we want to visualize the temperature differently. Instead of a curve showing daily oscillation, we want a bar for each day showing the max and the min. In this case, we need to do a little data manipulation, first grouping the data by date and compute the daily min/max. 
+
+```{r}
+
+df_tempbyday <- df |>
+  # first suppress all the time
+  mutate(date  = as.Date(time)) |>
+  # Then we want to group the data according to each day
+  # This is mostly in preparation for the next step
+  group_by(date) |>
+  summarize(
+    temp_min = min(temperature_2m),
+    temp_max = max(temperature_2m)
+  )
+str(df_tempbyday)
+```
+
+
+Now we are ready to plot. We will make use of `geom_linerange()`. 
+
+```{r}
+g_tempbyday <- ggplot(df_tempbyday, aes(x = date)) + 
+  geom_linerange(aes(
+    ymin = temp_min,
+    ymax = temp_max,
+  ), color = "darkgreen", 
+    size = 2) + 
+  geom_point(aes(y = 0.5*(temp_min + temp_max)), color = "red", size = 3) + 
+  labs(
+    title = "Temperature by Day",
+    x = "Date",
+    y = "Temperature (F)",
+    caption = ""
+  ) + 
+  theme_tufte()
+
+g_tempbyday
+```
+
+
+
+# Compare with historical data
+
+Note that Open-Meteo keeps track of past weather data dating back to 1940 <https://archive-api.open-meteo.com/v1/archive>. However, there is a 5-day delay in the data. This loops take a while to run, so we can use messages to keep us assured. 
+
+```{r}
+
+all_data <- list()
+# df_temp_hist <- data.frame(year = NA, time = NA, temperature_2m = NA)
+  
+  for (year in 1950:2025) {
+    # Build start and end dates
+    # need to reformat the system date to get rid of the year
+    start_date <- paste0(year, "-", format(Sys.Date()-13, "%m-%d"))
+    end_date <- paste0(year, "-", format(Sys.Date()-7, "%m-%d"))
+    
+    # Build params
+    params_temp_hist <- list(
+      latitude = 39.02,
+      longitude = 77.01,
+      start_date = start_date,
+      end_date = end_date,
+      hourly = "temperature_2m",
+      timezone = "America/New_York",
+      temperature_unit = "fahrenheit"
+    )
+    
+    # Make API call to historical archive endpoint
+    url_hist <- "https://archive-api.open-meteo.com/v1/archive"
+    response_hist <- GET(url_hist, query = params_temp_hist)
+    
+    # Parse JSON content
+    weather_data_hist <- fromJSON(content(response_hist, "text", encoding = "UTF-8"))
+    
+    if (!is.null(weather_data_hist$hourly)) {
+      df_year <- as.data.frame(weather_data_hist$hourly)
+      df_year$time <- ymd_hm(df_year$time, tz = "America/New_York")
+      df_year$year <- year
+      # bind_rows(df_year, as.data.frame(df_temp_hist))
+      all_data[[as.character(year)]] <- df_year
+      message("Retrieved data for year: ", year)
+    } else {
+      warning("No data returned for year: ", year)
+    }
+    
+    # Optional: polite pause to avoid rate limits
+    Sys.sleep(0.3)
+  }
+  
+  # Combine into one dataframe
+  df_temp_hist <- bind_rows(all_data)
+  
+ 
+
+```
+
+First we consider a messy line plot of temperature, each line corresponds to a single year. There are some preliminary steps to format the data. 
+
+1.  We want to format the year as factors (categorical variable)
+2.  We want to eliminate the year in front of the time so that ggplot will think of all the years as being in the same timeline
+
+```{r}
+df_temp_hist$time <- format(df_temp_hist$time, format = "%m-%d %H:%M:%S", tz = "America/New_York")
+
+ggplot(df_temp_hist) + 
+  geom_line(aes(x = time, y = temperature_2m, group = as.factor(year), color = as.factor(year)))
+
+```
+
+Of course, this is way too messy. Let's select a subset of these with 10 years gap. 
+
+```{r}
+
+df_temp_hist$time_noyear <- as.POSIXct(
+  paste0("2000-", df_temp_hist$time),  # add dummy year
+  format = "%Y-%m-%d %H:%M:%S",
+  tz = "America/New_York"
+)
+
+
+```
+
+
+```{r}
+
+
+ggplot(subset(df_temp_hist, year %in% seq(1955,2025,10))) + 
+  geom_line(aes(x = time_noyear, y = temperature_2m, color = as.factor(year)), size=0.4, alpha=0.7) +
+  scale_x_datetime(date_breaks = "1 day", date_labels = "%m-%d") +
+  labs(
+    title = "Temperature over July 1–8 across decades",
+    x = "Date & Time (July 1–8)",
+    y = "Temperature (F)",
+    color = "Year"
+  ) +
+  theme_tufte() +
+  theme(
+    axis.text.x = element_text(angle=45, vjust=0.8, hjust=1)
+  )
+
+```
+While the plot above doesn't really tell a definite story, we can do one step further and compute the historical averages of July 1 - July 8 and see if there is any trend. 
+
+```{r}
+df_temp_hist_avg <- df_temp_hist |> group_by(year) |> summarize(mean(temperature_2m))
+df_temp_hist_avg <- df_temp_hist_avg |> rename(temp_avg = 'mean(temperature_2m)')
+```
+
+After obtaining the historical averages, let's look at a line plot.
+
+```{r}
+ggplot(df_temp_hist_avg, aes(x = year, y = temp_avg)) + 
+  geom_line() + 
+  geom_point(color = "red", size = 2.5) + 
+  geom_smooth(method = "lm")
+```
+The average seems to be linearly decreasing from the graph. However, let's include the the max temp and the min temp to see what happens. First we collect the min, max, and median. 
+
+```{r}
+df_temp_hist_stat <- df_temp_hist |> 
+  group_by(year) |> 
+  summarize(
+    temp_max = max(temperature_2m),
+    temp_min = min(temperature_2m),
+    temp_med = median(temperature_2m)
+  )
+```
+
+Then we plot.
+
+```{r}
+ggplot(df_temp_hist_stat, aes(x = year)) + 
+  geom_line(aes(y = temp_max, color = "Max Temperature"), ) + 
+  geom_line(aes(y = temp_min, color = "Min Temperature")) + 
+  geom_line(aes(y = temp_med, color = "Median Temperature")) +
+  scale_color_manual(
+    values = c("Max Temperature" = "red",
+    "Min Temperature" = "blue",
+    "Median Temperature" = "darkgreen"), 
+    name = NULL
+  ) + 
+  geom_smooth(method = "lm", aes(y = temp_max), color = "darkred", alpha = 0.6) + 
+  geom_smooth(method = "lm", aes(y = temp_min), color = "darkblue", alpha = 0.6) + 
+  geom_smooth(method = "lm", aes(y = temp_med), color = "green", alpha = 0.6) + 
+  labs(
+    title = "Historical Averages",
+    x = "Year", 
+    y = "Temperature",
+    caption = "Source: Open Meteo"
+  ) + 
+  theme_tufte()
+```
+Let's try bar plot instead and overlay a smoothing model over, where the smoothing model is over all historical data. 
+
+```{r}
+ggplot(df_temp_hist_stat, aes(x = year)) + 
+  geom_linerange(aes(
+    ymin = temp_min,
+    ymax = temp_max,
+  ), color = "darkgreen", 
+    size = 1.3, alpha = 0.6) + 
+  geom_point(aes(y = temp_med), color = "red", size = 2.5, shape = 12) + 
+  geom_smooth(data = df_temp_hist, method = "lm", aes(x = year, y = temperature_2m)) + 
+  labs(
+    title = "Historical Averages",
+    x = "Year",
+    y = "Temperature (F)",
+    caption = "Source: Open Meteo Archive"
+  ) + 
+  theme_tufte()
+```
+
