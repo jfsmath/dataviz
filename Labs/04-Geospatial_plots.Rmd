@@ -1,0 +1,398 @@
+---
+title: "Geospatial Maps"
+author: "Data350"
+date: "2024-10-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Goal: produce plots of geospatial data**
+
+# Getting started
+
+```{r}
+library(maps)
+library(ggplot2)
+library(tidyverse)
+```
+
+-   The basic commands:
+
+    -   For US domestics
+
+```{r}
+maps::map("state", fill = T, col = palette())
+```
+
+```         
+-   For any region in the world (many of them do not have internal state boundaries)
+```
+
+```{r}
+maps::map("world", region = "Spain")
+# Canada, Australia, Brazil, Italy, Japan, France, UK
+```
+```{r}
+maps::map("world", regions = "canada")
+```
+
+
+```{r}
+maps::map("world", regions = "")
+```
+
+```         
+-   You can change colors by specifying *col = ...*
+```
+
+```{r}
+maps::map("state", fill = TRUE, col = terrain.colors(49))
+# the number here tells you how many colors in the palette to use
+# maps::map("state", fill = TRUE, col = rainbow(49))
+maps::map("state", fill = TRUE, col = heat.colors(49, alpha = 0.7))
+```
+
+# A local example
+
+```{r}
+maps::map(
+  "county", 
+  "maryland",
+  fill = TRUE,
+  col = heat.colors(10, alpha = 0.5)
+)
+```
+*Exercise: change the Maryland plot to Maryland colors*
+
+```{r}
+
+```
+
+The following code will extract the information about Maryland counties
+
+```{r}
+head(map_data("county", "maryland"))
+```
+
+-   Create a new dataframe called md_counties by
+
+    -   selecting the columns containing longitude, latitude, group, and subregion and
+    -   changing the name of "long" to "lon" and "subregion" to "id".
+
+    ```{r}
+md_counties <- map_data("county", "maryland") |>
+      select(
+        lon = long,
+        lat,
+        group,
+        id = subregion
+      )
+str(md_counties)
+    ```
+
+    -   Create a point plot of the dataset to see what each coordinates represent. Make sure to add a layer *coord_quickmap()* for better spatial geometry.
+    
+```{r}
+ggplot(md_counties,
+       aes(x = lon, y = lat)
+       ) + 
+  geom_point(size = 0.2, aes(color = id)) + 
+  coord_quickmap() + # line up longitude with latitude
+  labs(x = "Longitude", y = "Latitude", color = "County")
+```
+
+
+# Polygons and Simple Features
+
+The key to complete the map is the *geom_polygon()* function.
+
+-   allows us to draw polygons around objects by group
+
+-   connect the boundary points of a region using lines
+
+```{r}
+ggplot(md_counties, 
+       aes(lon, lat, group = group)
+       ) + 
+  geom_polygon(color = "white", aes(fill = id)) +
+  coord_quickmap() +
+  theme_dark() 
+```
+
+# Medical cases in North Carolina
+
+What if the data is not lat/lon for boundaries?
+
+-   often map data is vectorized and encoded using the “simple features” standard of the **Open Geospatial Consortium**
+-   the *sf* (simple feature) package allows us to handle this
+
+```{r}
+library(sf)
+```
+
+```{r}
+nc <- sf::st_read(
+  system.file("shape/nc.shp", package = "sf"),
+  quiet = TRUE
+  )
+```
+
+Take a loot at "nc" and plot it by adding two layers *geom_sf()* and *coord_sf()*
+
+```{r}
+ggplot(nc) + 
+  geom_sf() + # plots the polygon
+  coord_sf() # line up the longitudes```
+```
+
+
+The variable "SID74" is the number of sudden infant death in the period 1974-78. You can plot this by county by specifying the *fill* aesthetics in *geom_sf()*. Adjust the colors using *scale_fill_gradient()*
+
+```{r}
+ggplot(nc) + 
+  geom_sf(aes(fill = SID74)) + 
+  coord_sf() + 
+  scale_fill_gradient(
+    low = "white",
+    high = "red"
+  ) + 
+  labs(
+    title = " Sudden Infant Death Syndrom by County in North Carolina 1974 ",
+    fill = "Sudden Infant Deaths\n in North Carolina 1974",
+    caption = "Source: nc.shp dataset"
+    )
+```
+Change it into a percentage.
+
+```{r}
+library(scales)
+ggplot(nc) + 
+  geom_sf(aes(fill = (SID74/BIR74))) + 
+  coord_sf() + 
+  scale_fill_gradient(
+    low = "white",
+    high = "red",
+    labels = label_percent()
+  ) + 
+  labs(
+    title = "SID case density in North Carolina by county, 1974-1978",
+    caption = "Source: nc dataset from sf",
+    fill = "%(# cases)/(# new births)",
+    ) + 
+  theme(plot.title = element_text(hjust = 0.5)) # adjust the position of the title
+```
+Make a comparison plot between 1974-1978 and 1979-1983:
+
+```{r}
+range_values <- range(
+  c(
+    nc$SID74 / nc$BIR74, 
+    nc$SID79 / nc$BIR79
+    ), 
+  na.rm = TRUE) # gives me the maximum range of the scale
+
+p74 <- ggplot(nc) + 
+  geom_sf(aes(fill = (SID74/BIR74))) + 
+  coord_sf() + 
+  scale_fill_gradient(
+    low = "white",
+    high = "red",
+    labels = label_percent(),
+    limits = range_values # specify the limits of the scale
+  )
+
+p79 <- ggplot(nc) + 
+  geom_sf(aes(fill = (SID79/BIR79))) + 
+  coord_sf() + 
+  scale_fill_gradient(
+    low = "white",
+    high = "red",
+    labels = label_percent(),
+    limits = range_values # specify the limits of the scale
+  )
+```
+
+Use patchwork to put them together
+
+```{r}
+library(patchwork)
+
+p74 / p79
+```
+
+Do a difference plot
+
+```{r}
+ggplot(nc) + 
+  geom_sf(aes(fill = (SID79/BIR79)-(SID74/BIR74))) + 
+  coord_sf() + 
+  scale_fill_gradient2(
+    low = "green",
+    mid = "white",
+    high = "red",
+    labels = label_percent(),
+  )
+```
+
+Add some text to the plot using "ggrepel"
+
+```{r}
+library(ggrepel)
+```
+
+
+Import another dataset from maps:
+
+```{r}
+library(tidyverse)
+
+# select the top five populous city in NC
+nc_cities5 <- maps::us.cities |> filter(country.etc == "NC") |> arrange(desc(pop)) |> slice_head(n=5)
+
+nc_cities5 
+```
+
+Overlap the SID plot with texts
+
+```{r}
+options(repr.plot.width = 25, repr.plot.height = 14)
+
+ggplot() + 
+  geom_sf(data = nc,
+    aes(fill = (SID79/BIR79)-(SID74/BIR74))) + 
+  coord_sf() + 
+  scale_fill_gradient2(
+    low = "green",
+    mid = "white",
+    high = "red",
+    labels = label_percent(),
+  ) + 
+  geom_point(
+    data = nc_cities5,
+    mapping = aes(x = long, y = lat),
+    size = 2,
+    color = "purple"
+  ) + 
+  geom_text_repel(
+    data = nc_cities5,
+    mapping = aes(x = long, y = lat, label = name),
+    color = "black", 
+    size = 2.5
+  )
+```
+
+
+
+# Covid Dataset by counties in MD
+
+Extract the geospatial data of MD:
+
+```{r}
+md_counties <- map_data("county", "maryland")
+head(md_counties)
+```
+
+Change subregion to "id", and only want columns of coordinates and group and id.
+
+```{r}
+md_counties <- md_counties |> 
+  select(
+    lon = long,
+    lat, 
+    group, 
+    id = subregion
+  )
+head(md_counties)
+```
+
+After downloading the dataset from <https://data.imap.maryland.gov/datasets/maryland>::mdcovid19-casesbycounty/about
+
+```{r}
+mdcovid <- read.csv("MDCOVID19_CasesByCounty.csv")
+```
+
+Take a look:
+
+```{r}
+head(mdcovid)
+```
+
+Say we are interested in the total number of cases throughout the period of the survey, we need to take column sum:
+
+```{r}
+county_sum <- colSums(mdcovid[, -c(1,2)]) # not summing the first (ID) or the second (timestamp) columns
+county_sum
+```
+
+```{r}
+names(county_sum)
+```
+
+Need to make some kind of alignment between the two datasets. Let's align with md_counties, i.e., remove "\_" from mdcovid and make it lower-case:
+
+```{r}
+# change every character in names(county_sum) to lower-case
+names(county_sum) <- tolower(names(county_sum)) 
+
+# replace "_" by an empty space
+names(county_sum) <- sub("_", " ", names(county_sum)) 
+
+
+names(county_sum)
+```
+
+```{r}
+county_sum <- filter(data.frame(county_sum), county_sum!= 0)
+county_sum
+```
+
+Join the dataset
+
+1.  Create a new column called "id" to match with md_counties
+
+```{r}
+county_sum$id <- rownames(county_sum)
+county_sum
+```
+
+2.  spread the county number according to id using **join**
+
+```{r}
+md_counties <- left_join(
+  md_counties,
+  county_sum,
+  by = "id"
+)
+# md_counties$case_num <- md_counties$county_sum
+head(md_counties)
+```
+
+Plot it out
+
+```{r}
+library(scales)
+
+ggplot(md_counties,
+       aes(lon, lat, group = group)
+       ) + 
+  geom_polygon(aes(fill = log(county_sum)), # using a log scale here
+               color = "black", linewidth = 0.2) + 
+  coord_quickmap() + 
+  scale_fill_gradient2(
+    low = "green", 
+    mid = "white", 
+    high = "red",
+    midpoint = log(median(md_counties$county_sum)), # re-center the scale
+    limits = log(c(min(md_counties$county_sum),  max(md_counties$county_sum))), # change the range
+    labels = math_format(10^.x) # make sure the legend is also in log scale
+    ) + 
+  labs(
+    fill = "Case Number",
+    title = "Covid cases by MD counties\n 03/15/2020 -- 10/22/2024",
+    caption = "Source: https://data.imap.maryland.gov"
+  )
+```
+

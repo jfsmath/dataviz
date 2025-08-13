@@ -1,0 +1,492 @@
+---
+title: "Annotations and Scaling"
+author: "Data350"
+date: "2024-10-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+(based on ggplot2: Elegant Graphics for Data Analysis (3e))
+
+
+
+
+# Annotate with labs()
+
+```{r}
+library(socviz)
+
+oecd2 <- oecd_le |>
+  filter(country %in% c(
+    "Australia", "Sweden", "Spain", "United Kingdom"
+  ))
+```
+
+```{r}
+ggplot(oecd2, aes(year, lifeexp, group = country)) + geom_path(aes(color = country)) + 
+  labs(
+  x = "Year",
+  y = "Country",
+  title = "Life Expectency of the four\n Women' World Cup Semifinalists",
+  subtitle = "Source: OECD",
+  caption = "Data from 'socviz' package")
+```
+### quote()
+
+You can use "quote()" to label with math expressions. See ?plotmath().
+
+  +   Look up what is the difference between geom_line and geom_path.
+
+```{r}
+values <- seq(from = -10, to = 1, by = 0.01)
+exp_df <- data.frame(x= values, y =sin(values)*exp(values))
+ggplot(exp_df, aes(x,y)) + 
+  geom_path() + 
+  labs(y = quote(f(x)==sin(x)*e^x))
+```
+
+### use RMarkdown syntax in labels
+
+New library:
+
+```{r}
+library(ggtext)
+```
+
+```{r}
+g <- ggplot(oecd2, aes(year, lifeexp, group = country)) + geom_path(aes(color = country)) + labs(
+  x = "**Year** from *1960-2015*",
+  y = "Country",
+  title = "Life Expectency of the four\n Women' World Cup Semifinalists",
+  subtitle = "Source: OECD",
+  caption = "Data from 'socviz' package")
+g
+```
+Add another layer using ggtext
+
+```{r}
+g + theme(
+  axis.title.x = element_markdown() # convert the x-label into markdown format
+)
+```
+
+### Addting texts into figures
+
+
+```{r}
+library(gapminder)
+```
+
+```{r}
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) + 
+  geom_smooth(aes(x = gdpPercap, y = lifeExp, group = continent),se = FALSE)
+```
+
+In theme(), you can specify the plot margin
+
+  -   The order of values in margin() is top, right, bottom, left.
+  -   Below, only the right margin is specified as 2 cm, while the others (top, bottom, and left) are left blank, defaulting to 0 cm.
+
+```{r}
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) + 
+  geom_smooth(aes(x = gdpPercap, y = lifeExp, group = continent),se = FALSE) + 
+  theme(plot.margin = margin(,2,,, "cm"))
+```
+
+Let's add some texts for the outlier points using geom_label_repel()
+
+```{r}
+library(ggrepel)
+```
+
+Goal: add labels for the "outlier points":
+
+  +   gdp > 25k
+  +   life expectancy < 70
+
+```{r}
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) + 
+  geom_smooth(aes(x = gdpPercap, y = lifeExp, group = continent),se = FALSE) + 
+  theme(plot.margin = margin(,2,,, "cm")) +
+  geom_label_repel(
+    data = subset(
+      gapminder, 
+      continent %in% c("Asia", "Europe") &
+      gdpPercap > 25000 &
+      lifeExp < 70),
+    mapping = aes(x = gdpPercap, y = lifeExp, label = country),
+    size = 1.5
+  )
+```
+
+
+You can add also another layer annotate() to draw out a region of interest
+
+```{r}
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, size = pop, color = continent)) + 
+  geom_smooth(aes(x = gdpPercap, y = lifeExp, group = continent),se = FALSE) + 
+  theme(plot.margin = margin(,2,,, "cm")) +
+  geom_label_repel(
+    data = subset(
+      gapminder, 
+      continent %in% c("Asia", "Europe") &
+      gdpPercap > 25000 &
+      lifeExp < 70),
+    mapping = aes(x = gdpPercap, y = lifeExp, label = country)
+  ) + 
+  annotate(
+    geom = "rect",
+    xmin = 25000,
+    xmax = 100000,
+    ymin = 50,
+    ymax = 70,
+    alpha = 0.2,
+    fill = "red"
+  )
+```
+
+
+
+
+
+
+### Custom Annotations
+
+
+Key functions:
+
+-   geom_text() and geom_label() to add text, as illustrated earlier
+-   geom_rect() to highlight interesting rectangular regions of the plot.
+-   geom_line(), geom_path() and geom_segment() to add lines. All these geoms have an arrow parameter, which allows you to place an arrowhead on the line. Create arrowheads with arrow(), which has arguments angle, length, ends and type.
+-   geom_vline(), geom_hline() and geom_abline() allow you to add reference lines (sometimes called rules), that span the full range of the plot.
+
+
+### Example: economics data
+
+```{r}
+head(economics)
+```
+
+
+```{r}
+ggplot(economics, 
+       aes(date, unemploy/pop)) + geom_line() + theme_bw()
+```
+
+Let's put politics in perspectives. 
+
+```{r}
+presidential
+```
+
+```{r}
+presidential2 <- subset(presidential, start > economics$date[1])
+presidential2
+```
+
+
+I want to plot the umemployment rate against the reigns. 
+
+```{r}
+p <- ggplot(economics) + # divide the x-axis into intervals according to the party in charge
+  geom_rect(data = presidential2, 
+            mapping = aes(
+              xmin = start,xmax = end,
+              ymin = -Inf,ymax = Inf,
+              fill = party,
+            ), 
+            alpha = 0.5
+            ) + 
+  scale_fill_manual(values = c("blue", "red")) +
+  geom_vline(data = presidential2,
+             mapping = aes(
+               xintercept = as.numeric(start)),
+             color = "black",
+             alpha = 0.4,
+             linetype = 2
+             ) + 
+  geom_line(economics, mapping = aes(date, unemploy/pop)) + 
+  geom_text(
+    data = presidential2,
+    mapping = aes(x = start, y = 0 , label = name), 
+    size = 4,
+    vjust = 0,
+    hjust = 0,
+    nudge_x = 800,
+    angle = 90
+  ) + 
+  labs(
+    x = "Years",
+    y = "Unemployment Rate",
+    title = "Unemployment rate over the years",
+    subtitle = "background according to party",
+    caption = "source: economics dataset in base R",
+  ) + 
+  theme_bw()
+p
+```
+We can add a little sticker label:
+
+```{r}
+sticker <- paste(strwrap(
+  "While revolutionaries as individuals can be murdered, you cannot kill ideas. Great ideas are a tough mountain to climb. We are going to make a great leap forward. You can kill a man, but you cannot kill an idea. If we are going to transform the world, we must transform our minds first. -- Thomas Sankara, according to ChatGPT",45), collapse = "\n")
+
+xrng <- range(economics$date)
+yrng <- range(economics$unemploy / economics$pop)
+
+p + annotate(
+    geom = "label", 
+    x = xrng[1] + 11000,
+    y = yrng[2] - 0.006,
+    label = sticker,
+    hjust = 0.5, vjust = 0.5, size = 2
+  )
+```
+
+
+# Scales
+
+The formula scale s called: \*\*scale\_(name of aes)\_(name of scale)\*\*. Examples:
+
+-   ggplot2::scale_x_log10(): scale the x axis by the formula $\log_{10}x$
+-   ggplot2::scale_x_continuous(): the default scales for continuous x aesthetics
+-   ggplot2::scale_fill_gradient(): creates a two-color gradient for fills
+
+## Axis scales
+
+### setting limits in axis
+
+```{r}
+library(patchwork)
+mpg_08 <- mpg |> filter(year == 2008)
+base_08 <- ggplot(mpg_08, aes(displ, hwy)) + geom_point()
+base_08
+```
+
+```{r}
+p08_1 <- base_08 + 
+  scale_x_continuous(limits = c(1,7)) + # change the x-limits to [1,7]
+  scale_y_continuous(limits = c(10,45)) # change the y-limits to [10,45]
+p08_2 <- base_08 + 
+  scale_x_continuous(limits = c(2,5)) + 
+  scale_y_continuous(limits = c(20,40))
+
+p08_1 | p08_2
+```
+
+### Setting the limits in coord_cartesion()
+
+```{r}
+base <- ggplot(mpg, aes(drv, hwy)) + 
+  geom_hline(yintercept = 28, colour = "red") + 
+  geom_boxplot()
+base
+```
+
+In the following multi-panel plots, the different occurences of ylim actually have edifferent functions. 
+
+  +   the ylim inside coord_cartesion() adjusts the visible plotting region along the y-axis
+  +   the ylim outside **filters the data before plotting**
+  
+**Question:** which one should you use?
+
+```{r}
+base | base + coord_cartesian() | (base + coord_cartesian() + ylim(10,35)) | (base + coord_cartesian(ylim = c(10,35)))| (base + coord_cartesian(ylim = c(10,35)) + ylim(10,35)) 
+```
+
+### breaks
+
+```{r}
+library(gapminder)
+```
+
+```{r}
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, color = continent), size = 0.2 ) 
+```
+
+```{r}
+break_point = seq(from= 10000, to = 100000, by = 10000)
+
+ggplot(subset(gapminder, continent %in% c("Asia","Europe"))) +  
+  scale_x_log10()+ 
+  geom_point(aes(x = gdpPercap, y = lifeExp, color = continent), size = 0.2 ) +
+  scale_x_log10(breaks = break_point)
+```
+
+**Notice:** what happens to the scale when you first do log10 then continuous?
+
+**Answer: when you add two scales, it is not adding an additional layer. Instead, the new scale will override the old scale**
+
+#### functionality of "breaks"
+
+-   scales::breaks_extended() creates automatic breaks for numeric axes.
+-   scales::breaks_log() creates breaks appropriate for log axes.
+-   scales::breaks_pretty() creates “pretty” breaks for date/times.
+-   scales::breaks_width() creates equally spaced breaks.
+
+#### more functionality
+
+-   scales::label_bytes() formats numbers as kilobytes, megabytes etc.
+-   scales::label_comma() formats numbers as decimals with commas added.
+-   scales::label_dollar() formats numbers as currency.
+-   scales::label_ordinal() formats numbers in rank order: 1st, 2nd etc.
+-   scales::label_percent() formats numbers as percentages.
+-   scales::label_pvalue() formats numbers as p-values: \<.05, \<.01, \<.34
+
+```{r}
+library(scales)
+```
+
+Let's try the economics example from last time:
+
+```{r}
+(ggplot(economics, aes(date, unemploy/pop)) + 
+  geom_line() + 
+  theme_bw()) | 
+  (ggplot(economics, aes(date, unemploy/pop)) + 
+     geom_line() + 
+     theme_bw() + 
+     scale_y_continuous(breaks = breaks_pretty(n = 10)) + 
+     scale_x_date(breaks = breaks_pretty(n = 10))
+  )
+```
+
+Alternatively, we can use date_breaks or break_widths
+
+```{r}
+(ggplot(economics, aes(date, unemploy/pop)) + 
+     geom_line() + 
+     theme_bw() + 
+     scale_x_date(date_breaks = "5 years")) | 
+  (ggplot(economics, aes(date, unemploy/pop)) + 
+     geom_line() + 
+     theme_bw() + 
+     scale_x_date(breaks = breaks_width("5 years")))
+```
+
+We have seen the dollar one.
+
+```{r}
+gm07 <- subset(gapminder, year == 2007)
+ggplot(gm07, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(aes(color = continent), size = 1) +
+  scale_x_log10(labels = label_dollar()) +
+  theme_minimal()
+```
+
+#### temporal data with scales and labels
+
+A useful list of shortcuts for date labels are here: [R for Data Science (2e) chapter 17](https://r4ds.hadley.nz/datetimes#tbl-date-formats)
+
+Let's try it with the economics dataset:
+
+```{r}
+econ_base <- ggplot(economics, aes(date, psavert)) + geom_line(na.rm = T)
+econ_base
+```
+
+```{r}
+econ_base + scale_x_date(
+  date_breaks = "5 years",
+  date_labels = "%y"
+)
+```
+
+```{r}
+econ_base + scale_x_date(
+  date_breaks = "5 years",
+  date_labels = "%b %y"
+)
+```
+
+## Color Scales
+
+Provides sequential, diverging and qualitative color schemes from ColorBrewer. well suited to display discrete values on a map.Commonly used functions:
+
+-   scale_color_discrete()
+-   scale_color_continuous()
+-   scale_color_brewer
+
+```{r}
+set.seed(2024)
+
+diamonds2 <- diamonds[sample(nrow(diamonds), 300), ]
+
+p <- ggplot(diamonds2, aes(carat, price)) + geom_point(aes(color = color))
+p
+```
+
+Let's use brewer color
+
+```{r}
+p + scale_color_brewer(
+  name = "Diamond\ncolor", # texts in the legend
+  palette = "Greens" # color palette from RColorBrewer
+  )
+```
+
+Compare some colors
+
+```{r}
+pgreen <- p + scale_color_brewer(name = "Diamond\ncolor", palette = "Greens" ) + theme_dark()
+pspec <- p + scale_color_brewer(name = "Diamond\ncolor", palette = "Spectral") + theme_dark()
+
+pgreen | pspec
+```
+
+The full palette can be found [here](https://r-graph-gallery.com/38-rcolorbrewers-palettes.html). See also <https://colorbrewer2.org/>.
+
+Let's revisit the nc dataset using scale_fill_distiller()
+
+```{r}
+library(sf)
+nc <- sf::st_read(system.file("shape/nc.shp", package = "sf"), quiet = TRUE)
+```
+
+```{r}
+ggplot(nc) + 
+  geom_sf(aes(fill = SID74)) + 
+  coord_sf() + 
+  scale_fill_distiller(
+    name = "SID deaths\n1974-78",
+    palette = "YlOrRd"
+  )
+```
+
+#### color gradients
+
+Old faithful dataset via geom_raster. geom_raster() is a high performance special case of geom_rect() for when all the tiles are the same size, and no pattern fills are applied.
+
+```{r}
+ggplot(faithfuld, aes(waiting, eruptions, fill=density)) + 
+  geom_raster() + 
+  scale_x_continuous(name = "Waiting time", expand = c(0,0)) + 
+  scale_y_continuous(name = "Eruption time", expand = c(0,0))
+```
+
+```{r}
+ggplot(faithfuld, aes(waiting, eruptions, fill=density)) + 
+  geom_raster() + 
+  scale_x_continuous(name = "Waiting time", expand = c(0,0)) + 
+  scale_y_continuous(name = "Eruption time", expand = c(0,0)) + 
+  scale_fill_viridis_c(option = "magma")
+```
+
+
+
