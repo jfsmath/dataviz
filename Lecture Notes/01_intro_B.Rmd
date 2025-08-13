@@ -13,10 +13,343 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
+## Functions in R
+
+- Functions allow the user to automate tasks in R
+
+- Either provided in packages or self-written
+
+- In R, self-written functions have the general form of:
+```
+function.name <- function( list of inputs ){
+
+...
+body of function
+(series of commands, usually assignments)
+...
+
+last expression }
+```
+
+
+## Functions in R
+
+- We have seen `c()`, `ggplot()`, `slice_sample()` etc.
+
+- More examples of provided functions
+  - The mean
+```{r}
+x<- c(1:20)
+mean(x)
+```
+  - The standard deviation
+```{r}
+sd(x)
+```
+  - the cumulative sum $s_k = \sum_{i=1}^k x_i$
+```{r}
+cumsum(x) 
+```
+
+
+
+## Self-written functions
+
+- Recall that self-written function has the form
+```
+function.name <- function(inputs){ body }
+```
+- Example of a weather data collection function:
+```
+collect_weather_data <- function(
+  days = 7, 
+  coord = (38.9, -76.9)
+  hourly = c("temp", "rain", "humid", "visibility"),
+  timezone = "America/New_York",
+  save_to_disk = FALSE
+  ) {
+Bob Loblaw
+}
+```
+- Here, the variables are given **default values** using the syntax `var_name = default_Val`. VERY USEFUL when your function has a lot of inputs (real-life functions do have a lot of input!).
+
+
+## Example: self-written functions
+```{r}
+fixed_perm <- function( n, k ){
+  # generate a random permutation of {1,2,3,...,n} 
+  # with exactly k fixed points# n is assumed an integer > 0, with k in {1,2,3,...,n}
+  # ch is a variable we introduce as a test check
+  ch <- 0
+  while( ch == 0 ){
+    # generate a random candidate permutation
+    x <- sample(n)
+    # compute number of fixed points; if 0 then 
+    # set ch to 1
+    if( sum( x == 1:n) == k){
+      ch <- 1 }
+    }
+    # output permutation sigma in matrix form where 
+    # row 1 is 1:n and row 2 entry i is the 
+    # value sigma(i)
+  return(matrix(c(1:n,x),nrow=2,byrow=T))
+}
+```
+
+
+
+## Example: self-written functions
+
+- `#` is used to denote a line **not** to be compiled by R (toggle comment)
+- Shortcut for toggle comment (on Windows: `Ctrl + Shift + C`)
+- To run your function, simply call its name
+```{r}
+fixed_perm(10,5)
+```
+
+- Usually in practice, a function is written in a separate R file, say `my_fav_function.R`. To call this function, you have to call it using `source()'. More on this later. 
+
+
+## Learn R as we go
+
+- We will use R a lot more as we go in the course...we will build up slowly 
+
+- I don’t expect you to have a programming/coding background with R
+
+- Will introduce key functions in the `tidyverse` as we need them
+- We will learn how to use `ggplot2` to make effective visuals
+- We will learn how to use `Shiny` to make interactive visuals
+- We will learn how to use `RMarkdown` to make effective presentations, starting right now
+
+
+
+## Random Number Generators (RNGs)
+
+- Anyone who considers arithmetical methods of producing random digits is, of course, in a state of sin. — John von Neumann (1951)
+
+- Anyone who has not seen the above quotation in at least 100 places is probably not very old. — D. V. Pryor (1993)
+
+- Random number generators should not be chosen at random. — Donald Knuth (1986)
+
+
+## Why RNGs (according to [stackexchange](https://stats.stackexchange.com/questions/326063/what-are-some-important-uses-of-random-number-generation-in-computational-statis))?
+
+- Loot drops in video games
+
+- **Controlled experiments:** we avoid sampling bias by randomly partitioning subjects into treatment and control groups.
+
+- **Bootstrapping:** we approximate repeated sampling from a population by randomly sampling with replacement from a fixed sample (to estimate `var` and others). 
+
+- **Cross validation** we estimate the out of sample error of an estimate by randomly partitioning our data into slices and assembling random training and testing sets.
+
+- **Random forests:** we further control the variance of an estimate by also randomly sampling from the available predictors at every decision point.
+
+- **Markov chain Monte Carlo** we sample from a distribution by exploring the space of possible outcomes using a Markov chain.
+
+
+
+
+## True Randomness?
+
+- In R, the RNGs are only pseudo-random -- the numbers aren’t random, but should be indistinguishable from truly random numbers
+
+- True source of randomness? Atmospheric noise (maybe), thermal noise, a physical process in general that we think to be random (and then adjust for error of measurement)
+
+- Pseudo-random number generation: Make a **deterministic** sequence that should be indistinguishable from truly random numbers if we don't know the starting point. 
+
+
+
+## RNGs
+
+- For a variety of distribution, R has built-in RNGs. 
+
+- This family of functions are organized using `prefix+suffix`, with `prefix` telling you the functions and `suffix` telling you the distribution
+  - `r`: generate **\textcolor{blue}{r}**andom numbers
+  - `d`: **\textcolor{blue}{d}**ensity function (e.g., pdf or pmf)
+  - `p`: **\textcolor{blue}{p}**robability function, i.e., the cumulative distribution function
+  - `q`: **\textcolor{blue}{q}**uartile function
+  
+- Example for the normal distrubtion: `rnorm`, `dnorm`, `pnorm`, `qnorm`
+
+
+## RNGs
+
+- Generate five points from $\mathcal{N}(0,1)$
+```{r}
+rnorm(5, mean = 0, sd = 1) 
+```
+\pause
+- Compute $\tfrac{1}{\sqrt{2\pi}}\exp(\tfrac{1}{2}\tfrac{2.5 - (-0.2)}{4^2})$
+```{r}
+dnorm(2.5, mean = -0.2, sd = 4)
+```
+\pause 
+- Compute $\Phi(1) = \mathbb{P}(X \leq 1)$, $X \sim \mathcal{N}(0,1)$
+```{r}
+pnorm(1, mean = 0, sd = 1)
+```
+
+## RNGs
+
+- Compute $\Phi^{-1}(0.84)$
+```{r}
+qnorm(0.84, mean = 0, sd = 1)
+```
+
+- Note that `pnorm` and `qnorm` are inverses of each other, so
+```{r}
+qnorm(pnorm(1,mean = 0, sd = 1), mean = 0, sd = 1)
+```
+
+- A fairly comprehensive list of readily available RNGs can be found on the [CRAN website](https://cran.r-project.org/web/views/Distributions.html). 
+
+
+
+## Example: exponential distribution
+
+- The exponential distribution with parameter $\lambda$ has pdf $f_\lambda(x) = \lambda e^{-\lambda x}, x \geq 0$. 
+
+- Generate $f(0), f(1), \cdots, f(4)$ with $\lambda = 1$:
+```{r}
+dexp(0:4, 1)
+```
+
+
+
+## Example: exponential distribution
+
+
+- To plot the pdf of the exponential distribution, we generate a fine sequence of points (a mesh) and plot them
+```{r, out.width="60%"}
+x <- (0:100)/20 # the mesh
+plot(x, dexp(x,1), lwd = 2, col = "red", type = 'l')
+points(x, dexp(x,2), lwd = 2, col = "blue", type = 'l')
+points(x, dexp(x, 0.5), lwd = 2, col = 'green', type= 'l')
+```
+
+
+## Example: exponential distribution
+
+
+- To plot the CDF $\int_{0}^x f_\lambda(\xi)d\xi = 1 - e^{-\lambda x}$ of the exponential distribution, we use `pexp` in place of `dexp`
+```{r, out.width="60%"}
+x <- (0:100)/50 # the mesh
+plot(x, pexp(x,1), lwd = 2, col = "red", type = 'l')
+points(x, pexp(x,2), lwd = 2, col = "blue", type = 'l')
+points(x, pexp(x, 0.5), lwd = 2, col = 'green', type= 'l')
+```
 
 
 
 
 
 
+
+## Sampling 
+
+Here are some important commands using the `sample()` function. See `?sample`
+
+- `sample(n)` outputs a random permutation of `1:n`
+```{r}
+sample(20)
+```
+
+- `sample(x)` outputs a randomly permuted `x` (vector or list)
+```{r}
+x <- rnorm(5,0,1)
+x
+sample(x)
+```
+
+
+## Sampling 
+
+- `sample(x,n)` samples `n` items from `x` **without replacement**
+```{r}
+x <- 1:10
+sample(x,5)
+```
+
+- We can set `replace = TRUE` so that we sample **with replacement**
+```{r}
+set.seed(2025)
+sample(x, 5, replace = T)
+```
+
+- `sample(x,n, replace = T, prob = p)` gives the of `n` items from `x` with replacement where each element's probability of being selected is specified by the probability vector `p` (what is the vector by default then?)
+
+
+
+## `set.seed()`
+
+- In the above we use `set.seed()` fix an initialization for the RNG. See `?set.seed()`
+
+- It allows for **reproducibility**!!
+
+- Reproducible data science is solid data science!!
+
+
+
+## Data summaries
+
+If `x` is a data vector, some important commands are
+
+- `mean(x)`, $\bar x = \frac{1}{n}\sum_i x_i$
+- `var(x)`, $s_x^2 = \frac{1}{n-1}\sum_i (x_i - \bar x)^2$
+- `sd(x)`, $s_x = \sqrt{\hat\sigma_x^2}$
+*-----------------------------*
+- `median(x)`
+- `quantile(x)` gives (0%, 25%, 50%, 75%, 100%) by default 
+*-----------------------------*
+- `summary(x)` gives min, Q1, med, mean, Q3, max
+
+```{r}
+set.seed(2025)
+x <- rnorm(100, mean = 0, sd = 2)
+summary(x)
+```
+
+## Missing Data
+
+- First we create a vector `x` with missing entries
+```{r}
+set.seed(2025)
+x <- sample(c(rnorm(10, 0, 1), c(NA, NA, NA)))
+```
+
+- Apply the functions from the previous page to `x`
+```{r}
+var(x)
+```
+- We can fix this by removing the missing entries
+```{r}
+var(x, na.rm = TRUE)
+```
+
+
+## Classical statistical tests (NHST)
+
+
+- A short list of available statistical tests can be found [here](https://r-statistics.co/Statistical-Tests-in-R.html). 
+
+- Example: testing for correlation between two vectors
+```{r}
+x <- runif(50, 0, 1) # uniform 
+y <- 2*x + 1 + 0.01*rnorm(50,0,1) # y = 2*x + 1 + noise
+cor.test(x, y)
+```
+
+
+## Getting started wit R Markdown
+
+- *R Markdown* is a versatile platform (used within RStudio) that allows for documents and presentations to be produced with seamless integration of:
+  - Text and external figure files
+  - R code chunk (can be evaluated within the document)
+  - LaTeX (pronounced Lay-Tek or Laa-Tek) for typesetting math
+  
+- This (and many future) set of slides is made with R Markdown
+
+- Supported output format:
+  - HTML, PDF, MS Word
+  - Beamer (PDF via LaTeX) and MS PowerPoint
 
