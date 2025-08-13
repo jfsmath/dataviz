@@ -1,5 +1,4 @@
-This is a (hopefully) evolving set of markdown files for data visualization in R, based on the UMD course in Fall 2024. 
-Resources that I used:
+This is a evolving set of markdown files for data visualization in R. I have utilized the following resources:
 
   -  Vince Lyzinski's notes: https://www.math.umd.edu/~vlyzinsk/
   -  Data Visualization - A practical introduction: https://socviz.co/
