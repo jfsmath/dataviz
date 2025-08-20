@@ -516,12 +516,12 @@ Note that every assigned aesthetics (`x`, `y`, `size`, `color`) $\leftrightarrow
 
 \tiny
 
-```{r, out.width="65%"}
+```{r, out.width="55%"}
 df <- data.frame(x = c(8,4,2,6), y = c(5,7,1,3),
                  job = c("Wizard", "Paladin", "Druid", "Rogue"))
 p <- ggplot(df, aes(x,y)) + ggthemes::theme_solarized() + xlim(0,10) + ylim(-2,10)
 p + geom_label(aes(label = job), size = 5) + 
-  theme(plot.title = element_text(size = 9)) + 
+  theme(plot.title = element_text(size = 15)) + 
   ggtitle("Fun with with geom_text() \n as you wait for your turn") 
 ```
 
@@ -530,8 +530,19 @@ p + geom_label(aes(label = job), size = 5) +
 - You can use `geom_text()` in place of `geom_label()`. Try it, and read the documentation!
 
 
+## Adding Texts
 
+\tiny 
 
+```{r, out.width="55%"}
+p + geom_text(aes(label = job), size = 5, 
+              nudge_x = 0.6, nudge_y = 0.4) + 
+  geom_point(size = 3, color = 'purple') + 
+  ggtitle("Fun with with geom_text() \n as you wait for your turn") 
+```
+\small
 
+- `nudge_x` and `nudge_y` provides horizontal and vertical adjustment to nudge labels by
+- Good for overlaying with points
 
 
