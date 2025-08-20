@@ -6,6 +6,7 @@ date: "`r Sys.Date()`"
 output: beamer_presentation
 
 urlcolor: blue
+
 ---
 
 ```{r setup, include=FALSE}
@@ -520,7 +521,7 @@ Note that every assigned aesthetics (`x`, `y`, `size`, `color`) $\leftrightarrow
 df <- data.frame(x = c(8,4,2,6), y = c(5,7,1,3),
                  job = c("Wizard", "Paladin", "Druid", "Rogue"))
 p <- ggplot(df, aes(x,y)) + ggthemes::theme_solarized() + xlim(0,10) + ylim(-2,10)
-p + geom_label(aes(label = job), size = 5) + 
+p + geom_label(aes(label = job), size = 8) + 
   theme(plot.title = element_text(size = 15)) + 
   ggtitle("Fun with with geom_text() \n as you wait for your turn") 
 ```
@@ -535,7 +536,7 @@ p + geom_label(aes(label = job), size = 5) +
 \tiny 
 
 ```{r, out.width="55%"}
-p + geom_text(aes(label = job), size = 5, 
+p + geom_text(aes(label = job), size = 10, 
               nudge_x = 0.6, nudge_y = 0.4) + 
   geom_point(size = 3, color = 'purple') + 
   ggtitle("Fun with with geom_text() \n as you wait for your turn") 
@@ -543,6 +544,193 @@ p + geom_text(aes(label = job), size = 5,
 \small
 
 - `nudge_x` and `nudge_y` provides horizontal and vertical adjustment to nudge labels by
-- Good for overlaying with points
+- Good for adding companion texts to data points
+
+
+
+## Common `geom_` functions
+
+- `geom_bar(stat = "identity")` makes a **bar chart**
+
+- `geom_line()` makes a **line plot**
+
+- `geom_errorbar()` adds **error bar** (important when conveying uncertainty!)
+
+- `geom_smooth` adds smoothed conditional means with 95% CI
+
+- Type in `geom` in the Help panel for others
+
+
+
+## Adding lines with `oecd_le`
+
+We will use the `oecd_le` dataset. 
+
+**Exercise:** load the `socviz` library, look at `oecd_le` dataset, then use `ggplot()` to load the data corresponding to **Mexico**, and set the overall aesthetics so that $x$-axis is the Year and $y$-axis is the Life Expectancy. Add in labels and use your favorite themes.
+
+\pause
+
+
+```{r}
+library(socviz)
+p <- ggplot(
+  data = subset(oecd_le, country %in% c("Mexico")),
+  mapping = aes(x = year, y = lifeexp)) + 
+  labs(x = "Year", y = "Life Expectancy", caption = "Source: OECD", title = "Life Expectancy in Mexico") +
+  ggthemes::theme_stata()
+```
+
+
+## Adding lines with `oecd_le`
+
+```{r, out.width="75%"}
+p + geom_line(linewidth = 1.5, linetype= "4413", color = 'darkgreen') + 
+  ggtitle("Life Expectancy in Mexico")
+```
+
+- Note the string of numbers in `linetype`. Look up what it means by typing `?shape`
+
+
+## Adding lines
+
+**Exercise:** type `unqiue(oecd_le$country)` to see the list of countries in the dataset. Pick four of interest. Form a new dataset called `fav4` and load it into ``ggplot`` and form a graph object `p`, and set the global aesthetics as before.
+
+\pause
+
+\tiny
+```{r}
+fav4_list <- c("Chile", "Ireland", "Mexico", "Greece")
+fav4 <- subset(oecd_le, country %in% fav4_list)
+p <- ggplot(fav4, aes(
+  x = year, y = lifeexp))
+```
+
+
+## Adding lines
+
+Let's plot the lines. Each one should correspond to a country. 
+
+\tiny
+```{r}
+p + geom_line(aes(color = country, linetype = country), linewidth = 1.5) +
+  labs(x = "Year", y = "Life Expectancy", title = "Life Expectancy", caption = "Source: OECD")
+```
+
+## Adding lines, delicate choice
+
+Sometimes, `geom_line()` does not behave the way we think, and it is not the best choice for showing "trend"
+
+\tiny
+
+```{r}
+library(gapminder)
+ggplot(subset(gapminder, continent %in% c("Asia")), 
+       aes(x = gdpPercap, y = lifeExp)) + geom_line()
+```
+
+
+## `geom_bar()`
+
+Some `geom_` does statistics for you (by transforming the data)!
+
+\tiny
+```{r}
+library(socviz)
+p <- ggplot(
+  data = subset(gss_sm, partyid != "NA"),
+  mapping = aes(x = partyid)
+) 
+p + geom_bar() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.7))
+```
+
+## `geom_bar()`
+
+```{r, out.width="70%"}
+p + geom_bar(aes(fill = bigregion)) + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.7))
+```
+- In `geom_bar`, `fill` is an aesthetic element that controls the interior filling of each rectangle
+
+##
+
+```{r, out.width="70%"}
+p + geom_bar(aes(fill = bigregion), position = "fill") + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.7))
+```
+- What should the $y$-axis be now? Fix all the labels. 
+- Look up `geom_bar` for more on `position`
+
+
+
+
+## `position` in `geom_bar`
+
+
+- Common settings for `position` include "fill", "stack", "dodge", and "jitter". Below is the example for "dodge" (oftentimes the best)
+
+
+
+```{r, out.width="70%", echo = F}
+p + geom_bar(aes(fill = bigregion), position = "dodge") + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.7))
+```
+
+
+## Comments on `geom_bar`
+
+\begin{columns}
+
+\column{0.5\textwidth}
+
+
+\begin{itemize}
+
+\item `dodge` works better, especially with multi-facted plots (more later)
+
+\item  Easier to read long labels horizontally, so \texttt{+ coord\_flip()}. 
+
+\item Saves us the trouble of rotating and making presentation more effective
+
+
+\end{itemize}
+
+
+\column{0.6\textwidth}
+
+\tiny
+```{r, out.width="100%", echo = F}
+p + geom_bar(aes(fill = bigregion), position = "dodge") + 
+  coord_flip() + 
+  labs(
+    x = "Number of Survey Participants", 
+    y = "Party Affiliation",
+    title = "Party affiliation according to regions",
+    caption = "Source: gss_sm dataset"
+  )
+```
+
+
+\end{columns}
+
+## What's next?
+
+- We will look at what these data transformations are. Data transformation is also synonymous with **data wrangling** (a better word for your resume)
+
+- Detour into *`R` for Data Science* available for free here: <https://r4ds.hadley.nz/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
