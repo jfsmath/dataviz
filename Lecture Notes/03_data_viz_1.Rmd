@@ -1,5 +1,5 @@
 ---
-title: "Data Visualization in R - I"
+title: "Data Visualization in R - Part I"
 subtitle: "DATA350: Data Visualization and Presentation"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
@@ -706,7 +706,7 @@ p + geom_bar(aes(fill = bigregion), position = "dodge") +
     x = "Number of Survey Participants", 
     y = "Party Affiliation",
     title = "Party affiliation according to regions",
-    caption = "Source: gss_sm dataset"
+    caption = "Source: General Social Survey data, 2016"
   )
 ```
 
