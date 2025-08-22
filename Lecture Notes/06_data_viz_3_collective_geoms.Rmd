@@ -158,6 +158,21 @@ ggplot(Oxboys, aes(Occasion, height)) + geom_boxplot()
 
 - Non-examples: mean, standard deviation
 
-- Examples: Median, interquartile range
+- Examples: median, interquartile range
+
+\tiny
+
+```{r}
+set.seed(2025)
+x <- rnorm(100, 0, 1)
+x_extreme <- c(x, 10000000)
+mean(x_extreme) - mean(x)
+median(x_extreme) - median(x)
+sd(x_extreme) - sd(x)
+IQR(x_extreme) - IQR(x)
+```
+
+
+
 
 
