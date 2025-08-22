@@ -1,0 +1,163 @@
+---
+title: "Data Visualization in R"
+subtitle: "Multiple `geom_`"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.align='center', out.width = "85%")
+library(gapminder)
+library(ggplot2)
+library(socviz)
+library(tidyverse)
+```
+
+
+
+
+## Collective `geoms`
+
+- **individual** `geom_()` draws a distinct graphical object for each observation 
+
+- **collective** `geom_()` display multiple observations with one geometric object.
+
+- KEY: the `group` aesthetic
+
+- By default, the `group` aesthetic is mapoed to the interaction of all discrete variables in the plot
+
+- We will often need to *explicitly* define the grouping structure
+
+
+
+
+
+## Example: `mpg`
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point() + geom_line()
+```
+
+
+
+
+## Example: `mpg`
+
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point() + geom_smooth()
+```
+
+
+## Example: `mpg`
+
+```{r, out.width = "75%"}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point() + geom_smooth(aes(group = drv))
+```
+
+- After specifying the `group` aesthetics, `geom_smooth()` knows to compute a smoothing model for each group. 
+
+
+
+## Example: `mpg`
+
+With a little bit of work, you can start showing off at a party
+
+\small
+```{r}
+drvtype = c("4-wheel", "Front-wheel", "Rear-wheel")
+coltype = c("purple", "blue", "forestgreen")
+p <- ggplot(mpg, aes(x = displ, y = hwy)) + 
+  ggthemes::theme_tufte() + 
+  geom_point() + 
+  geom_smooth(aes(color = drv, fill = drv)) + 
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway MPG", color = "Drive type",
+    title = "MPG vs Engine displacement for various drive types") + 
+  scale_color_manual(labels = drvtype, values = coltype) + 
+  scale_fill_manual(labels = drvtype, values = coltype) + 
+  guides(fill = "none")
+```
+
+
+##
+
+```{r, echo = F}
+p
+```
+
+
+## Example: `Oxboys`
+
+Be careful about where grouping occurs!
+
+```{r}
+# A different way to load a dataset from a package
+data(Oxboys, package = "nlme")
+head(Oxboys)
+```
+
+
+## Example: `Oxboys`
+
+```{r}
+ggplot(Oxboys, 
+       aes(x = age, y = height, group = Subject)) + 
+  geom_line()
+```
+
+
+## Example: `Oxboys`
+
+- Say I want to figure out the over height trend across all subjects. 
+
+\tiny
+```{r, out.width="65%"}
+ggplot(Oxboys, 
+       aes(x = age, y = height, group = Subject)) + 
+  geom_line() + geom_smooth(method = "lm", se = F)
+```
+\normalsize
+- Note that this gives us many smoothing lines, one for each subject. Why? \pause Because `group` was specified globally (in `ggplot()`) 
+
+
+## Example: `Oxboys`
+
+To fix this, we move the global `group` assignment into `geom_line()`.
+
+\tiny
+```{r, out.width="65%"}
+ggplot(Oxboys, 
+       aes(x = age, y = height)) + 
+  geom_line(aes(group = Subject)) +
+  geom_smooth(method = "lm", se = F, size = 4, color = "red")
+```
+
+## Boxplots with `geom_boxplot`
+
+```{r}
+ggplot(Oxboys, aes(Occasion, height)) + geom_boxplot()
+```
+
+## How to read a boxplot
+
+![Component of a Boxplot](images/06_boxplot_explain.png)
+
+## Digression: Robust Statistics
+
+
+- **Robust statistics** maintain their properties even if the underlying distributional assumptions are incorrect (not significantly affected by outliers or small contamination)
+
+- Non-examples: mean, standard deviation
+
+- Examples: Median, interquartile range
+
+

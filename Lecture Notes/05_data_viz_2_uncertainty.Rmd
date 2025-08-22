@@ -1,0 +1,363 @@
+---
+title: "Data Visualization in R"
+subtitle: "Expressing Uncertainty"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.align='center', out.width = "85%")
+library(gapminder)
+library(ggplot2)
+library(socviz)
+library(tidyverse)
+```
+
+
+
+
+
+
+## `gapminder` continued
+
+
+\tiny
+```{r}
+library(gapminder)
+dplyr::slice_sample(gapminder, n = 15)
+```
+
+
+## A while ago: `geom_line()` showing a trend?
+
+
+```{r, out.width = "65%"}
+ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() + geom_line()
+```
+
+
+## `geom_smooth()` (or `stat_smooth`) is better
+
+- The "smooth" stands for a **smoothing or regression model**. There are many regression models to choose from!
+
+
+
+```{r, out.width = "60%"}
+p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+p + geom_smooth()
+```
+
+
+## Comments on `geom_smooth`
+
+- Note the `R` output: `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")
+
+
+- `gam` stands for [**generalized additive model**](https://en.wikipedia.org/wiki/Generalized_additive_model). It is the default when there are $>$ 1000 data points. The default for $\leq$ 1000 data points is `loess`
+
+- How GAM works? 
+\[
+g(\mathbb{E}[Y]) = c_0 + \sum_{i=1}^m f_i(x_i)
+\]
+
+- The choices include
+  - `lm` [linear model](https://en.wikipedia.org/wiki/Linear_model) (most straightforward)
+  - `glm` [generalized linear model](https://en.wikipedia.org/wiki/Generalized_linear_model)
+  - `gam` [generalized additive model](https://en.wikipedia.org/wiki/Generalized_additive_model)(most flexible)
+  - `loess` [locally estimated scatterplot smoothing](https://en.wikipedia.org/wiki/Local_regression)
+
+
+
+## Linear model
+
+```{r, out.width = "60%"}
+p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+p + geom_smooth(method = "lm")
+```
+
+Not the best-looking one, but one small tweak can fix this.
+
+
+## Linear model
+
+```{r, out.width = "60%"}
+p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() + 
+  scale_x_log10()
+p + geom_smooth(method = "lm")
+```
+
+## Standard error and Communicating Uncertainty
+
+- The grey band in `geom_smooth()` is by default the 95% CI
+\[
+\hat{y}_i \pm t_{\alpha/2, n-p-1}\sigma_{\hat{y}_i}
+\]
+where
+\[
+\sigma_{\hat{y}_i} = \sqrt{\mathrm{MSE}(X_i^t (X^t X) X_i)}
+\]
+
+- It can be turned off by setting `se = FALSE`. However, if not too messy, keep it on! (It conveys **uncertainty**!!)
+
+- **The role of statistics (& data science) is not to transform uncertainty into certainty!**
+
+- When we display data (verbally, visually, written), we must
+  - Acknowledge and clearly present the level of uncertainty in the data
+  - Keep in mind the inference and the audience. (what are we trying to say to whom)
+
+
+
+## Expressing Uncertainty
+
+- Uncertainty in our estimates of parameters can be expressed in terms of **Confidence Intervals** and/or **standard errors**, connected via the following relationship:
+\[
+\text{CI} = \text{Param. of Interest} \pm \text{Crit. Value} \cdot \text{Std. Error}
+\]
+
+- Example: $X_1, \cdots, X_n \sim \mathcal{N}(\mu,\sigma^2)$ with both $\mu$ and $\sigma^2$ unknown, then
+\[
+\frac{\bar X - \mu}{s/\sqrt{n}} \sim T(n-1),\quad s^2 = \frac{1}{n-1}\sum_{i}(X_i - \bar X)^2
+\]
+so a $(1-\alpha)100\%$ CI for $\mu$ is given by
+\[
+\underbrace{\bar X}_{\text{estimator}} \pm \underbrace{t_{\alpha/2, n-1}}_{\text{crit. value}}\underbrace{\frac{s}{\sqrt{n}}}_{\text{std. error}}
+\]
+
+
+## Confidence Interval
+
+- True or False? If we compute a 95% (frequentist) confidence interval of a parameter from a dataset. The probability of this interval containing the true parameter is 95%.
+
+\pause
+
+- False! A (frequentist) CI is about the method, not a particular interval!
+
+- A (frequentist) 95% CI means that if you repeat the same experiment many times, and each time compute a CI from the data, then approximately 95% of these intervals you compute contain the true parameter
+
+
+## Confidence Interval
+
+```{r, echo = F}
+set.seed(2025)
+CI<-matrix(0,100,2)
+for(i in 1:100){
+  x<-rnorm(50,0,1)
+  CI[i,]<-mean(x)+c(qt(0.025, 49)*sd(x)/sqrt(50), qt(0.975, 49)*sd(x)/sqrt(50))
+  }
+plot(
+  CI[100,],c(100,100),
+  type="l",
+  col="red",
+  ylim=c(0,101), 
+  xlim=c(-1,1))
+for(i in 1:99){
+  lines(CI[i,],c(i,i),type="l",col="red")
+  }
+abline(v=0, col="black")
+paste0("# of intervals containing the true average: ", sum(CI[,1]<0 & CI[,2]>0))
+```
+
+
+## Visualizing Confidence Intervals
+
+- To derive the CI, we often rely on (assumptions of having a) known distribution 
+- When things are complicated, do we plot $\bar X + k\hat{\sigma}$ or $\bar X + kSE$ (recall $SE = \frac{\hat\sigma}{\sqrt{n}}$)?
+
+\pause
+
+- Depends! 
+  - $\bar X + k\hat{\sigma}$ captures the **spread** of the data
+  - $\bar X + kSE$ captures **precision** of the estimate
+  
+- If the data distribution is non-normal, skewed, or multimodal, then neither fully captures the shape. What could be some alternatives?
+
+
+## Visualizing Confidence Intervals
+
+- Let's capture the spread of `gapminder`
+
+- **Exercise**: form a dataset called `gap2` by doing the following:
+  1.  group the `gapminder` dataset by year and continent
+  2.  for each year & continent group, compute the average life expectancy `meanLE`, and two numbers `UCI` and `LCI`, $1.96$ ($\approx z_{0.025} = t_{0.025, \infty}$) standard deviation above and below the average, respectively
+  
+\pause
+
+```{r}
+library(dplyr)
+gap2 <- gapminder |> 
+  group_by(year, continent) |> 
+  summarize(
+    meanLE = mean(lifeExp),
+    UCI = meanLE+ 1.96 * sd(lifeExp),
+    LCI = meanLE - 1.96* sd(lifeExp)
+  )
+```
+## Visualizing Confidence Intervals
+
+- **Exercise:** based on `gap2`, 
+  - create a bar chart visualizing the average life expectancy for each continent in the year 1957, 1982, and 2007. 
+  - Differentiate the continent by colors, and the continents' bars should be side-by-side
+  
+\pause
+
+\tiny
+```{r, out.width="60%"}
+p <- ggplot(
+  subset(gap2, year %in% c(1957, 1982, 2007)),
+  aes(x = as.factor(year), y = meanLE)
+  ) + 
+  geom_bar(
+    aes(fill = continent),
+    stat = "identity",
+    position = "dodge"
+  )
+p
+```
+
+## `geom_errorbar()`
+
+
+- Overlaying the error bar is a bit tricky:
+  - Length determined by `ymin` and `ymax`
+  - Need to specify the (secondary) grouping (by continent)
+  - Need to use `position = position_dodge(0.9)` to separate the error bars, the 0.9 unit is a number achieved by trial and error!
+
+
+\tiny
+```{r, out.width="55%"}
+p <- p + geom_errorbar(aes(
+  ymin = LCI, ymax = UCI, group = continent
+), position = position_dodge(0.9), width = 0.5)
+p
+```
+- As usual, go to `?geom_errorbar` for more additional help. 
+
+
+## Document the uncertainty
+
+- Now you have to tell the reader what those error bars are! Usually in the caption. Correct all legends as well. \pause 
+\tiny
+```{r, out.width="65%"}
+p + labs(
+  title = "Average life expectancy in different continents throughout the century", 
+  y = "Average Life Expectancy", x = "Year", fill = "Continent",
+  caption = "Source: gapminder. Error bar: Mean +/- 1.96*SE"
+) + theme_bw()
+```
+
+## Comparing SD with SE
+
+
+
+```{r}
+gap3 <- gapminder |>
+  group_by(year) |> 
+  summarize(
+    meanLE = mean(lifeExp),
+    sdUCI = meanLE + 1.96*sd(lifeExp),
+    sdLCI = meanLE - 1.96*sd(lifeExp),
+    seUCI = meanLE + 1.96*sd(lifeExp)/sqrt(length(lifeExp)),
+    seLCI = meanLE - 1.96*sd(lifeExp)/sqrt(length(lifeExp))
+  )
+```
+
+
+
+
+- New dataset called `gap3`, grouped only according to years
+- Two CIs: $\hat\mu \pm 1.96\hat\sigma$ vs $\hat\mu \pm 1.96\frac{\hat\sigma}{\sqrt{n}}$
+
+
+
+
+## CI with SD vs SE
+
+**Exercise**: 
+
+- from `gap3`, create a line plot `p_sd` with standard deviation as error bar. Add legends and labels. 
+- Similarly, create `p_se` with standard error instead. 
+\pause
+
+
+```{r}
+p_sd <- ggplot(gap3, aes(x = year, y = meanLE)) + geom_line() + 
+  geom_errorbar(aes(ymin = sdLCI, ymax = sdUCI)) + 
+  labs(x = "Year", y = "Life Expectancy", cpation = "Error bars: +/- 1.96*SD")
+```
+
+
+```{r}
+p_se <- ggplot(gap3, aes(x = year, y = meanLE)) + geom_line() + 
+  geom_errorbar(aes(ymin = seLCI, ymax = seUCI)) + 
+  labs(x = "Year", y = "Life Expectancy", cpation = "Error bars: +/- 1.96*SE")
+```
+
+
+## CI with SD vs SE
+
+Let's compare them side-by-side (using `patchwork`, more on this later).
+
+```{r, out.width="75%"}
+library(patchwork)
+p_sd  + p_se  + ylim(20,100) + 
+  plot_annotation(caption = "Left error bars: +/- 1.96*SD. Right error bars: +/- 1.96*SE")
+```
+## SE vs SD
+
+To reiterate:
+
+- $. + kSD$ captures the **spread** of the data
+- $. + kSE$ captures **precision** of the estimate
+ 
+Regardless, you should
+\center
+\huge
+**LABEL! LABEL! LABEL!**
+
+\pause
+\normalsize
+- If your model (say regression) enables for confidence intervals/bands to be directly computed and/or displayed, use these. Be upfront about the model/assumption.
+
+- If you have an estimate/computation of the SE and suspect that your statistic is approximately normal, then an approximate 95% CI is okay
+
+- Real data: oftentimes **not normal** even when $n$ is large
+
+
+## Label! Label! Label!
+
+\center
+
+In many publications a $\pm$ sign is used to join the
+standard deviation (SD) or standard error (SE) to an
+observed mean---for example, $69.4 \pm 9.3 \,\mathrm{kg}$. 
+That notation gives no indication whether the second figure
+is the standard deviation or the standard error (or
+indeed something else). A review of 88 articles
+published in 2002 found that 12 (14\%) failed to
+identify which measure of dispersion was reported
+(and three failed to report any measure of variability).
+The policy of the \textit{BMJ} and many other journals is to
+remove $\pm$ signs and request authors to indicate clearly
+whether the standard deviation or standard error is
+being quoted. All journals should follow this practice.
+
+
+
+\flushright
+-- Altman DG, Bland JM. Standard deviations and standard errors. BMJ. 2005 Oct 15;331(7521):903. doi: 10.1136/bmj.331.7521.903. PMID: 16223828; PMCID: PMC1255808.
+
+
+
+
+
+
+
+
+
