@@ -172,6 +172,94 @@ sd(x_extreme) - sd(x)
 IQR(x_extreme) - IQR(x)
 ```
 
+## Boxplots with `gapminder`
+
+**Exercise:** For the `gapminder` dataset, create a boxplot with five boxes, one for each continent. Lay out the continents along the $x$-axis, and the $y$-axis corresponds to the life expectancy, distinguish continents by `fill`. Fix labels and legends. 
+
+\pause
+```{r}
+p <- ggplot(gapminder, 
+            aes(x = continent, y = lifeExp, fill = continent)) + 
+  geom_boxplot() + ggthemes::theme_pander() + 
+  labs(
+    x = "Continent", y = "Life Expectancy", fill = "Continent", 
+    title = "Life expectancy of each continent", caption = "Source: gapminder"
+  )
+```
+
+
+## Boxplots with `gapminder`
+
+You can be a bit fancy here and choose a different color scheme, for instance, `viridis`. 
+
+```{r, echo = T}
+library(viridis)
+p + scale_fill_viridis(discrete = T, alpha = 0.5)
+```
+
+## From the `beyonce` package
+
+- Overwhelmed by the choice of colors? Here's more using the `paletteer` package: <https://r-graph-gallery.com/color-palette-finder>
+
+\tiny
+
+```{r, out.width="60%"}
+library(paletteer)
+p + scale_fill_paletteer_d("beyonce::X128", direction = -1)
+```
+\normalsize
+
+- Note that the syntax is `<PackageName::PaletteName>`. You can type in `View(paletteer::palettes_d_names)` to see the package/palette names. 
+
+## From the `fishualize` package
+
+\tiny
+
+```{r}
+p + scale_fill_paletteer_d("fishualize::Hypsoblennius_invemar", direction = -1)
+```
+
+## Boxplots + Scatterplots
+
+```{r}
+p + scale_fill_paletteer_d("lisa::JackBush") + 
+  geom_jitter(color = "black", alpha = 0.2, size = 0.4) + 
+  coord_flip()
+```
+## `geom_point()` vs `geom_jitter()`
+
+```{r, out.width="50%"}
+p + scale_fill_paletteer_d("lisa::JackBush_1") + 
+  geom_point(color = "black", alpha = 0.2, size = 0.4) + 
+  coord_flip()
+```
+- The plot above uses `geom_point` instead, and all the points lie on the corresponding axes (overcrowded/overplotting)
+- `geom_jitter` adds a small amount of noise to data to spread them out for better visualization
+
+
+## Visualizing distribution using `geom_violin()`
+
+```{r. out.width= "65%"}
+pvio <- ggplot(gapminder, aes(x = continent, y = lifeExp, fill = continent)) + 
+  geom_violin(trim = F) + 
+  ggthemes::theme_economist_white() + scale_fill_paletteer_d("lisa::JackBush")
+pvio
+```
+Note that `geom_violin` does not automatically produce the quantiles like boxplots. For this, you need to couple with `stat_summary`
+
+## A glimpse into `stat_summary`
+
+\tiny
+```{r, out.width="65%"}
+pvio + 
+  stat_summary(fun = median, geom = "point", size = 3,show.legend = FALSE )+
+  stat_summary(fun.data = function(y) {return(data.frame(
+        y = median(y), ymin = quantile(y, 0.25), ymax = quantile(y, 0.75)))}, 
+              geom = "errorbar", width = 0.1)
+```
+- `stat_summary()` is a very flexible function that allows you to overlay summary statistics on raw data plots. More on this later. 
+
+
 
 
 
