@@ -239,7 +239,7 @@ p + scale_fill_paletteer_d("lisa::JackBush_1") +
 
 ## Visualizing distribution using `geom_violin()`
 
-```{r. out.width= "65%"}
+```{r, out.width= "65%"}
 pvio <- ggplot(gapminder, aes(x = continent, y = lifeExp, fill = continent)) + 
   geom_violin(trim = F) + 
   ggthemes::theme_economist_white() + scale_fill_paletteer_d("lisa::JackBush")
@@ -264,9 +264,24 @@ pvio +
 ## Overlaying other geometries on `geom_box()`
 
 
+**Exercise:** I want to overlay a line plot with the boxplot, where each line corresponds to a subject. How to fix the following code?
+
+```{r, out.width="55%"}
+ggplot(Oxboys, aes(Occasion, height)) + 
+  geom_boxplot() + 
+  geom_line(color = "red", alpha = 0.6)
+```
+
+
+## Overlaying other geometries on `geom_box()`
 
 
 
+```{r, out.width="55%"}
+ggplot(Oxboys, aes(Occasion, height)) + 
+  geom_boxplot() + 
+  geom_line(aes(group = Subject), color = "red", alpha = 0.6)
+```
 
 
 
