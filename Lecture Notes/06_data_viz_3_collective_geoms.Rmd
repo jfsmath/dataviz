@@ -277,13 +277,23 @@ ggplot(Oxboys, aes(Occasion, height)) +
 
 
 
-```{r, out.width="55%"}
+```{r, out.width="60%"}
 ggplot(Oxboys, aes(Occasion, height)) + 
   geom_boxplot() + 
-  geom_line(aes(group = Subject), color = "red", alpha = 0.6)
+  geom_line(aes(group = Subject), 
+            color = "red", alpha = 0.6)
 ```
 
 
+## Summary: `geom_` doing statistics for us
+
+- `geom_smooth()` fits a regression model
+
+- `geom_boxplot()` computes the 5-number summary of the data (along with outlier detection)
+
+- `geom_errorbar()` allows customization of error bars 
+
+- More later!
 
 
 

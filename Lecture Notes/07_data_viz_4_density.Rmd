@@ -1,0 +1,324 @@
+---
+title: "Data Visualization in R"
+subtitle: "Visualizing Density"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.align='center', out.width = "80%")
+library(gapminder)
+library(ggplot2)
+library(socviz)
+library(tidyverse)
+```
+
+
+## Last time: `geom_` doing statistics for us
+
+- `geom_smooth()` fits a regression model
+
+- `geom_boxplot()` computes the 5-number summary of the data (along with outlier detection)
+
+- `geom_errorbar()` allows customization of error bars 
+
+\pause
+
+- **Today**: we visualize an unknown distribution
+
+
+
+
+## First step: Histogram
+
+
+- **Fundamental Theorem of Statistics:** Let $X_1, X_2, \cdots$ be i.i.d. samples with CDF $F(x)$, and let $F_n(x) := \frac{1}{n}\cdot \#\{i: X_i < x\}$ be the empirical CDF of $X_1, \cdots, X_n$. Then $\|F_n - F\|_{L^\infty(\mathbb{R})} \to 0$ almost surely.
+
+\pause 
+
+- Pedestrian words: Counting samples allow you to learn an unknown distribution via approximating its CDF (and hence PDF, by $f = F'$). 
+
+- Counting samples = histogram. In `R`, this is done using `geom_histogram()`
+
+
+
+
+## `geom_histogram()`
+
+
+```{r}
+ggplot(gapminder, aes(lifeExp)) + geom_histogram()
+```
+
+
+
+## `stat_bin` is the statistical transformation used by `geom_histogram`
+
+
+```{r}
+ggplot(gapminder, aes(lifeExp)) + stat_bin()
+```
+
+
+## `bin` numbers vs `bin` size
+
+```{r}
+library(patchwork)
+p1 <- ggplot(gapminder, aes(lifeExp)) + geom_histogram(bins = 100)
+p2 <- ggplot(gapminder, aes(lifeExp)) + geom_histogram(binwidth = 2)
+p1 + p2
+```
+
+
+## Example: `diamonds` dataset
+
+\tiny
+```{r}
+library(dplyr)
+str(diamonds)
+slice_sample(diamonds, n = 5)
+```
+
+
+## Example: `diamonds` dataset
+
+```{r}
+ggplot(diamonds, aes(carat)) + geom_histogram()
+```
+## Additional functinality
+
+\tiny
+```{r, out.width = "60%"}
+ggplot(diamonds, aes(x = color, y = carat)) + 
+  geom_histogram(stat = "summary_bin", fun = median)
+```
+
+\normalsize 
+- `geom_histogram` now has two aesthetics input inherited from `ggplot`
+- `stat = "summary_bin"`: instead of counting, it applies the `summary` function to `y`
+- `fun = median`: for each `x`, compute the `median` of `y`
+
+
+## A better alternative: `stat_summary_bin`
+
+```{r}
+ggplot(diamonds, aes(x = color, y = carat)) +
+  stat_summary_bin(fun = median, geom = "bar")
+# bar comes from from geom_bar()
+```
+
+
+## Exercise: recreation using `geom_col`
+
+**Exercise:** Look up `?geom_col` and recreate the plot using one long pipeline. \pause
+
+```{r, out.width = "50%"}
+diamonds |> group_by(color) |> 
+  summarize(carat_med = median(carat))|>
+  ggplot(aes(x = color, y = carat_med)) + geom_col()
+```
+
+
+
+## For **continuous data**, **DENSITIES** are the way to go!
+
+
+
+```{r}
+p <- ggplot(subset(diamonds, clarity %in% c("I1", "IF")),
+            aes(x = log(price), fill = clarity)) + 
+  geom_density(alpha = 0.3)
+p
+```
+
+## Tuning `geom_density` plot
+
+Use `scale_<attribute>_manual` to change the `<attribute>`:
+
+```{r}
+p + scale_fill_manual(values = c("red", "blue"))
+```
+
+
+
+## So how does `geom_density` work??
+
+- `geom_density()` (and its cousin `stat_density`) produces a **Kernel Density Estimate** (KDE) of the distribution of the data
+
+- **Idea:** you have a model kernel $K$ and i.i.d. data $x_1, \cdots, x_n$ with unknown PDF $f$, and you estimate the shape of $f$ by 
+$$
+\hat{f}_K(x) = \underbrace{\frac{1}{n}\sum_{i=1}^n}_{\text{average}} \underbrace{\frac{1}{h}K\left( \frac{x-x_i}{h} \right)}_{\text{scale and translate}}
+$$
+
+
+
+## What qualifies to be a kernel?
+
+- A nonnegative, symmetric, integrable function $K$ with $\int K = 1$. Common choices:
+- Uniform $K = \mathbb{I}_{(-1/2, 1/2)}$, 
+- triangle $K(x) = \begin{cases}x + 1 & x \leq 0 \\ 1-x & x \geq 0\end{cases}$
+- Gaussian $K(x) = \tfrac{1}{\sqrt{2\pi}}\exp(\tfrac{x^2}{2})$
+- Cosine, Epanechnikov, double exponential...
+
+
+
+## Changing the bandwith of the kernel
+
+
+```{r}
+data(geyser, package = "MASS")
+p1 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5)
+p2 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5, bw = "nrd")
+p3 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5,  bw = "ucv")
+p4 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5, bw = "sj")
+```
+
+
+## Changing the bandwith of the kernel
+
+```{r, out.width="75%"}
+p1 + p2 + p3 +p4 + plot_layout(ncol = 2)
+```
+- Choose `bw` by balancing bias and variance: too small and you overfit noise, too large and you oversmooth structure.
+
+
+## Changing the model kernel
+
+
+
+```{r}
+data(geyser, package = "MASS")
+p1 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5)
+p2 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5, kernel = "epanechnikov")
+p3 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5, kernel = "triangular")
+p4 <- ggplot(geyser, aes(x = duration)) + 
+  stat_bin(aes(x = duration, y = after_stat(density))) + 
+  geom_density(color = "red", linewidth = 1.5, kernel = "cosine")
+
+```
+
+## Changing the model kernel
+
+
+```{r}
+p1 + p2 + p3 +p4 + plot_layout(ncol = 2)
+```
+
+
+
+## Be fancy with KDE
+
+
+```{r}
+ggplot(subset(diamonds, clarity %in% c("I1", "IF")),
+            aes(x = log(price), fill = clarity)) + 
+  geom_density(alpha = 0.3) + 
+  facet_wrap(~color) + # grid according to colors
+  scale_fill_manual(values = c("red", "blue"))
+```
+
+
+## Multivariate KDE?
+
+- It is possible, and the approximation takes the form of
+$$
+\hat{f}_{K}(x) = \hat{f}_1(x_1) \times \cdots \times \hat{f}_n(x_n)
+$$
+- Each dimension has the same kernel, but possibly different bandwidth
+
+- But how to visualize? \pause Projection + Level sets
+
+
+
+## Sampling the `diamonds` dataset
+
+```{r}
+set.seed(2025)
+p <- ggplot(
+    slice_sample(diamonds, n = 2000), 
+    aes(x = carat, y = price)) +
+  geom_point(alpha = 0.3, size = 0.8) +
+  labs(
+    title = "Carat vs Price", 
+    caption = "Source: diamonds dataset", 
+    x = "Carat", y = "Price") + 
+  xlim(0,3) + ylim(-1500, 10000)
+```
+
+## Level sets via `geom_density_2d`
+
+```{r, warning=FALSE}
+p + geom_density_2d(color = "darkgreen")
+```
+
+
+## Intensity via `geom_density_2d_filled`
+
+```{r, warning=FALSE}
+library(paletteer)
+p + geom_density_2d_filled() + 
+  scale_fill_paletteer_d("colorBlindness::Blue2Green14Steps") + 
+  xlim(0,1.5)
+```
+
+
+## Raster-stype `stat_density_2d`
+
+```{r, warning=FALSE}
+p + stat_density_2d(aes(fill = after_stat(density)), 
+                    geom = "raster", contour = FALSE) + 
+  scale_fill_gradient2() + xlim(0,1.5)
+```
+
+
+
+
+
+
+## More pixelated options
+
+```{r, warning = F}
+p + geom_bin2d(bins = 25)
+```
+
+
+
+## More pixelated options
+
+```{r, warning = F}
+p + geom_hex(bins = 36)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

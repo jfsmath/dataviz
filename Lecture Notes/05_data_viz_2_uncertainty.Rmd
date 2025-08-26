@@ -93,6 +93,49 @@ p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
 p + geom_smooth(method = "lm")
 ```
 
+## We can use `size` to weigh the points:
+
+\tiny
+```{r, out.width="60%"}
+p1 <- ggplot(
+  data = subset(gapminder, continent %in% c("Asia", "Americas")),
+  aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point(aes(size = pop), color = "darkgreen", alpha = 0.6) + 
+  geom_smooth(method = "lm") + 
+  scale_x_log10(labels = scales::dollar) + 
+  ggthemes::theme_fivethirtyeight()
+p1
+```
+\normalsize
+However, is there anything inconsistent between the plot and the regression model?
+
+## Adjust the weight inside the statistical `geoms`
+
+- Previous, the regression model is **unweighted**: a country with population 100 is treated as the same with a country of population 1 billion!
+
+- To fix this, use `geom_smooth(aes(weight = pop))`
+
+```{r, out.width="60%", echo = F}
+p2 <- ggplot(
+  data = subset(gapminder, continent %in% c("Asia", "Americas")),
+  aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point(aes(size = pop), color = "darkgreen", alpha = 0.6) + 
+  geom_smooth(aes(weight = pop), method = "lm") + 
+  scale_x_log10(labels = scales::dollar) + 
+  ggthemes::theme_fivethirtyeight()
+p2
+```
+## Comparison
+
+```{r, echo=FALSE}
+library(patchwork)
+p1 + p2
+```
+
+Minor graphical difference, but scientifically important nonetheless!!
+
+
+
 ## Standard error and Communicating Uncertainty
 
 - The grey band in `geom_smooth()` is by default the 95% CI
@@ -210,14 +253,8 @@ gap2 <- gapminder |>
 \tiny
 ```{r, out.width="60%"}
 p <- ggplot(
-  subset(gap2, year %in% c(1957, 1982, 2007)),
-  aes(x = as.factor(year), y = meanLE)
-  ) + 
-  geom_bar(
-    aes(fill = continent),
-    stat = "identity",
-    position = "dodge"
-  )
+  subset(gap2, year %in% c(1957, 1982, 2007)), aes(x = as.factor(year), y = meanLE)) +
+  geom_bar(aes(fill = continent),stat = "identity",position = "dodge")
 p
 ```
 
