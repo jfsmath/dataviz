@@ -69,6 +69,8 @@ str(flights)
 
 
 
+# Row operations
+
 ## `filter()`
 
 `filter`: subset observations (row) based on given criteria
@@ -114,18 +116,92 @@ Boolean operations:
 NovDec <- filter(flights, month %in% c(11,12))
 table(NovDec$month)
 ```
-
+\pause
 - `filter()` returns a `T` or `F` for each part of the expression
 
 - Missing data (`NA`'s) could be a bit tricky
 
 - To keep the `NA` data, add `is.na()` (another Boolean) into `filter`
 
-
+\tiny 
 ```{r}
 NovDec <- filter(flights, (is.na(month) | month == 11 | month == 12))
 table(NovDec$month)
 ```
+\normalsize
 
+- No missing month here! `sum(is.na(flights$month))` to double check
+
+
+
+## `arrange()`
+
+- Reorders the row for easier viewing
+- If you provide more than one column to order the data by, the additional columns are used to break ties.  
+- `NA`s are always sorted to the end
+- Default: ascending. Use `desc(var_name)` for descending
+
+##
+
+```{r}
+head(arrange(flights, dep_time, carrier))
+```
+
+
+
+```{r}
+head(arrange(flights, desc(dep_time), carrier))
+```
+
+
+# Column Operations
+
+## `select()`
+
+Allows us to pick variables (columns) by name/order to zoom in on useful variables
+
+```{r}
+carrier_delay <- select(flights, dep_delay, arr_delay, carrier)
+carrier_delay
+```
+
+
+## Use `select()` to delete columns
+
+By putting a minus `-` in front of the list of variables 
+
+
+```{r}
+head(select(flights, -c(year:day)))
+```
+
+## Helpers of `select()`
+
+
+- `starts_with("letters")`
+- `ends_with("letters")`
+- `contains("letters)`
+- `num_Range("x", 1:3)` matches `x1`, `x2`, `x3`
+
+
+## Example with `contains()`
+
+```{r}
+head(select(flights, contains("time")))
+head(select(flights, -contains("time")))
+```
+
+## Example with `num_range()`
+
+It's useful when variable names are enumerated. 
+
+
+
+```{r}
+df <- data.frame(id = 1:5, mt_1 = rnorm(5,0,1),mt_2 = rnorm(5,0,1),
+                 mt_3 = rnorm(5,0,1), mt_4 = rnorm(5,0,1))
+head(df)
+select(df, num_range("mt_", 2:3))
+```
 
 
