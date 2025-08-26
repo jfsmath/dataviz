@@ -90,10 +90,12 @@ slice_sample(diamonds, n = 5)
 ```{r}
 ggplot(diamonds, aes(carat)) + geom_histogram()
 ```
+
+
 ## Additional functinality
 
 \tiny
-```{r, out.width = "60%"}
+```{r, out.width = "60%", message = F}
 ggplot(diamonds, aes(x = color, y = carat)) + 
   geom_histogram(stat = "summary_bin", fun = median)
 ```
@@ -189,7 +191,7 @@ p4 <- ggplot(geyser, aes(x = duration)) +
 
 ## Changing the bandwith of the kernel
 
-```{r, out.width="75%"}
+```{r, out.width="75%", warning = F}
 p1 + p2 + p3 +p4 + plot_layout(ncol = 2)
 ```
 - Choose `bw` by balancing bias and variance: too small and you overfit noise, too large and you oversmooth structure.
@@ -219,7 +221,7 @@ p4 <- ggplot(geyser, aes(x = duration)) +
 ## Changing the model kernel
 
 
-```{r}
+```{r, warning = F}
 p1 + p2 + p3 +p4 + plot_layout(ncol = 2)
 ```
 
