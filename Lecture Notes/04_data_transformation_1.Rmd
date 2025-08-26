@@ -18,9 +18,114 @@ library(tidyverse)
 
 
 
-# To be built
+## Tidy data (for data frames and tibble)
+
+- Recall **tidy data:** one variable per column, one observation per row, one value per cell
+
+- We have seen: `subset()`, `$`, `[num1, num2]`. Today we will systematically introduce data manipulation using `dplyr`, developed by Hadley Wickham of RStudio
+
+- Advantage: abstract grammar (verbs) for data manipulation that others can read! Also **very fast** as many key functions are coded in `C++`.
+
+- Based on Chapter 3 of Wickham's *R for Data Science*
 
 
+
+## Key Functions
+
+- `filter`: subset observations (row) based on given criteria
+
+- `arrange`: reorder observations (row)
+
+**---------------------**
+
+- `select`: return a subset of the variables (columns)
+
+- `rename`: rename variables (columns)
+
+- `mutate`: add new variables (columns)
+
+**--------------------**
+
+- `summarize`: generate statistical summaries from existing variables
+
+- `%>%` or `|>`:  connection multiple verbs
+
+
+
+## `nycflights13`
+
+
+```{r}
+library(nycflights13)
+library(tidyverse)
+slice_sample(flights, n = 5)
+```
+
+## `nycflights13`
+
+```{r}
+str(flights)
+```
+
+
+
+## `filter()`
+
+`filter`: subset observations (row) based on given criteria
+
+```{r}
+filter(flights, month == 12, day == 14)
+```
+
+## `filter()`
+
+\tiny
+```{r}
+head(filter(flights, month == 12, day == 14 & dep_delay > 30))
+```
+
+\normalsize
+- The criteria: December **and** 14th **and** departure delay more than 30 minutes
+
+
+## Logical structure
+
+Boolean operations: 
+
+- AND: `&` or `,`
+- OR: `|`
+- NOT: `!`
+
+**-----------**
+
+- EQUALS to: `==`, Greater than: `>`, Less than `<`, along with `>=` and `<=`
+- BELONGS to: `%in%`
+
+
+**-----------**
+
+- **Example:** `(!(x|y))&z =` \pause `!x & !y & z`
+- **Example:** `var %in% c(a,b)` is the same as \pause `var == a | var == b`
+
+
+## `filter()` 
+
+```{r}
+NovDec <- filter(flights, month %in% c(11,12))
+table(NovDec$month)
+```
+
+- `filter()` returns a `T` or `F` for each part of the expression
+
+- Missing data (`NA`'s) could be a bit tricky
+
+- To keep the `NA` data, add `is.na()` (another Boolean) into `filter`
+
+
+```{r}
+NovDec <- filter(flights, (is.na(month) | month == 11 | month == 12))
+table(NovDec$month)
+```
 
 
 

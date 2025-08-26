@@ -10,7 +10,7 @@ urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
 knitr::opts_chunk$set(fig.align='center', out.width = "80%")
 library(gapminder)
 library(ggplot2)
