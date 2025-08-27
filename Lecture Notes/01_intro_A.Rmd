@@ -13,16 +13,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-## Syllabus
-
-- *Instructor*: Dr. Fushuai Jiang
-- *TA*: TBD
-- *Office Hours*: TBD
 
 ## Starting Texts (click the book titles for the links)
 
-- Healy, Kieran, [Data visualization: a practical introduction](https://socviz.co/)
-- Wickham, Hadley, Mine Çetinkaya-Rundel, and Garrett Grolemund, [R for data science](https://r4ds.had.co.nz/index.html)  
+- Kieran Healy, [Data visualization: a practical introduction](https://socviz.co/)
+- Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund, [R for data science](https://r4ds.had.co.nz/index.html) 
+- Hadley Wickham, [ggplot2: Elegant Graphics for Data Analysis](https://ggplot2-book.org/)
+- Winston Chang, [R Graphics Cookbook](https://r-graphics.org/)
 - (Recommended for formatting your work) Xie, Yihui, Joseph J. Allaire, and Garrett Grolemund, [R markdown: 
 The definitive guide](https://bookdown.org/yihui/rmarkdown)
 - More as we go along (but all will be free)
