@@ -446,3 +446,21 @@ flights_red |>
   slice_sample(n = 3)
 ```
 
+
+## Difference `|>` VS `%>%`
+
+More can be found in the [tidyverse.org](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/)
+
+- `%>%` is provided by the `dplyr` package, and `|>` comes from the base `R` 
+
+- They are mostly equivalent within the scope of this class, and I will mostly use `|>`
+
+- `%>%` is more advanced. For example, it can pipe into multiple entries, and it requires the period `.` as a placeholder. `df %>% {cor(.$x, .$y)}` is the same as `cor(df$x, df$y)`
+
+- `|>` pipes into the first unnamed argument, unless you use `_` as a placeholder (`R 4.2`)
+
+
+
+
+
+
