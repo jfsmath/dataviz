@@ -1,0 +1,136 @@
+---
+title: "Data Visualization in R"
+subtitle: "Syllabus, Fall 2025"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
+```
+
+
+
+## Basic information
+
+- Instructor: Dr. Fushuai Jiang
+- Office Hours: immediately after class or by appointment (usually via Zoom)
+- Textbooks: everything will be freely available online
+- Last day of in-person instruction: November 20. (The weeks after Thanksgiving break will be for you to do/review projects)
+- Prerequisites: STAT100, MATH135, or any 400-level STAT course; DATA110 or DATA120. I don't expect you to have a coding background. 
+
+
+## Course Objectives
+
+**Overall:** Introduction to effective and intuitive visual representations of data, including customizing graphics, plotting arrays, statistical graphics, and representing time series. 
+
+**Tentative topics:**
+
+- Principles of data visualization in `R` using `ggplot2`
+- Data wrangling using `dplyr`
+- Basic plot types such as scatter plots, line plots, bar charts, box plots, and correlation
+- geo-spatial plots and heat maps
+- interactive dashboard using `Shiny`
+
+
+## Grading structure
+
+
+- Your final grade depends on your
+  -  Homework (0%)
+  -  In-class assessment (30%)
+  - Project 1&2&3 (15% + 20% + 25%)
+  - Critique (10%)
+
+- This is a heavily project-based course. You will be working in groups for all the projects
+
+- % to letter grade:
+
+| | A | B | C | D | F | 
+|:------:|:------:|:------:|:------:|:------:|:------:|
+|$+$: $\geq$ | 97 | 87 | 77 | 67 | - |
+|$-$: $<$ | 93 | 83 | 73 | 63 | - |
+
+
+  
+## Homework
+
+- Assigned either weekly or biweekly, depending on how fast we go. Each assignment will be due Monday at midnight. 
+
+- The deadlines are for feedback purpose. You will receive feedback for your submitted work only if you meet the deadline. This is to control the work volume for the teaching crew. 
+
+
+## In-class assessment
+
+- Dates: Last Thursday of each month (for November it will be the Thursday before Thanksgiving break)
+
+- In class, paper-based. Length: 50 Minutes. 
+
+- Multiple-choice (and maybe fill-in-the-blank) problems testing 
+  - basic understanding of logic/syntax in `R`, and
+  - important statistical transforms
+- If you write/understand your homework and debug the code yourself (i.e. you pass the human verification test), you won't have a problem
+
+
+
+## Projects
+
+- Rubrics will be given with the projects when they are assigned. You will be working in groups of 3 (outlier group: one group of 2 or one group of 4. Only I get to decide the outlier group). 
+
+
+- All projects will be EDA-style (Exploratory Data Analysis)
+
+- Project 1 & 2: I will give you a dataset, and you will need to produce an EDA report. 
+  - Project 1: HTML Page
+  - Project 2: A Shiny App (interactive dashboard)
+
+- Project 3: You will need to find your own dataset that interests you (not easy, and pre-approved needed!), and you will need to produce and EDA report  (a set of slides), and **PRESENT IT** over recording. 
+
+
+## Project critique
+
+- The grade of your project will depend on your peers' evaluation (75%) and my input (25%). Again, clear rubrics will be given, and the median of the grade (per functionality) will be taken.
+
+- Each group will anonymously (to you, not to me) critique 5 other groups, and the feedback will be made available. 
+
+- I will grade your critique, by completion and the level of constructive criticism.
+
+- Malicious language/tone in critiques will be reported to Office of Student Conduct. 
+
+
+
+## Group Work
+
+- I will assign the group (unless you have a strong pitch for members). Each member will have a main role, for instance,
+  - Person 1 (leader) design/outline the EDA report and oversee the workflow
+  - Person 2 handles data wrangling and basic plotting
+  - Person 3 handles fine-tuning and technical writing 
+  
+  
+- Each member within a group receive their individual grade, based on the project critique and **internal evaluation**. Take accountability!
+
+- Part of the group leader's role is to **check in with me weekly** and update me on the project. 
+
+- Trouble within the team? First channel your communication and conflict-resolution skill, especially with the group leader. If that fails, talk to the HR (i.e. me). 
+
+
+
+## Ethics
+
+- You are encouraged to work together outside of the class, especially with your group
+
+- You are encouraged to use AI-powered programs to **HELP** you study. 
+
+- The in-class assessments will be close-book.
+  
+- For more information on the Code of Academic Integrity or the Student Honor Council, please visit <http://www.shc.umd.edu>
+
+
+
+
+
+
