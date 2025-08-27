@@ -203,6 +203,26 @@ cat(paste0("The correlation factor between temperature and the relative humidity
 Here, we also showcase the in-line code mode of Rmarkdown, where R code can be embedded. For instance, the correlation computed above was `r cor(df$temperature_2m,df$relative_humidity_2m)`. 
 
 
+```{r}
+library(ggplot2)
+
+# Scatter plot: Temperature vs. Humidity
+g_corr_temp_humid <- ggplot(df, aes(x = relative_humidity_2m, y = temperature_2m)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "firebrick") +
+  labs(
+    title = "Correlation between Temperature and Humidity",
+    x = "Humidity (%)",
+    y = "Temperature (F)",
+    caption = "Source: Open-Meteo https://api.open-meteo.com"
+  ) +
+  theme_minimal()
+
+g_corr_temp_humid
+```
+
+
+
 
 # Rain and Wind
 

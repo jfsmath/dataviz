@@ -204,4 +204,245 @@ head(df)
 select(df, num_range("mt_", 2:3))
 ```
 
+## 
+
+**Exercise:** construct a new dataset called `flights_red` that contains all the delay information, along with the distance traveled, in-air time, and the airline information
+
+\pause
+
+```{r}
+flights_red <- select(flights,
+                      contains("delay"),
+                      distance, air_time, carrier)
+head(flights_red)
+```
+
+
+## Use `select()` to reorder columns
+
+- You can move the selected variables to the front by inserting `everything()` into `select()`
+
+```{r}
+head(select(flights_red, carrier, everything()))
+```
+
+
+
+## `rename()`
+
+- Syntax: `rename(<data>, new_name = old_name)`
+
+
+```{r}
+head(rename(flights_red, distance_traveled = distance))
+```
+
+
+
+## `mutate()`
+
+Allows you to create new variables from existing variables. **Key for further investigation!!**
+
+```{r}
+mutate(flights_red,
+       gain = arr_delay - dep_delay,
+       speed = distance / (air_time/60),
+       gain_per_hour = gain/(air_time/60))
+```
+
+
+
+## `mutate()`
+
+Move the new variables to the front by composing the verbs and select 3 random observations. 
+
+```{r}
+slice_sample(select(mutate(flights_red,
+       gain = arr_delay - dep_delay,
+       speed = distance / (air_time/60),
+       gain_per_hour = gain/(air_time/60)),
+       gain, speed, gain_per_hour, everything()), n = 3)
+```
+
+
+- \textcolor{red}{Pretty hard to read to code, but we will fix this in a bit!}
+
+
+## `transmute()` a cousin of `mutate()`
+
+But it only keeps the new variables
+
+```{r}
+transmute(flights_red,
+          gain = arr_delay - dep_delay,
+       speed = distance / (air_time/60),
+       gain_per_hour = gain/(air_time/60))
+```
+
+
+## `transmute()`
+
+You can save old variables by including them in `transmute()`
+
+```{r}
+head(transmute(flights_red,
+          gain = arr_delay - dep_delay,
+          speed = distance / (air_time/60),
+          gain_per_hour = gain/(air_time/60),
+          carrier)) # We don't have to re-define carrier. 
+```
+
+
+# Other Functional Operations
+
+
+## `summarize()` 
+
+It collapses the data frame into a single row
+
+```{r}
+flights2 <- mutate(flights_red, 
+                   gain = arr_delay - dep_delay, 
+                   speed = distance / (air_time/60),
+                   gain_per_hour = gain/(air_time/60))
+summarize(flights2,
+          avg_gain = mean(gain, na.rm = T),
+          med_speed = median(speed, na.rm = T))
+```
+
+## `summarize()`
+
+- The number of columns depend on the number of statistical quantities you defined.
+
+- Previous example: average again and median speed, so `1 x 2`
+
+- The `na.rm = T` tells you to remove missing data. What if we don't?
+
+```{r}
+summarize(flights2,
+          avg_gain = mean(gain, na.rm = F))
+```
+
+## `summarize()` with groups
+
+More precisely, `summarize` collapses the data frame into a single row **at the group level!** (which is usually what we want)
+
+```{r}
+flights3 <- group_by(flights_red, carrier)
+summarize(flights3, avg_delay = mean(dep_delay, na.rm = T))
+```
+
+## `summarize()` with groups
+
+What if there are multiple grouping criteria?
+
+```{r}
+flights3 <- group_by(flights, carrier, month)
+summarize(flights3, avg_delay = mean(dep_delay, na.rm = T))
+```
+
+
+
+## `summarize()` with groups
+
+Let's look at some random samples. What is going on with the dimension here??
+
+```{r}
+flights3 <- group_by(flights, carrier, month)
+slice_sample(
+  summarize(flights3, avg_delay = mean(dep_delay, na.rm = T)),
+  n = 4)
+```
+
+
+## Intricacies about Grouping
+
+- After summarizing, you get **one row per group** (by `carrier` and `month`)
+
+- There are `length(unique(flights$carrier)) = 16` carriers and 12 months, so total 192 rows. 
+  - If the input is **grouped**, then `slice_sample()` samples within each group
+  - By default, `summarize()` drops one level of grouping (`R` message: `summarise()` has grouped output by 'carrier'. You can override using
+the `.groups` argument.), so the remaining dataset is still grouped by `carrier`
+  - `slice_sample()` picks 4 observations per carrier
+  
+  
+
+## `summarize()`, dropping all the groups
+
+
+```{r}
+flights3 <- group_by(flights, carrier, month)
+slice_sample(
+  summarize(flights3, 
+            avg_delay = mean(dep_delay, na.rm = T),
+            .groups = "drop"),
+  n = 4)
+```
+
+
+## `summarie()`, regroup by months
+
+```{r}
+flights3 <- group_by(flights, carrier, month)
+slice_sample(
+  group_by(summarize(flights3, 
+                      avg_delay = mean(dep_delay, na.rm = T),
+                      .group = "drop"),
+           month),
+  n = 2)
+```
+
+
+# The pipeline
+
+## The pipeline `|>`
+
+The function in the last slide is hard to read, so we (always) use the pipeline
+
+```{r}
+flights |>
+  group_by(carrier,month) |>
+  summarize(avg_delay = mean(dep_delay, na.rm = T),.group = "drop") |>
+  group_by(month) |>
+  slice_sample(n = 2)
+```
+
+
+## What is the pipeline doing?
+
+- A pipeline always **STARTS WITH THE DATA**
+- It looks like
+```
+data |> f_1() |> f_2()
+```
+- It means that the **OUTPUT** of `f_1` is fed into the first input of `f_2()` (which again is always the data!)
+
+- It is equivalent to the composition
+```
+f_2( f_1( data , ...), ...)
+```
+
+## The pipeline `|>`
+
+Consider the example from before:
+\small
+```
+slice_sample(select(mutate(flights_red,
+                            gain = arr_delay - dep_delay,
+                            speed = distance / (air_time/60),
+                            gain_per_hour = gain/(air_time/60)),
+                      everything()), 
+              n = 3)
+```
+\normalsize
+How to change it into a single pipeline? \pause
+
+```{r}
+flights_red |>
+  mutate(gain = arr_delay - dep_delay,
+         speed = distance / (air_time/60),
+         gain_per_hour = gain/(air_time/60)) |>
+  select(gain, speed, gain_per_hour, everything()) |>
+  slice_sample(n = 3)
+```
 
