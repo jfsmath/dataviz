@@ -36,10 +36,10 @@ knitr::opts_chunk$set(echo = F)
 
 
 - Your final grade depends on your
-  -  Homework (0%)
-  -  In-class assessment (30%)
-  - Project 1 & 2 & 3 (60% = 15% + 20% + 25%)
-  - Critique (10%)
+  - Homework (0%)
+  - In-class assessment (36% = 3 x 12%)
+  - Project 1 & 2 & 3 (50% = 16% + 18% + 20%)
+  - Project Critique (10%)
 
 - This is a heavily project-based course. You will be working in groups for all the projects
 
@@ -65,10 +65,12 @@ knitr::opts_chunk$set(echo = F)
 
 - In class, paper-based. Length: 50 Minutes. 
 
-- Multiple-choice (and maybe fill-in-the-blank) problems testing 
+- Formats: Multiple-choice (and maybe fill-in-the-blank) problems testing 
   - basic understanding of logic/syntax in `R`, and
   - important statistical transforms
 - If you write/understand your homework and debug the code yourself, you won't have a problem
+
+- <font color = "red">**IMPORTANT NOTICE:**</font>  I am not able to schedule makeup for the 3rd assessment until the spring semester, so if you miss class that day, I will have to give you an incomplete (unless you agree to go with a missing 12% in your final grade). 
 
 
 
