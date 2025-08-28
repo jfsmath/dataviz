@@ -570,4 +570,4 @@ ggbiplot::ggbiplot(pca.iris,circle = T,
 
 - The projected lengths onto PC1 and PC2 correspond to the weight of the coefficients (called **loading**)
 - The plots says petal length and width mostly align PC1, Sepal width and sepal length both contribute negatively to PC2
-- **Possible Interpretation:** PC1 captures petal l/w and sepal l, while PC2 captures sepal width
+- **Possible Interpretation:** PC1 captures petal l/w and a good chunk of sepal length, while PC2 mostly captures sepal width and a bit of sepal length
