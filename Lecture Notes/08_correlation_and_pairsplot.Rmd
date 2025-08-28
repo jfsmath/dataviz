@@ -31,6 +31,8 @@ Source: [xkcd](https://xkcd.com/552/)
 install.packages(c("corrplot", "ggcorrplot", "GGally"))
 ```
 
+# Visualizing Correlation
+
 ## Review/Preview: Correlation
 
 - For two random variables $X_1$ and $X_2$,
@@ -301,10 +303,102 @@ pmatrix
 ```
 
 
+# Pairs Plot and PCA
+
+## The `iris` dataset
+
+```{r}
+X <- iris3
+dim(X)
+head(X)
+```
+## Slicing a multi-dimensional array
+
+```{r}
+X_setosa <- X[ , , 1]
+head(X_setosa)
+```
+
+## row-binding (reshaping) using `rbind()`
+
+```{r}
+X_iris3 <- rbind(iris3[,,1], iris3[,,2], iris3[,,3])
+str(X_iris3)
+```
+
+
+## Creating a dataframe
+
+```{r}
+df <- data.frame(X_iris3)
+# create a new variable called `species`
+df$species <- c(rep("setosa", 50), 
+                rep("versicolor", 50), 
+                rep("virginica", 50))
+slice_sample(df, n = 5)
+```
 
 
 
+## Pairs Plot via `GGally:ggpairs`
 
 
+```{r, out.width="90%"}
+ggpairs(df)
+```
 
+## Customizing `ggpairs`
+
+Let's remove the `species` column first
+```{r, out.width="90%"}
+ggpairs(df, columns = 1:4)
+```
+
+
+## Customizing `ggpairs`
+
+```{r, out.width = "100%"}
+ggpairs(df, columns = 1:4, aes(color = species))
+```
+
+## Further customization, `upper`, `lower`, `diag`
+\tiny
+```{r}
+ggpairs(df, columns = 1:4, 
+        aes(color = species),
+        diag = list(continuous = wrap("densityDiag", alpha= 0.3)),
+        upper = list(continuous = wrap("cor", size = 2.7)), 
+        lower = list(continuous = wrap("points", size = 0.2, alpha = 0.8)))
+```
+
+## Discrete + Continuous features
+
+
+```{r, eval = F}
+ggpairs(df, columns = c(1,2,3,5), 
+        aes(color = species),
+        diag = list(
+          continuous = wrap("densityDiag", alpha= 0.3)),
+        upper = list(
+          continuous = wrap("cor", size = 2.7)), 
+        lower = list(
+          continuous = wrap("points", size = 0.2, alpha = 0.8))) + 
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    axis.text.y = element_text(size = 4))
+```
+
+## Discrete + Continuous features
+
+
+```{r, echo = F, out.width = "100%"}
+ggpairs(df, columns = c(1,2,3,5), 
+        aes(color = species),
+        diag = list(continuous = wrap("densityDiag", alpha= 0.3)),
+        upper = list(continuous = wrap("cor", size = 2.7)), 
+        lower = list(continuous = wrap("points", size = 0.2, alpha = 0.8))) + 
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5),
+    axis.text.y = element_text(size = 4))
+```
 
