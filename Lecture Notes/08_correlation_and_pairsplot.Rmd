@@ -11,11 +11,13 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
-knitr::opts_chunk$set(fig.align='center', out.width = "60%")
-library(gapminder)
+knitr::opts_chunk$set(fig.align='center', out.width = "65%")
 library(ggplot2)
-
 library(tidyverse)
+library(patchwork)
+library(ggcorrplot)
+library(corrplot)
+library(GGally)
 ```
 
 
@@ -24,6 +26,10 @@ library(tidyverse)
 \center
 Source: [xkcd](https://xkcd.com/552/)
 
+- For today:
+```
+install.packages(c("corrplot", "ggcorrplot", "GGally"))
+```
 
 ## Review/Preview: Correlation
 
@@ -73,7 +79,7 @@ class(d_cor)
 
 ## Correlogram in `R` via `corrplot`
 
-First `install.packages("corrplot")`
+
 ```{r}
 library(corrplot)
 corrplot(d_cor)
@@ -99,6 +105,36 @@ corrplot(d_cor, method = "square", type = "upper",
 ```
 
 
+## Sampling from `diamonds`
+
+- When the dataset is too big (`dim(diamonds) =` `r dim(diamonds)`), it is a good idea to choose random samples.  
+
+- Set seed to ensure reproducibility, and be clear about the sampling process in the caption/description. 
+
+- In the code below, we sample 20% from the total
+
+```
+diamonds |> 
+  slice_sample(n = floor(0.2*length(diamonds$carat))) |>
+  select(carat, depth, table, price) |>
+  cor() |> 
+  corrplot(method = "pie", addCoef.col = "black", 
+            diag = F, type = "upper")
+```
+
+##
+
+```{r, echo = F, out.width="100%"}
+set.seed(2025)
+diamonds |> 
+  slice_sample(n = floor(0.2*length(diamonds$carat))) |>
+  select(carat, depth, table, price) |>
+  cor() |> 
+  corrplot(method = "pie", addCoef.col = "black", diag = F, type = "upper")
+```
+
+
+
 ## Example: `mtcars`
 
 ```{r}
@@ -119,9 +155,8 @@ corrplot(C, method = "pie", type = "lower", diag = F, title = "Visualizing Corre
 
 ## Option 2, `ggcorrplot`
 
-First `install.packages("ggcorrplot")`. 
 
-```{r}
+```{r, out.width = "70%"}
 library(ggcorrplot)
 ggcorrplot(C)
 ```
@@ -138,12 +173,138 @@ p2 <- ggcorrplot(C, method = "square", type = "upper",
                  ggtheme = ggthemes::theme_tufte())
 ```
 
-## `ggcorrplot`
+## 
 
-```{r, out.width="110%"}
+```{r, out.width="100%"}
 library(patchwork)
 p1 + p2
 ```
+
+
+
+## Option 3: `ggcorr`
+
+- The official documentation for `GGally::ggcorr` can be found [here](https://briatte.github.io/ggcorr/)
+
+- Note that the first input of `ggcorr` does not directly take a correlation matrix, but the **data**
+
+- Output: a `gg` graph object
+
+- Default correlation test: Pearson 
+$$
+r_{X,Y} = \frac{s_{xy}}{\sqrt{s_{xx}}\sqrt{s_{yy}}}
+\quad\text{ where } s_{xy} = \frac{1}{n-1}\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y).
+$$
+
+
+##
+
+```{r}
+library(GGally)
+set.seed(2025)
+diamonds |> 
+  slice_sample(n = floor(0.2*length(diamonds$carat))) |>
+  select(carat, depth, table, price) |>
+  ggcorr()
+```
+
+
+## Using a correlation matrix instead
+
+```{r}
+ggcorr(data = NULL, cor_matrix = d_cor)
+```
+
+## Full vs sampled correlation matrix
+
+As a sanity check, we can look at the difference between the true correlation matrix and the sub-sampled correlation matrix:
+
+```{r}
+difference <- d_cor - diamonds |> 
+     slice_sample(n = floor(0.2*length(diamonds$carat))) |>
+     select(carat, depth, table, price) |> cor()
+difference
+```
+
+## Digress: visualizing intensity using heat map `geom_tile()`
+
+\tiny
+```{r}
+df <- as.data.frame(difference) |> 
+  tibble::rownames_to_column("x") |> 
+  pivot_longer(-x, names_to = "y", values_to = "Difference")
+ggplot(df, aes(x,y, fill = Difference)) + geom_tile() + 
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0)
+```
+
+
+
+## Example `mtcars`
+
+```{r, outw.width = "100%"}
+ggcorr(mtcars, label = T, label_size = 2)
+```
+
+
+
+## Full customization with `ggcorrplot` (backtracking)
+
+
+
+
+```{r, eval = F}
+mtcars2 <- mtcars
+names(mtcars2) <- c("MPG", "Cylinders", "Displacement", "HP", "RearAxle",
+                    "Weight", "QuarterMile", "VS", "AM", "Gears", "Carb")
+C <- cor(mtcars2)
+pmatrix<-cor_pmat(mtcars2)
+ggcorrplot(C, 
+           p.mat = pmatrix, 
+           lab = T, lab_size = 2,
+           method = "circle",
+           type = "upper", legend.title = "Correlation") + 
+  theme_bw() + 
+  labs(x = "", y = "", title = "Visualizing Correlation", caption = "Source: mtcars") + 
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.7))
+```
+
+
+## Full customization with `ggcorrplot`
+
+```{r, echo = F, out.width="100%"}
+mtcars2 <- mtcars
+names(mtcars2) <- c("MPG", "Cylinders", "Displacement", "HP", "RearAxle",
+                    "Weight", "QuarterMile", "VS", "AM", "Gears", "Carb")
+C <- cor(mtcars2)
+pmatrix<-cor_pmat(mtcars2)
+ggcorrplot(C, 
+           p.mat = pmatrix, 
+           lab = T, lab_size = 2,
+           method = "circle",
+           type = "upper", legend.title = "Correlation") + 
+  theme_bw() + 
+  labs(x = "", y = "", title = "Visualizing Correlation", 
+       caption = "Source: mtcars. Pearson's correlation test, p = 0.05") + 
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.7))
+```
+
+
+## $p$-value matrix
+
+In the last slide, we had the line and we specified `p.mat = pmatrix`, taking the story-telling one-step further
+
+\tiny
+```{r}
+pmatrix<-cor_pmat(mtcars2)
+pmatrix
+```
+
+
+
+
+
+
 
 
 
