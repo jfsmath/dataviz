@@ -402,3 +402,49 @@ ggpairs(df, columns = c(1,2,3,5),
     axis.text.y = element_text(size = 4))
 ```
 
+
+
+## Principal Component Analysis (PCA)
+
+- Very popular linear **dimension reduction techniques**
+
+
+
+- Say each observation has $p$ features, and in total $n$ observations, so the data matrix $\mathbf{X} \in \mathbb{R}^{n\times p}$. 
+
+- Oftentimes $p \gg 1$, and many features are highly-correlated
+
+- **Q1:** how do we visualize high-dimensional data?
+
+- **Q2:** how do we see the "most relevant" features and not redundancy?
+
+- PCA provides an answer
+
+
+## PCA
+
+- **Goal:** 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
