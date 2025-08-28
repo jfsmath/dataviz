@@ -14,13 +14,16 @@ knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
 knitr::opts_chunk$set(fig.align='center', out.width = "80%")
 library(gapminder)
 library(ggplot2)
-library(socviz)
+
 library(tidyverse)
 ```
 
 
 
 ![](images/08_correlation.png)
+\center
+Source: [xkcd](https://xkcd.com/552/)
+
 
 
 
