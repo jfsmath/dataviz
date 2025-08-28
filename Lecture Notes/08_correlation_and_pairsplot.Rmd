@@ -11,7 +11,7 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
-knitr::opts_chunk$set(fig.align='center', out.width = "80%")
+knitr::opts_chunk$set(fig.align='center', out.width = "60%")
 library(gapminder)
 library(ggplot2)
 
@@ -25,13 +25,125 @@ library(tidyverse)
 Source: [xkcd](https://xkcd.com/552/)
 
 
+## Review/Preview: Correlation
+
+- For two random variables $X_1$ and $X_2$,
+$$
+\mathrm{corr}(X_1,X_2) = \frac{\mathrm{cov}(X_1,X_2)}{\sigma_1 \sigma_2} \in [0,1]
+$$
+where $\mathrm{cov}(X_1,X_2) = \mathbb{E}[(X_1-\mu_1)(X_2-\mu_2)]$. What if you have $n$ random variables $X_1, \cdots, X_n$? \pause
+
+- We want to keep track of the correlation between every pair $(X_i, X_j)$, and the best way is to store them in a matrix, called the correlation matrix $C_{\mathbf{X}}$, whose entries are
+$$
+C_{ij} = \mathrm{corr}(X_i, X_j)
+$$
+
+- What are the diagonal entries of $C$? What other properties do $C$ have?
+
+## Preview/Review: Correlation
+
+- Advantage of using correlation over covariance? \pause Correlation is scale-invariant! \pause
+
+- **Caution**: correlation measures only the **linear relationship** between variables (if they increase/decrease linearly together). 
+  
+- Zero correlation does not mean independence
+
+- Strong correlation does not imply causation
+
+
+- The correlation, variance, and covariance functions are `cor`, `var()`, and `cov()`. What happens if you just type `cor(diamonds)`?
+
+
+## `cor()`
+
+- We first select several numerical columns
+
+```{r}
+d_cor <- diamonds |> 
+  select(carat, depth, table, price) |>
+  cor()
+d_cor
+```
+- `d_cor` is not quite just a matrix -- it carries the variable name as well
+```{r}
+class(d_cor)
+```
 
 
 
+## Correlogram in `R` via `corrplot`
+
+First `install.packages("corrplot")`
+```{r}
+library(corrplot)
+corrplot(d_cor)
+```
 
 
 
+## Correlogram in `R` via `corrplot`
 
+You can specify the method (the default is "circle"). You can also remove the diagonal (since it's always 1)
+
+```{r}
+corrplot(d_cor, "ellipse", diag = F)
+```
+
+## Correlogram in `R` via `corrplot`
+
+`type` removes the upper/lower matrix. `addCoef.col` includes the correlation coefficient (and the color). 
+
+```{r}
+corrplot(d_cor, method = "square", type = "upper", 
+         addCoef.col = "black")
+```
+
+
+## Example: `mtcars`
+
+```{r}
+head(mtcars)
+str(mtcars)
+```
+
+
+
+## Example: `mtcars`
+
+```{r}
+C <- cor(mtcars)
+corrplot(C, method = "pie", type = "lower", diag = F, title = "Visualizing Correlation")
+```
+
+
+
+## Option 2, `ggcorrplot`
+
+First `install.packages("ggcorrplot")`. 
+
+```{r}
+library(ggcorrplot)
+ggcorrplot(C)
+```
+
+## `ggcorrplot`
+
+The basic syntax is similar, but it is now a `gg` graph object, and is compatible with other features of `ggplot2`
+```{r}
+p1 <- ggcorrplot(C, method = "circle", type = "lower",
+                ggtheme = ggthemes::theme_solarized_2())
+
+p2 <- ggcorrplot(C, method = "square", type = "upper", 
+                 lab = T, lab_size = 2,
+                 ggtheme = ggthemes::theme_tufte())
+```
+
+## `ggcorrplot`
+
+```{r, out.width="110%"}
+library(patchwork)
+p1 + p2
+```
 
 
 
