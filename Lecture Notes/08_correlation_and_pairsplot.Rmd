@@ -1,0 +1,34 @@
+---
+title: "Data Visualization in R"
+subtitle: "Correlation and Pairs Plot"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
+knitr::opts_chunk$set(fig.align='center', out.width = "80%")
+library(gapminder)
+library(ggplot2)
+library(socviz)
+library(tidyverse)
+```
+
+
+
+![](images/08_correlation.png)
+
+
+
+
+
+
+
+
+
+
+
