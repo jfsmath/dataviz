@@ -85,7 +85,7 @@ load("Myworkspace.RData")
 
 - To install packages, use:
 ```
-install.packages("dplyr", "ggplot2")
+install.packages(c("dplyr", "ggplot2"))
 ```
 
 - To load packages, use

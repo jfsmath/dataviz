@@ -44,7 +44,7 @@ knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
 - Your final grade depends on your
   - Homework (0%)
   - In-class assessment (36% = 3 x 12%)
-  - Project 1 & 2 & 3 (50% = 16% + 18% + 20%)
+  - Project 1 & 2 & 3 (54% = 16% + 18% + 20%)
   - Project Critique (10%)
 
 - This is a heavily project-based course. You will be working in groups for all the projects
