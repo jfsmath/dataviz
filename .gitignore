@@ -10,3 +10,5 @@ Lecture Notes/01_intro_A.pdf
 /Assignments
 .Rhistory
 *.html
+*.tex
+*.RData

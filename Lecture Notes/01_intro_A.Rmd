@@ -147,7 +147,8 @@ install.packages(tidyverse_packages)
 If data is stored at a remote site, you can download it as follows:
 
 ```{r}
-pway <-  "https://cdn.rawgit.com/kjhealy/viz-organdata/master/organdonation.csv"
+pway <-  "https://cdn.rawgit.com/kjhealy/
+viz-organdata/master/organdonation.csv"
 organs <- readr::read_csv(pway)
 ```
 
@@ -396,8 +397,8 @@ p + geom_point(aes(col = state, size = popdensity))
 
 ## Plotting a dataframe
 
-Add **legends** and **labels** (I will be **\textcolor{red}{VERY PICK}** about this in your grading). 
-```{r, echo = FALSE, out.height="700%", fig.align='center'}
+Add **legends** and **labels** (I will be **\textcolor{red}{VERY PICK}** about this in your grading rubric). 
+```{r, echo = FALSE, out.height="70%", fig.align='center'}
 p + geom_point(aes(col = state, size = popdensity)) + 
   labs(
     title = "Poverty and Education",
