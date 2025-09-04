@@ -186,28 +186,108 @@ ggplot(diamonds) +
 
 ## `facet_grid()` on diamonds
 
-```{r}
+```{r, message=F, warning = F}
 ggplot(dplyr::slice_sample(diamonds, n = 5000)) + 
   facet_grid(clarity ~ cut) + 
-  geom_point(aes(x = carat, y = price), size = 0.6, alpha = 0.4)
+  geom_point(aes(x = carat, y = price), size = 0.6, alpha = 0.4) + 
+  geom_smooth(aes(x = carat, y = price), se = F)
 ```
 
 
 
 
+## `facet_grid()` on `mpg`, labeling
+
+```{r}
+str(mpg)
+```
+## Exercise: `facet_grid()` on `mpg`
+
+
+
+- Suppose we want to visualize the relationship between the engine displacement (`displ`) and the highway fuel efficiency (`mpg`), 
+- categorized by drive train (`drv`) and the types of car (`class`), 
+- and use colors to distinguish years.
+
+
+## `facet_grid()` on `mpg`
+
+```{r}
+p <- ggplot(mpg, aes(x=displ, y = hwy))+ 
+  geom_point(aes(color = as.factor(year))) + 
+  facet_grid(class~drv)
+p
+```
 
 
 
 
+## `facet_grid()` on `mpg`, LABELING
+
+
+```{r}
+unique(mpg$drv)
+unique(mpg$class)
+```
+
+```{r}
+r_labs <- c("4" = "Four Wheel Drive", 
+            "f"= "Front Wheel Drive", 
+            "r" = "Rear Wheel Drive")
+c_labs <- c('2seater' ="Two seater", 
+'compact'="Compact", 'midsize'="Mid-size", 
+'minivan'="Minivan", 'pickup'="Pickup truck", 
+'subcompact'="Subcompact", 'suv'="Suv")
+```
 
 
 
 
+## `facet_grid()` on `mpg`, LABELING
+
+```{r}
+p + facet_grid(drv~class,labeller = labeller(
+  drv = r_labs, class = c_labs))
+```
 
 
 
 
+## Axial scaling
 
 
+In `facet_`, you can control  if position scales are the same in all panels (`fixed`) or allowed to vary between panels (`free`) with the scales parameter
+
+- `scales = "fixed"`: both x and y scales are fixed
+
+- `scales = "free_x"` or `"free_y"`: free one, fix the other
+
+- `scales = "free"`: both free
+
+- **Why fixed?** -- easier to see patterns across panels
+
+- **Why free?** -- easier to see patterns within panels
 
 
+## Default: fixed scales
+
+```{r}
+p + geom_abline(intercept = c(0,0), slope =10)
+# a reference line with intercept at the origin 
+# and slope 10, see ?geom_abline
+```
+
+
+## `scales = "free_y"`
+
+```{r}
+p + geom_abline(intercept = c(0,0), slope =10) + 
+  facet_grid(class~drv, scales = "free_y")
+```
+
+## `scales = "free"`
+
+```{r}
+p + geom_abline(intercept = c(0,0), slope =10) + 
+  facet_grid(class~drv, scales = "free")
+```
