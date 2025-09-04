@@ -1,0 +1,213 @@
+---
+title: "Data Visualization in R"
+subtitle: "MultiPanel and Layout"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
+knitr::opts_chunk$set(fig.align='center', out.width = "75%")
+library(ggplot2)
+library(socviz)
+library(tidyverse)
+library(patchwork)
+library(ggcorrplot)
+library(corrplot)
+library(GGally)
+```
+
+
+
+## Main functions: `facet_wrap()` and `facet_grid()`
+
+- Reference: chapter 9 and chapter 16 of [ggplot2: Elegant Graphics for Data Analysis](https://ggplot2-book.org/facet.html)
+
+
+- The `facet_` function allows us to make visually effective multi-grid plots, where each grid displays a different value of the **faceted variable**
+
+- **Benefit:** declutter a busy picture for better comparison
+
+- `facet_Wrap()` splits (facets) on **one variable**
+
+- `facet_grid` splits on multiples (can get pretty busy pretty quickly)
+
+
+
+## Main functions: `facet_wrap()` and `facet_grid()`
+
+![](images/08_facet.png)
+
+\tiny From *ggplot2: Elegant Graphics for Data Analysis* 
+
+
+## Example: `oecd_le`
+
+\tiny
+```{r}
+library(socviz, ggplot2)
+p <- ggplot(oecd_le, aes(x = year, y = lifeexp))
+p + geom_line(aes(group = country)) # + labels
+```
+
+
+
+## `facet_wrap()` example: `oecd_le`
+
+- It makes a long ribbon of panels (determined by `unique(data$var)`)
+
+- `ncol` or `nrow` controls the dimension (only need to specify one of them)
+
+- `dir` contorls the direction of the wrap **h**orizontal or **v**ertical
+
+
+```{r}
+p + facet_wrap(~country)
+```
+
+
+## `facet_wrap()` example: `oecd_le`
+
+```{r}
+p + facet_wrap(~country, nrow = 4, dir = "v")
+```
+
+## `facet_wrap()` example: `oecd_le`
+
+```{r}
+p + facet_wrap(~country, ncol = 7, dir = "h") + 
+  geom_line()
+```
+
+## `facet_wrap()`: USA vs others
+
+Suppose I want to compare USA vs other countries. How to fix the following plot?
+
+```{r}
+p + facet_wrap(~is_usa) + geom_line()
+```
+## `facet_wrap()`: USA vs others
+
+```{r}
+p + facet_wrap(~is_usa) + geom_line(aes(group = country))
+```
+
+What else can we do to tell a better story?
+
+## 
+
+```{r}
+p2 <- p + facet_wrap(~is_usa) + geom_line(aes(group = country), alpha = 0.4) + 
+  geom_smooth(se = F, color= "red", linewidth = 1.7)
+p2
+```
+
+## Labeling with faceted plots
+
+```{r}
+fac.labs <- c(other = "Non-US OECD countries", 
+              usa  = "USA")
+p2 + facet_wrap(~is_usa, 
+                labeller = labeller(is_usa = fac.labs)) + 
+labs(title = "Life Expectancy of USA vs non-US OECD countries", x = "Year", y = "Life Expectancy (in years)", caption = "Source: OECD data") + ggthemes::theme_tufte()
+```
+
+
+## Named Character Vectors in `R`
+
+- The `fac.lab` object is a **named character vector** in `R`. These are quite useful for custom labeling
+
+```{r}
+fac.labs
+typeof(fac.labs)
+is.vector(fac.labs)
+names(fac.labs)
+```
+
+
+## `facet_Wrap()` example: diamonds
+
+```{r}
+ggplot(diamonds, aes(x = clarity, y = price)) + 
+  geom_boxplot(aes(color = clarity)) + facet_wrap(~cut) + 
+  scale_y_log10(labels = scales::dollar)
+```
+
+
+
+## `facet_grid`
+
+
+
+`facet_grid()` lays out plots in a 2d grid:
+
+- `. ~ var` spreads the values of `var` across the columns
+  
+- `var ~ .` spreads the values of `var` across the rows
+  
+- `var1 ~ var2` spreads the values of `var1` across the rows, and `var2` across the columns
+  
+- The `.` is a placeholder, facilitating the comparison of the corresponding positions
+  
+
+## `facet_grid()` on diamonds
+
+```{=latex}
+\begin{columns}
+\column{0.5\textwidth}
+```
+
+```{r, out.width="100%"}
+ggplot(diamonds) + 
+  facet_grid(. ~ cut)
+```
+
+```{=latex}
+\column{0.5\textwidth}
+```
+
+```{r, out.width="100%"}
+ggplot(diamonds) + 
+  facet_grid(clarity ~ .)
+```
+
+```{=latex}
+\end{columns}
+```
+
+
+
+
+
+
+## `facet_grid()` on diamonds
+
+```{r}
+ggplot(dplyr::slice_sample(diamonds, n = 5000)) + 
+  facet_grid(clarity ~ cut) + 
+  geom_point(aes(x = carat, y = price), size = 0.6, alpha = 0.4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
