@@ -1,0 +1,35 @@
+---
+title: "Project 3"
+author: "Data 350"
+date: "Due date: December 8 at midnight (ET)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Things to keep in mind
+
+- If your dataset is **too small**, i.e., 3 variables with 6 observations, it is unlikely that you will be able to tell a good story with this dataset. It doesn't mean that you should completely throw it away, but you definitely need to find other data to complement this. 
+
+
+## Example sources of data
+
+**
+The following are for references. Feel welcome to use them if they actually suit your interest, but don't let these constrain your imagination.
+**
+
+- [World Health Organization](https://data.who.int/) for world data
+  - For instance, you can download the [statistical annex](https://www.who.int/data/gho/whs-annex/)
+- [DATA.GOV](https://data.gov/) for US data. 
+  - For instance, if you search "cost of living", the first one that pops up is the [fruits and vegetable prices](https://catalog.data.gov/dataset?q=cost+of+living). 
+  - Or there is the [Consumer Price Index (CPI)](https://catalog.data.gov/dataset/consumer-price-index-cpi-ee18b).
+  - If you search "NOAA" then you may land here <https://www.ncei.noaa.gov/stormevents/ftp.jsp>
+- [Open Data](https://opendata.maryland.gov/) for Maryland data
+
+
+
+
+

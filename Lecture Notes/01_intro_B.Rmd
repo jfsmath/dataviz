@@ -12,6 +12,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+## Getting started with R Markdown
+
+- *R Markdown* is a versatile platform (used within RStudio) that allows for documents and presentations to be produced with seamless integration of:
+  - Text and external figure files
+  - R code chunk (can be evaluated within the document)
+  - \LaTeX\ (pronounced Lay-Tek or Laa-Tek) for typesetting math
+  
+- This (and many future) set of slides is made with R Markdown
+
+- Supported output format:
+  - HTML, PDF, MS Word
+  - Beamer (PDF via LaTeX) and MS PowerPoint
+
+- Guide book: Xie, Allaire, and Grolemund - [R Markdown: the definitive guide](https://bookdown.org/yihui/rmarkdown)
+
+
+
+
+## Get used to `PlainText` and `RMarkdown`, take notes with it!
+
+- Avoid using word processors (like Google Docs or MS Word)
+
+- better to think of the data and code as what’s real, together with the text you writ
+
+- Idea: your figures, tables, and text, and so on, can be **procedurally** and **reproducibly** generated from code, data, and written material stored in a simple, plain-text format.
+
+- Be proficient at juggling between **writing code**, **looking at output**, and **taking notes**
+
+- About coding: R documentation/Google/StackExchange is your best friend. You can code *with* AI, but you should not be publishing code to production that you don't understand. 
+
+
 
 ## Functions in R
 
@@ -340,16 +371,4 @@ cor.test(x, y)
 ```
 
 
-## Getting started wit R Markdown
-
-- *R Markdown* is a versatile platform (used within RStudio) that allows for documents and presentations to be produced with seamless integration of:
-  - Text and external figure files
-  - R code chunk (can be evaluated within the document)
-  - LaTeX (pronounced Lay-Tek or Laa-Tek) for typesetting math
-  
-- This (and many future) set of slides is made with R Markdown
-
-- Supported output format:
-  - HTML, PDF, MS Word
-  - Beamer (PDF via LaTeX) and MS PowerPoint
 
