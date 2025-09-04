@@ -397,7 +397,7 @@ p + geom_point(aes(col = state, size = popdensity))
 
 ## Plotting a dataframe
 
-Add **legends** and **labels** (I will be **\textcolor{red}{VERY PICK}** about this in your grading rubric). 
+Add **legends** and **labels** (I will be **\textcolor{red}{VERY HARSH}** about this in your grading rubric). 
 ```{r, echo = FALSE, out.height="70%", fig.align='center'}
 p + geom_point(aes(col = state, size = popdensity)) + 
   labs(
