@@ -633,7 +633,7 @@ p12 | p4 + ggthemes::theme_solarized(light = F)
 
 ## Modifying all plots
 
-The fix: using `&` and change the order of the operation (trial and error)
+The fix: using `&` and change the order of the operation (expect trial and error :-))
 
 ```{r}
 (p12 | p4) & ggthemes::theme_solarized(light = F)
@@ -644,13 +644,20 @@ The fix: using `&` and change the order of the operation (trial and error)
 After assemply, plots are a single object and annotation (via `plot_annotation`) works on the whole figure
 
 ```{r}
-p34 <- p3 + p4 + plot_annotation(title = "Effect of Drive Train", caption = "Source: mpg dataset")
+p34 <- p3 + p4 + 
+  plot_annotation(title = "Effect of Drive Train", caption = "Source: mpg dataset")
 p34
 ```
 
 
 
+## Plots and annotations
 
+Annotations are wiped after you assemble using patchwork again.
+
+```{r}
+p34 / p12
+```
 
 
 
