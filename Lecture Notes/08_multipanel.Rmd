@@ -299,7 +299,7 @@ p + geom_abline(intercept = c(0,0), slope =10) +
 ## When free scaling matters
 
 ```{r}
-?economics_long
+# ?economics_long
 str(economics_long)
 unique(economics_long$variable)
 ```
@@ -324,9 +324,24 @@ ggplot(economics_long, aes(date, value)) + geom_line() +
 ```
 
 
+- How would you set the $y$-label in this plot?
 
 
 
+
+
+## Labeling
+
+```{r, echo = F}
+var.labs = c()
+ggplot(economics_long, aes(date, value)) + geom_line() + 
+  facet_wrap(~variable, ncol=1, scales = "free_y") + 
+  labs(
+    title = "US economics time series visualization",
+    x = "Date", y = "",
+    caption = "Source: economics long dataset. Units from top to bottom: billions of dollars, thousands, no units, weeks, thousands"
+  )
+```
 
 
 
