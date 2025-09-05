@@ -1,6 +1,6 @@
 ---
 title: "Introduction to R & R Markdown"
-subtitle: "DATA350: Data Visualization and Presentation"
+subtitle: "Functions and RNGs"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
