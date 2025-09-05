@@ -644,20 +644,45 @@ The fix: using `&` and change the order of the operation (expect trial and error
 After assemply, plots are a single object and annotation (via `plot_annotation`) works on the whole figure
 
 ```{r}
-p34 <- p3 + p4 + 
-  plot_annotation(title = "Effect of Drive Train", caption = "Source: mpg dataset")
-p34
+p123 <- p1 | (p2 / p3)
+p123 + plot_annotation(
+    title = "Effect of Drive Train", 
+    caption = "Source: mpg dataset", 
+    tag_levels = "a")
 ```
 
 
 
 ## Plots and annotations
 
-Annotations are wiped after you assemble using patchwork again.
+There are a \huge HUGE \normalsize number of annotation options. More on this soon!
 
 ```{r}
-p34 / p12
+p123[[2]] <- p123[[2]] + plot_layout(tag_level = "new")
+p123 + plot_annotation(tag_levels = c("A", "1"))
 ```
+
+
+
+## Plots within Plots via `inset_element()`
+
+
+```{r}
+p1 + inset_element(p2, 
+  left = 0.5, right = 0.9, bottom = 0.4, top = 0.95) + 
+  plot_annotation(tag_levels = "i")& 
+  ggthemes::theme_excel()
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
