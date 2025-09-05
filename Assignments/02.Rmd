@@ -1,0 +1,49 @@
+---
+title: "Assignment 2"
+author: "Your Name and UID"
+date: "Due: 11:59 PM, September 15, 2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Submission Instruction:
+
+- Submit: a single HTML document
+- Show all code and output
+
+## Exercise 1
+
+- Present 2 figures (not from the course slides or Healy's text) that you find to be effective graphical displays of data, and 
+- 2 figures that you find to be ineffective or misleading.  
+
+The figures can be taken from any online source, as long as there is sufficient citation to the figures' locations.  You should provide sufficient background for an uninformed reader to understand the source and context of the figures and clear explanations of why you find the figures effective/ineffective.
+
+To include graphics, you can either use the option in the cheat sheet, or use the function
+
+```
+knitr::include_graphics("path_to_graphics")
+```
+
+I like the latter option better because I can fine-tune the specifications for the image. 
+
+## Exercise 2
+
+Complete Section 1.2.5  from [R for Data Science](https://r4ds.hadley.nz). As an exercise for still getting familiar with R Markdown, **copy-paste the questions and keep the enumerated format**, i.e., it should look like
+
+1. problem statement with inline `function names`
+
+**Answer:** Your answer and
+
+```{r}
+# Your code
+```
+
+
+## Exercise 3
+
+Complete Section 1.4.3  from [R for Data Science](https://r4ds.hadley.nz).
+

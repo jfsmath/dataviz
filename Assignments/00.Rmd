@@ -1,0 +1,33 @@
+---
+title: "Assignment 00"
+author: "Data 350"
+date: "Due date: N/A"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1.   Download R: Go to <https://www.r-project.org/>. Feel free to use any suitable mirror. [Here](https://mirror.its.umich.edu/cran/) is the UMichigan mirror. 
+
+2.   Download RStudio <https://rstudio.com/products/rstudio/download/> and install RStudio Desktop. 
+
+3. Install a $\LaTeX$ distribution if you haven't already: <https://www.latex-project.org/get/#tex-distributions>. The basic one will be sufficient for typesetting basic mathematical expressions, like $\phi(x | \mu, \sigma^2) = \tfrac{1}{\sqrt{2\pi}}e^{\tfrac{1}{2}\tfrac{(x-\mu)^2}{\sigma^2}}$ or
+$$
+\mathbb{E}[X] = \int_{-\infty}^{\infty} p_X(t)dt. 
+$$
+<span style = "color:red">**If you have successfully completed the first three steps, then you should be able to compile the attached .RMD file without error.**</span> In the future, all assignments will be given in `RMarkdown`. 
+
+**------------------------**
+
+    
+5. (Recommended) Sign up for a GitHub account if you don't have one already. This could come in handy later for the group projects. 
+
+6. Throughout the first few weeks of the course, think about some of the topics (for instance, socio-economics, ecology, business) that interest you, and where you can find the data for these topics. Part of your final grade depends on it!
+
+
+
+
+

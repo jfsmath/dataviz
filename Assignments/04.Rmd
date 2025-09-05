@@ -1,0 +1,33 @@
+---
+title: "Assignment 4"
+author: "Your Name and UID"
+date: "Due: 11:59 PM, September 29, 2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Submission Instruction:
+
+- Submit: a single HTML document
+- Show all code and output
+
+
+## Exercise 1
+
+Solve the following exercises from [R for Data Science](https://r4ds.hadley.nz/)
+
+- [Section 3.2.5](https://r4ds.hadley.nz/data-transform.html#exercises)
+- [Section 3.3.5](https://r4ds.hadley.nz/data-transform.html#exercises-1)
+- [Section 3.5.7](https://r4ds.hadley.nz/data-transform.html#exercises-2)
+  
+## Exercise 2
+
+1. Construct a new dataframe called `oecd2` by joining `oecd_le` and `gapminder` by country name using the function `left_join`. (See `?left_join`)
+2. Are there countries that are missing `continent` information? How to find all of these countries? (You may find the function `is.na` helpful)
+3. Assign the correct continents to these countries.
+
+

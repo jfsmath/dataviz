@@ -1,0 +1,61 @@
+---
+title: "Assignment 01"
+author: "Your Name and UID"
+date: "Due: 11:59 PM, September 8, 2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Submission Instruction:
+
+- Submit: a single HTML document
+- Show all code and output
+
+
+As a reminder, the cheatsheet for R Markdown can be found in `Help` --> `Cheatsheets`.
+
+## Exercise 1
+
+Set a seed. Sample 10 times from a $\mathcal{N}(0,1)$ distribution.  
+```{r}
+# Your code
+```
+
+1.  Compute the mean and standard deviation of your sample. 
+```{r}
+# Your code, same below and in the future.
+```
+
+2.  Repeat the experiment with samples of size 100 and 1000 and 10000 and 100000. 
+
+3.  Using the `plot` function, plot the estimated mean (on the y-axis) versus the sample size (on the x-axis).  
+
+4.  Create another plot for the estimated standard deviation.
+
+
+## Exercise 2
+
+1. Create a list/vector `v` with the following entries:
+  - the character ”H” repeated 5 times,
+  - the character ”e” repeated 5 times,
+  - the character ”l” repeated 5 times,
+  - the character ”o” repeated 5 times,
+  - the character ”W” repeated 5 times,
+  - the character ”o” repeated 5 times,
+  - the character ”r” repeated 5 times,
+  - the character ”l” repeated 5 times,
+  - the character ”d” repeated 5 times.
+
+```{r}
+# Your code
+```
+
+ 
+2.  Extract the sublist/subvector composed of every fifth entry of `v` (starting with the second entry, so you would extract the 2nd, 7th, 12th,..., entries). Print the list. 
+
+
+
