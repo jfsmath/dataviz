@@ -22,6 +22,7 @@ library(GGally)
 ```
 
 
+# `facet_`
 
 ## Main functions: `facet_wrap()` and `facet_grid()`
 
@@ -329,19 +330,326 @@ ggplot(economics_long, aes(date, value)) + geom_line() +
 
 
 
+## Labeling, in faceted variable names
 
-## Labeling
-
-```{r, echo = F}
-var.labs = c()
+```{r, echo = F, out.width="100%"}
+var.labs = c(
+  "pce" = "Personal Consumption Expenditures, in $ Billions",
+  "pop" = "Total Population, in thousands",
+  "uempmed" = "Median Duration of Unemployment, in weeks",
+  "unemploy" = "Number of Unemployed, in thousands"
+)
 ggplot(economics_long, aes(date, value)) + geom_line() + 
-  facet_wrap(~variable, ncol=1, scales = "free_y") + 
+  facet_wrap(~variable, ncol=1, scales = "free_y", 
+             labeller = labeller(variable = var.labs)) + 
   labs(
     title = "US economics time series visualization",
     x = "Date", y = "",
-    caption = "Source: economics long dataset. Units from top to bottom: billions of dollars, thousands, no units, weeks, thousands"
-  )
+    caption = "Source: economics long dataset."
+  ) + 
+  ggthemes::theme_excel_new()
 ```
+
+
+## Labeling, in caption
+
+```{r, echo = F, out.width = "100%"}
+var.labs = c(
+  "pce" = "Personal Consumption Expenditures",
+  "pop" = "Total Population",
+  "uempmed" = "Median Duration of Unemployment",
+  "unemploy" = "Number of Unemployed"
+)
+ggplot(economics_long, aes(date, value)) + geom_line() + 
+  facet_wrap(~variable, ncol=1, scales = "free_y", 
+             labeller = labeller(variable = var.labs)) + 
+  labs(
+    title = "US economics time series visualization",
+    x = "Date", y = "",
+    caption = "Source: economics long dataset. \nUnits from top to bottom: billions of dollars, thousands, no units, weeks, thousands"
+  ) + 
+  ggthemes::theme_fivethirtyeight()
+```
+
+
+
+
+## Scales for categorical variables
+
+```{r}
+mpg2 <- subset(mpg, cyl != 5 & drv %in% c("4", "f") & class != "2seater")
+dplyr::slice_sample(mpg2,n=5)
+```
+Let's compare the city fuel efficiency by manufacturer. 
+
+## `space` in `facet_grid()`
+
+```{r}
+ggplot(mpg2, aes(cty, model)) + geom_point() + 
+  facet_grid(manufacturer ~ ., scales = "free") + 
+  ggthemes::theme_solarized_2() +
+  theme(strip.text.y = element_text(angle = 0))
+```
+
+
+
+## `space` in `facet_grid()`
+
+`facet_grid()` has an additional parameter called `space` that takes the same value as `scales`
+
+- `space` is free -- each column/row will have width/height proportional to the data range
+
+- Yields **equal scaling across the whole plot** (1 cm on each panel)
+
+- Useful for categorical scales
+
+
+## `space` in `facet_grid()`
+
+```{r}
+ggplot(mpg2, aes(cty, model)) + geom_point() + 
+  facet_grid(manufacturer ~ ., 
+             scales = "free", space = "free") + 
+  ggthemes::theme_solarized_2() + 
+  theme(strip.text.y = element_text(angle = 0))
+```
+
+
+
+## Example: `gapminder` + `oecd_le`, alternative visualization
+
+```{r, warning = F}
+oecd2 <- left_join(socviz::oecd_le, gapminder::gapminder, by = "country")
+sum(is.na(oecd2$continent))
+unique(oecd2[is.na(oecd2$continent), ]$country)
+```
+
+```{r}
+oecd2[oecd2$country=="Korea",]$continent <- "Asia"
+oecd2[oecd2$country=="Luxembourg",]$continent <- "Europe"
+oecd2[oecd2$country=="Estonia",]$continent <- "Europe"
+oecd2[oecd2$country=="Latvia",]$continent <- "Europe"
+```
+
+
+## Example: `gapminder` + `oecd_le`
+
+
+```{r}
+ggplot(oecd2, aes(lifeexp, y = country)) + geom_point() + 
+  facet_grid(continent~., scales = "free", space = "free") + 
+  ggthemes::theme_fivethirtyeight() + 
+  theme(strip.text.y = element_text(angle = 0))
+```
+
+
+## Without cleaning the data?
+
+
+```{r, warning = F}
+ggplot(left_join(socviz::oecd_le, gapminder::gapminder, by = "country"), aes(lifeexp, y = country)) + geom_point() + 
+  facet_grid(continent~., scales = "free", space = "free") + 
+  ggthemes::theme_fivethirtyeight() + 
+  theme(strip.text.y = element_text(angle = 0))
+```
+
+
+## Faceting vs Grouping?
+
+- **Faceting:**  each group is far apart (in its own panel), no group overlap
+
+  - Good if the groups do overlap a lot
+  - Hard to see small differences
+
+- **Grouping:** different groups all overlap in the same plot
+  - Good if the groups have separation
+  - Easier to spot small differences
+  
+  
+## Faceting vs Grouping?
+\tiny
+```{r}
+library(gapminder)
+library(patchwork)
+p1 <- ggplot(subset(gapminder, year %in% c(1952, 2007)), aes(gdpPercap, lifeExp, color = as.factor(year))) + geom_point() + scale_x_log10()
+p2 <- ggplot(subset(gapminder, year %in% c(1952, 2007)), aes(gdpPercap, lifeExp, color = as.factor(year))) + geom_point() + scale_x_log10() + facet_wrap(~year)
+p1 + p2
+```
+
+
+## Faceting continous variables
+
+
+First discretize them! `ggplots` has three helper functions:
+
+- `cut_interval(x,n)`: divide `x` into `n` bins of the same length
+
+- `cut_width(x,width)`: divide `x` into bins of width `width`
+
+- `cut_number(x, n = N)`: divide `x` into `N` bins each with approximately the same number of points
+
+
+## Faceting continous variables: `carat` in `diamonds`
+
+
+```{r}
+# diamonds are just rocks
+rocks <- diamonds
+# bins of width 1
+rocks$by_w <- cut_width(rocks$carat, 1)
+# six bins of equal length
+rocks$by_l <- cut_interval(rocks$carat, 6)
+# eight bins of roughly equal number point
+rocks$by_n <- cut_number(rocks$carat, 8)
+
+```
+
+
+
+
+## Faceting continous variables: `carat` in `diamonds`
+
+```{r}
+p1 <- ggplot(rocks, aes(cut,price)) + geom_boxplot() + 
+  facet_wrap(~by_w, nrow = 2)
+p1
+```
+
+
+
+## Faceting continous variables: `carat` in `diamonds`
+
+```{r}
+p2 <- ggplot(rocks, aes(cut,price)) + geom_boxplot() + 
+  facet_wrap(~by_l, nrow = 2)
+p2
+```
+
+
+
+## Faceting continous variables: `carat` in `diamonds`
+
+```{r}
+p3 <- ggplot(rocks, aes(cut,price)) + geom_boxplot() + 
+  facet_wrap(~by_n, nrow = 2)
+p3
+```
+
+
+
+# Patchwork
+
+
+## Patchwork
+
+`patchwork`: show multiple plots side-by-side using `+`
+
+```{r}
+library(patchwork)
+p1 + p2 + p3
+```
+
+## Arranging the `geom_` side-by-side
+
+```{r}
+p1 <- ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy))
+p2 <- ggplot(mpg) + 
+  geom_bar(aes(x = as.character(year), fill = drv), position = "dodge") + labs(x = "year")
+p3 <- ggplot(mpg) + 
+  geom_density(aes(x = hwy, fill = drv), color = NA) + facet_grid(rows = vars(drv))
+p4 <- ggplot(mpg) + 
+  stat_summary(aes(x = drv, y = hwy, fill = drv), geom = "col", fun.data = mean_se) + 
+  stat_summary(aes(x = drv, y = hwy), geom = "errorbar", fun.data = mean_se, width = 0.5)
+```
+
+## 
+```{r}
+p1+p2+p3+p4
+```
+
+
+
+## `+plot_layout()`
+
+```{r}
+p1 + p2 + p3 + p4 +  plot_layout(nrow = 1)
+```
+
+## Forcing a single row `|` 
+
+```{r}
+p1 | p2
+```
+
+## Forcing a single column `/`
+
+```{r}
+p1 / p2
+```
+
+
+
+## Mix and match
+
+```{r}
+((p1 + p2) / p3) | p4 
+```
+
+
+## Using the `design` function
+
+```{r}
+picasso <- "AAB
+C#B
+CDD"
+p1 + p2 + p3 + p4 + plot_layout(design = picasso)
+```
+
+## Removing redundant legends using `guides`
+
+```{r}
+p1 + p2 + p3 + p4 + plot_layout(
+  design = picasso,
+  guides = "collect")
+```
+
+
+## You can group them as well
+
+```{r}
+p12 <- p1 + p2
+p12 | p4 
+```
+
+## Modifying all plots
+
+What's wrong with the following plots
+
+```{r}
+p12 <- p1 + p2
+p12 | p4 + ggthemes::theme_solarized(light = F)
+```
+
+## Modifying all plots
+
+The fix: using `&` and change the order of the operation (trial and error)
+
+```{r}
+(p12 | p4) & ggthemes::theme_solarized(light = F)
+```
+
+## Plots and annotations
+
+After assemply, plots are a single object and annotation (via `plot_annotation`) works on the whole figure
+
+```{r}
+p34 <- p3 + p4 + plot_annotation(title = "Effect of Drive Train", caption = "Source: mpg dataset")
+p34
+```
+
+
+
 
 
 
