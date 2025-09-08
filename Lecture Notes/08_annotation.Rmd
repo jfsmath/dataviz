@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Annotations"
+subtitle: "Annotations & Scales"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
@@ -13,17 +13,252 @@ urlcolor: blue
 knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
 knitr::opts_chunk$set(fig.align='center', out.width = "75%")
 library(ggplot2)
-library(socviz)
 library(tidyverse)
 library(patchwork)
-library(ggcorrplot)
-library(corrplot)
-library(GGally)
+library(socviz)
 ```
 
 
 
 
+## Annoations and Scales
+
+- Reference: [Chapter 8](https://ggplot2-book.org/annotations) of **ggplot2: Elegant Graphics for Data Analysis**
+
+- The role of annotations: provide **metadata** for the plot (i.e., additional information about the data being displayed)
+
+- Practically, it's just another layer of `geom_`, but it could get tricky
+
+
+
+## Old technology
+
+```{r, eval=F}
+p <- socviz::oecd_le |> 
+  dplyr::filter(country %in% c("Mexico", "Iceland", "Poland", "Turkey")) |> 
+  ggplot(aes(year, lifeexp)) + 
+  geom_line(aes(color = country)) + 
+  labs(
+    x = "Year", y = "Life Expectancy",
+    title = "Life Expectancy", subtitle = "Source: OECD",
+    caption = "Data from `socviz` package")
+p
+```
+
+## Old technology
+
+```{r, echo = F}
+p <- socviz::oecd_le |> 
+  dplyr::filter(country %in% c("Mexico", "Iceland", "Poland", "Turkey")) |> 
+  ggplot(aes(year, lifeexp)) + 
+  geom_line(aes(color = country), linewidth = 2.4) + 
+  labs(
+    x = "Year", y = "Life Expectancy", color = "Country",
+    title = "Life Expectancy", subtitle = "Source: OECD",
+    caption = "Data from socviz package")
+p
+```
+
+
+## Annotate with `labs()`
+
+```{r, out.width = "50%"}
+values <- seq(from = -2, to = 4, by = 0.01)
+exp_df <- data.frame(x = values, y = exp(values))
+ggplot(exp_df, aes(x,y)) + 
+  geom_path(linewidth = 4) + 
+  labs(y = bquote(f(x) == e^x))
+```
+
+## `geom_path()` and `bquote()`
+
+- `geom_path()` connects the observations by the order they appear in the dataframe
+- You can label with math expressions by putting the expressions in `bquote()`. See `?plotmath`
+
+- You can concatenate characters with `~` in `bquote()`
+
+```{r, out.width="50%"}
+ggplot(exp_df, aes(x,y)) + 
+  geom_path(linewidth = 4) +
+  labs(y = bquote("The function is " ~ f(x) == e^x))
+```
+
+## Digress `bquote()`
+
+```{r}
+x = 350
+y = rnorm(5,0,1)
+bquote(x + y)
+bquote(.(x) + .(y))
+bquote(sum <- .(x)+y)
+```
+
+
+- If you don't care about unparsing, `quote()` is good enough
+
+```{r}
+quote(.(x) + y)
+```
+## Fonts in labels
+
+```{r}
+p <- p + labs(
+  x = "**Year** from *1960-2015*", y = "Life Expectancy",
+  title = "**Life Expectancy** of *OECD* Countries")
+p
+```
+
+## Fonts in Labels
+
+```{r element_markdown}
+# install.packages("ggtext")
+library(ggtext)
+p + theme(
+  axis.title.x = element_markdown(),
+  plot.title = element_markdown())
+```
+## `element_markdown()`
+
+- The function enables markdown text
+
+```{r}
+p + theme(
+  axis.title.x = element_markdown(size = 18, family = "serif"),
+  plot.title = element_markdown(size = 22, color = "darkgreen"))
+```
+
+
+
+## Overwhelm youself with `?theme`
+
+```{r}
+p + theme(
+  axis.title.x = element_markdown(size = 18, family = "serif"),
+  plot.title = element_markdown(size = 22, fill = "pink"),
+  legend.position = "bottom",
+  legend.title = element_markdown(family = "sans"),
+  legend.text = element_markdown(family = "mono")
+  )
+```
+
+
+## Adding texts into figures
+
+```{r}
+library(gapminder)
+g <- ggplot(gapminder, aes(gdpPercap, lifeExp)) + 
+  geom_point(aes(size = pop/(10^6), color = continent), alpha = 0.3) +
+  geom_smooth(aes(weight = pop)) + 
+  scale_x_log10(labels = scales::dollar) + 
+  labs(x = "GDP Per Capita", y = "Life Expectancy", 
+       size = "Population (in millions)", color = "Continent",
+       title = "Life Expectancy", caption = "Source: gapminder")
+g
+```
+
+## Adding texts into figures via `geom_text_repel`
+
+```{r}
+library(ggrepel)
+g + geom_text_repel(
+  data = subset(gapminder, gdpPercap > 30000 & lifeExp < 70),
+  mapping = aes(label = country),
+  color = "red", fontface = "bold")
+```
+
+
+## Adding texts into figures via `geom_label_repel`
+
+```{r}
+g + geom_label_repel(
+  data = subset(gapminder, gdpPercap > 30000 & lifeExp < 70),
+  mapping = aes(label = country),
+  color = "red", fontface = "bold")
+```
+
+
+
+## Highlighting regions using `annotate`
+
+
+```{r}
+g + ggplot2::annotate(
+  geom = "rect", fill = "purple", alpha = 0.2,
+  xmin = 30000, xmax  = 120000,
+  ymin = 45, ymax = 70)
+```
+
+
+
+## Example: `economics` + `presidential`
+
+```{r}
+# ?economics
+p_econ <- ggplot(economics) +
+  geom_path(aes(date, unemploy/pop)) + ggthemes::theme_economist_white()
+p_econ
+```
+
+
+## Example: `economics` + `presidential`
+
+```{r}
+head(presidential)
+pres <- subset(presidential, start > economics$date[1])
+```
+
+
+## 
+
+```{r}
+p_econ <- p_econ + geom_rect(
+  data = pres,
+  mapping = aes(
+    xmin = start, xmax = end, 
+    fill = party),
+    ymin = -Inf, ymax = Inf, alpha = 0.2) 
+p_econ
+```
+
+## 
+
+```{r}
+p_econ <- p_econ + geom_text(
+  data = pres,
+  mapping = aes(x = start, y = 0, label = name),
+  nudge_x = 50, size = 3, vjust = 0, hjust = 0
+)
+p_econ
+```
+
+
+##
+
+```{r}
+p_econ + scale_fill_manual(values = c("red", "blue")) + 
+  scale_y_continuous(labels = scales::percent) + 
+  scale_x_continuous(breaks = )
+```
+
+
+
+
+
+
+## `scales`
+
+- In the `gapminder` plot, we had the layer
+```{r, eval = F}
++ scale_x_log10(labels = scales::dollar)
+```
+
+
+- The general syntax for `scale` works like
+```
+scale_<aes_name>_<scale_name>
+```
+
+- Examples: `scale_x_log10`, `scale_x_continuous`, `scale_fill_color`
 
 
 
