@@ -74,7 +74,7 @@ lm(y ~ x1 + x2 + ... + xp, data = MyData, ...)
 ```
 
 ## Anscombe's quartet: linear models coefficients
-
+\tiny
 ```{r, out.width="60%"}
 lm1$coefficients
 lm2$coefficients
