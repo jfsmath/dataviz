@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Annotations & Scales"
+subtitle: "Annotations & Scales, Part I"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
@@ -83,7 +83,7 @@ ggplot(exp_df, aes(x,y)) +
   labs(y = bquote("The function is " ~ f(x) == e^x))
 ```
 
-## Digress `bquote()`
+## Digression: `bquote()`
 
 ```{r}
 x = 350
@@ -185,8 +185,40 @@ g + geom_label_repel(
 g + ggplot2::annotate(
   geom = "rect", fill = "purple", alpha = 0.2,
   xmin = 30000, xmax  = 120000,
-  ymin = 45, ymax = 70)
+  ymin = 45, ymax = 70) + 
+  labs(caption = "The purple shaded region consists of [...]")
 ```
+
+
+## More on `annotate()`
+
+```{r}
+p_mpg <- ggplot(mpg, aes(displ,hwy)) + 
+  geom_point(data = filter(mpg, manufacturer == "subaru"), 
+             color = "orange", size = 4) + 
+  geom_point()
+p_mpg
+```
+
+## More on `annotate()`
+
+```{r}
+p_mpg + annotate(geom = "point", x = 5.5, y = 40, color = "red", size = 4) + 
+  annotate(geom = "text", x = 5.5, y = 42, 
+           label ="Outback", hjust = "left")
+```
+
+
+## More on `annotate()`
+
+```{r}
+p_mpg + annotate(geom = "curve", 
+                 x = 4, y = 35, 
+                 xend = 2.65, yend = 27, curvature = .3, 
+                 arrow = arrow(length = unit(2,"mm"))) + 
+  annotate(geom = "text", x = 4.1, y = 35, label = "subaru", hjust = "left")
+```
+
 
 
 
@@ -226,8 +258,7 @@ p_econ
 p_econ <- p_econ + geom_text(
   data = pres,
   mapping = aes(x = start, y = 0, label = name),
-  nudge_x = 50, size = 3, vjust = 0, hjust = 0
-)
+  nudge_x = 50, size = 3, vjust = 0, hjust = 0)
 p_econ
 ```
 
@@ -235,21 +266,62 @@ p_econ
 ##
 
 ```{r}
-p_econ + scale_fill_manual(values = c("red", "blue")) + 
-  scale_y_continuous(labels = scales::percent) + 
-  scale_x_continuous(breaks = )
+p_econ <- p_econ + scale_fill_manual(values = c("blue", "red")) + 
+  scale_y_continuous(labels = scales::percent)
+p_econ
 ```
 
 
 
 
+## Adding commentary
+
+```{r, eval = F}
+marx <- paste(
+strwrap("The “ups and downs” of unemployment echoes 
+capitalism’s structural need for a disposable 
+reserve army of labor to discipline workers, 
+suppress wages, and stabilize capital accumulation.",72),
+        collapse = "\n")
+p_econ + geom_label(
+  data = data.frame(x=pres$end[8], y = 0.0),
+  aes(x,y, label = marx),
+  vjust = -0.6, hjust = 1, size = 3) +
+  xlim(pres$start[1], pres$end[8]) + 
+  labs(x="Date", y = "Unemployment Rate", title = "Unemployment Rates, 1970s-2010s", caption = "Source: economics data from ggplot2")
+```
 
 
-## `scales`
+## Adding commentary
+
+```{r, out.width="90%", echo = F, warning = F}
+marx <- paste(
+strwrap("The “ups and downs” of unemployment echoes capitalism’s
+structural need for a disposable 
+reserve army of labor to discipline workers, 
+suppress wages, and stabilize capital accumulation.",72),
+        collapse = "\n")
+p_econ + geom_label(
+  data = data.frame(x=pres$end[8], y = 0.0),
+  aes(x,y, label = marx),
+  vjust = -0.6, hjust = 1, size = 3) +
+  xlim(pres$start[1], pres$end[8]) + 
+  labs(x="Date", y = "Unemployment Rate", title = "Unemployment Rates, 1970s-2010s", caption = "Source: economics data from ggplot2")
+```
+
+
+
+## Preview: `scales`
 
 - In the `gapminder` plot, we had the layer
 ```{r, eval = F}
 + scale_x_log10(labels = scales::dollar)
+```
+
+- In the `economics` plot, we had two layers
+```{r, eval = F}
++ scale_y_continuous(labels = scales::percent)
++ scale_color_manual(values = c("blue", "red"))
 ```
 
 
@@ -258,7 +330,9 @@ p_econ + scale_fill_manual(values = c("red", "blue")) +
 scale_<aes_name>_<scale_name>
 ```
 
-- Examples: `scale_x_log10`, `scale_x_continuous`, `scale_fill_color`
+- More on this in the second part
+
+
 
 
 
