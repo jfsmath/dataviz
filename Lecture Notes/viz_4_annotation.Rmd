@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Annotations & Scales, Part I"
+subtitle: "Annotations via `geom_label()` and `annotate()`"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation

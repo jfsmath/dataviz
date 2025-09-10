@@ -1,0 +1,406 @@
+---
+title: "Data Visualization in R"
+subtitle: "`scale_`"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
+knitr::opts_chunk$set(fig.align='center', out.width = "75%")
+library(ggplot2)
+library(tidyverse)
+```
+
+
+
+
+## Scales
+
+- Reference: [Chapters 10--12](https://ggplot2-book.org/scales-position.html) of **ggplot2: Elegant Graphics for Data Analysis**
+
+- The role of scales: locations/limits/colors/size of elements
+
+- Unlike `annotate()`, the `+ scale_` is not adding a layer, but **overriding** the existing scales
+
+
+
+
+
+
+
+## Previous interactions with `scales`
+
+- In the `gapminder` plot, we had the layer
+```{r, eval = F}
++ scale_x_log10(labels = scales::dollar)
+```
+
+- In the `economics` plot, we had two layers
+```{r, eval = F}
++ scale_y_continuous(labels = scales::percent)
++ scale_color_manual(values = c("blue", "red"))
+```
+
+
+- The general syntax for `scale` works like
+```
+scale_<aes_name>_<scale_name>
+```
+
+
+## Mostly hidden scales
+
+**Every `aes` in a `ggplot` is associated with exactly one `scale`!!**
+
+Under the hood of
+
+```{r, eval = F}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point(aes(color = class))
+```
+
+are the default scales in action
+
+```{r, eval = F}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point(aes(color = class)) + 
+  scale_x_continuous() + 
+  scale_y_continuous() + 
+  scale_color_discrete()
+```
+
+
+## Axial limits
+
+```{r}
+mpg_99 <- mpg |> filter(year == 1999)
+mpg_08 <- mpg |> filter(year == 2008)
+
+base_99 <- ggplot(mpg_99, aes(displ,hwy)) + 
+  geom_point()
+base_08 <- ggplot(mpg_08, aes(displ, hwy)) + 
+  geom_point()
+```
+
+
+## Axial limits
+
+```{=latex}
+\begin{columns}
+\column{0.5\textwidth}
+```
+
+```{r, out.width = "100%"}
+base_99
+```
+
+```{=latex}
+\column{0.5\textwidth}
+```
+
+```{r, out.width = "100%"}
+base_08
+```
+
+```{=latex}
+\end{columns}
+```
+
+
+## Axial limits
+
+```{r}
+base_99 + 
+  scale_x_continuous(limits = c(1,7)) + 
+  scale_y_continuous(limits = c(10,45))
+```
+
+
+## Axial limits, alternative
+
+```{r}
+base_08 + xlim(c(1,7)) + ylim(c(10,45))
+```
+
+
+
+## Axial limits, alternative 2
+
+```{r}
+base_99 + lims(x = c(1,7), y = c(10, 45))
+```
+
+
+## Setting the limit will trim the data
+
+```{r, warning = T}
+# ylim from 45 to 35
+base_08 + xlim(c(1,7)) + ylim(c(10,35))
+```
+
+
+## Axial breakpoints
+
+```{r}
+base_08 + 
+  scale_x_continuous(breaks = seq(0, 8, 0.5)) + 
+  scale_y_continuous(breaks = scales::breaks_width(width = 5))
+```
+
+
+## Logarithmic scales via `breaks_log()`
+
+```{r}
+ggplot(gapminder::gapminder, aes(gdpPercap, lifeExp)) + geom_point(aes(color = continent), alpha = 0.5) + 
+  scale_x_log10(breaks = scales::breaks_log(n=10)) + 
+  scale_y_continuous(breaks = NULL,
+                     name = "I will live forever!")
+```
+
+
+
+## Labeling via `lables = label_`
+
+```{r}
+ggplot(gapminder::gapminder, aes(gdpPercap, lifeExp)) + geom_point(aes(color = continent), alpha = 0.5) + 
+  scale_x_log10(
+    breaks = scales::breaks_log(n=10),
+    labels = scales::label_dollar()) +  # same as scales::dollar
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.7))
+```
+
+## Labeling via `lables = scales::label_`
+
+Example options:
+
+- `label_bytes()` formats as kb, mb etc.
+- `label_comma()` formats numbers as decimals with commas added
+- `label_dollar()` MONEEAAY!
+- `label_ordinal()` orders: 1st, 2nd, 3rd, etc.
+- `label_percent()` as %
+- `label_pvalue()` formats numbers as p-value thresholds $<0.05$, $<0.01$
+
+
+## Example with `label_pvalue()`
+
+```{r, echo=F}
+set.seed(2025)
+df <- data.frame(
+  experiment = paste0("Experiment ", 1:10),
+  p_value = c(rnorm(9,0,1)^2/10, NA))
+
+ggplot(df, aes(x = experiment, y = p_value)) +
+  geom_point(size = 3) +
+  scale_y_continuous(
+    labels = scales::label_pvalue(accuracy = 0.001, add_p = TRUE)) +
+  labs(y = "P-value",x = "Experiments") + 
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+
+
+
+## Temporal data
+
+```{r}
+library(nycflights13)
+library(dplyr)
+flights2 <- flights |> 
+  mutate(date=ISOdate(year, month, day))|> 
+  select(date, carrier, arr_delay) |> 
+  filter(carrier %in% c("UA", "AA")) |> 
+  group_by(carrier, date) |>
+  summarize(avg_delay = mean(arr_delay, na.rm = T)) 
+```
+
+## Temporal data
+
+```{r}
+ggplot(flights2, aes(x = date, avg_delay)) + 
+  geom_line(aes(color = carrier))
+```
+
+
+## Breaks for Temporal data
+
+```{r}
+ggplot(flights2, aes(x = as.Date(date), avg_delay)) + 
+  geom_line(aes(color = carrier)) + 
+  scale_x_date(breaks = scales::breaks_width("1 month")) + 
+  theme(axis.text.x = element_text(angle = 60))
+# note: have to change x to Date using as.Date()
+```
+
+## Breaks for temporal data
+
+```{r}
+ggplot(flights2, aes(x = as.Date(date), avg_delay)) + 
+  geom_line(aes(color = carrier)) + 
+  scale_x_date(
+    breaks = scales::breaks_width("3 months"),
+    minor_breaks = scales::breaks_width("1 month"))
+```
+
+## Handling datetime (patience please)
+
+```{r}
+x <- c("2025-09-21", "2025-10-02")
+as.Date(x, format = "%Y-%m-%d")
+y <- c("1jan1960", "53-March4")
+as.Date(y, format = c("%d%b%Y", "%y-%B%d"))
+time <- c("00:12:21", "14:27:50")
+as_datetime(paste(x,time))
+```
+- See also `as.POSIXlt()`, `library(lubridate)`, and `sdtm.oak::create_iso8601()`
+
+
+## Format codes
+
+---
+|**codes**| what it means |
+|:---------:|:---------:|
+|%d| day of the month (01-31)|
+|%e|day of the month (1-31)|
+|%m| month (01-12)|
+|%b| month (jan - Dec)|
+|%B| month (January - December)|
+|%y| year (00-99) | 
+|%Y| Year (0000-9999) | 
+|---|---|
+|%S| seconds (00-59) | 
+|%M| minutes (00-59) | 
+|%H| hours (00-23) | 
+|%l| hours (1-12), (01-12) | 
+|%p| am/pm | 
+
+
+
+
+## Color scales
+
+```{r}
+p <- ggplot(gapminder::gapminder, aes(gdpPercap, lifeExp)) +
+  geom_point(aes(color = continent), alpha = 0.5) + 
+  geom_smooth(aes(color = continent, fill = continent), alpha = 0.2) + 
+  scale_x_log10() + 
+  theme(axis.text.x = element_text(angle = 60, vjust = 0.7))
+p
+```
+
+
+## Color Scales, discrete
+
+Start typing `scale_color_` or `scale_fill_` to see your options
+
+```{r}
+p + scale_color_manual(
+  values = c("#46745d", "tomato2", "blue", "tan3", "orchid2")) + 
+  scale_fill_manual(
+    values = c("green", "red", "lightblue", "orange", "purple"))
+# See grDevices::colors()
+```
+
+## Color scales, discrete
+
+```{r}
+p + scale_colour_brewer(palette = "Set1")
+```
+- To see all the options: `RColorBrewer::display.brewer.all()`
+- See <https://colorbrewer2.org> for more information and testing. 
+
+
+## Paletteer scales
+
+```{r}
+p2 <-  ggplot(mpg, 
+            aes(x = drv, y = hwy, fill = class)) + 
+  geom_boxplot()
+p2
+```
+
+## Paletteer scales
+
+```{r}
+library(paletteer)
+p2 + paletteer::scale_fill_paletteer_d("colorBlindness::paletteMartin")
+```
+- Palette finder: <https://r-graph-gallery.com/color-palette-finder.html>
+
+## Color Scales, continuous
+
+```{r}
+# ?faithful
+erupt <- erupt <- ggplot(faithfuld, aes(waiting, eruptions, fill = density)) +
+  geom_raster() + theme_minimal() + 
+  scale_x_continuous(NULL, expand = c(0,0)) + 
+  scale_y_continuous(NULL, expand = c(0,0))
+erupt
+```
+## Default: `scale_fill_gradient()`
+
+```{r}
+erupt + scale_fill_gradient2(
+  high = "red", low = "#3737c8",
+  mid = "white", midpoint = 0.02)
+```
+
+
+
+## Continuous color scales
+
+```{r}
+library(viridis)
+erupt + scale_fill_viridis_c(option = "magma")
+```
+
+
+
+## Continuous color scales
+
+```{r}
+erupt + scale_fill_distiller(palette = "YlOrBr")
+```
+- It's the cousin of `scale_color_brewer`, same website
+
+## Paletteer scales
+
+```{r}
+erupt + paletteer::scale_fill_paletteer_c("scico::tokyo")
+```
+
+
+
+## Other scales: `size`
+
+```{r}
+library(gapminder)
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop)) + 
+  geom_point(alpha = 0.3) + scale_x_log10() +
+  scale_size_binned()
+``` 
+
+
+## Other Scales: `shape`
+
+```{r}
+library(gapminder)
+ggplot(gapminder, aes(gdpPercap, lifeExp, shape = continent)) + 
+  geom_point(alpha = 0.3) + scale_x_log10() +
+  scale_shape(solid = F)
+```
+
+## Other scales: `linetype`
+
+```{r}
+ggplot(economics_long, aes(date, value01, linetype = variable)) +
+  geom_line() + 
+  scale_linetype_discrete()
+```
+
+

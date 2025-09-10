@@ -1,0 +1,73 @@
+---
+title: "Data Visualization in R"
+subtitle: "Correlation and Pairs Plot"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+
+urlcolor: blue
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
+knitr::opts_chunk$set(fig.align='center', out.width = "65%")
+library(ggplot2)
+library(tidyverse)
+library(patchwork)
+library(ggcorrplot)
+library(corrplot)
+library(GGally)
+```
+
+
+
+
+# Heatmap basic
+
+
+## Heat map:
+
+
+
+
+# Hierarchical Clustering
+
+## Example: `iris`
+
+First we perform PCA to separate the data
+
+```{r}
+set.seed(2025)
+
+pc <- prcomp(iris[,1:4],retx=T)
+ind <- sample(150,30)
+pc <- data.frame(pc$x[ind,1:2])
+pc$Species <- iris$Species[ind]
+
+ggplot(pc,aes(x=PC1,y=PC2)) + geom_point(aes(color=Species),size=2) +
+  ylim(-3.5,3.5) + xlim(-3.5,3.5)
+```
+
+## Example: `iris`
+
+```{r}
+#install.packages("pheatmap")
+df <- dist(pc[,1:2])
+col_annotation <- data.frame(pc$Species)
+colnames(col_annotation) <- c("Species")
+pheatmap::pheatmap(df,annotation_col = col_annotation)
+```
+
+
+## The linkage matters (default: `complete`)
+
+```{r}
+df<-dist(pc[,1:2])
+plot(hclust(df))
+```
+
+
+# Signal Processing
+
+
