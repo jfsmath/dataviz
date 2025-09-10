@@ -78,14 +78,59 @@ plot(hclust(df))
 # Signal Processing
 
 
+
+## Spectral Density & Periodogram (Intuition)
+
+**Spectral Analysis?**
+  - Time series can have hidden cycles (daily, weekly, yearly patterns).
+  - Instead of focusing only on *time domain* (plot vs. time), we also look in the *frequency domain*.
+
+**Spectral Density**
+  - Tells us how much of the series’ variability comes from cycles of different frequencies.
+  - Low frequencies = slow changes, long-term trends.  
+  - High frequencies = rapid changes, short-term noise.
+
+**Periodogram**
+  - A way to estimate spectral density from observed data.
+  - Peaks in the periodogram show which cycles (frequencies) are strongest.
+  
+  
+  
+## The math
+  
+- **Discrete Fourier Transform (DFT):**  
+$$
+d_n(\omega_k) = \frac{1}{\sqrt{n}} \sum_{t=0}^{n-1} X_t \, e^{-i \omega_k t}, 
+\quad \omega_k = \frac{2\pi k}{n}, \; k=0,\dots,n-1
+$$
+
+- **Periodogram (spectral density estimator):**  
+$$
+I_n(\omega_k) = \frac{1}{2\pi n} \left| \sum_{t=0}^{n-1} X_t e^{-i \omega_k t} \right|^2
+= \frac{1}{2\pi} |d_n(\omega_k)|^2
+$$
+
+- **Properties:**  
+  - Peaks in \(I_n(\omega)\) indicate strong periodic components.  
+  - High variance → smoothing or averaging recommended.
+  
+
+  
+  
+
+
 ## Spectral Density Estimation via `spectrum`
 
 ```{r}
 x <- economics_long |> dplyr::filter(variable == "pce") |> pull(value)
 spe <- spectrum(x)
-spe
 ```
 
+## Periodogram
+
+```{r}
+str(spe)
+```
 
 
 
