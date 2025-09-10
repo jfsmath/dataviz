@@ -11,7 +11,7 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
-knitr::opts_chunk$set(fig.align='center', out.width = "65%")
+knitr::opts_chunk$set(fig.align='center', out.width = "75%")
 library(ggplot2)
 library(tidyverse)
 library(patchwork)
@@ -37,15 +37,13 @@ library(GGally)
 
 First we perform PCA to separate the data
 
-```{r}
+```{r, out.width = "60%"}
 set.seed(2025)
-
 pc <- prcomp(iris[,1:4],retx=T)
 ind <- sample(150,30)
 pc <- data.frame(pc$x[ind,1:2])
 pc$Species <- iris$Species[ind]
-
-ggplot(pc,aes(x=PC1,y=PC2)) + geom_point(aes(color=Species),size=2) +
+ggplot(pc,aes(x=PC1,y=PC2)) + geom_point(aes(color=Species),size=4) +
   ylim(-3.5,3.5) + xlim(-3.5,3.5)
 ```
 
@@ -59,6 +57,15 @@ colnames(col_annotation) <- c("Species")
 pheatmap::pheatmap(df,annotation_col = col_annotation)
 ```
 
+## Example: `iris`
+
+```{r, echo=F, out.width="100%"}
+#install.packages("pheatmap")
+df <- dist(pc[,1:2])
+col_annotation <- data.frame(pc$Species)
+colnames(col_annotation) <- c("Species")
+pheatmap::pheatmap(df,annotation_col = col_annotation)
+```
 
 ## The linkage matters (default: `complete`)
 
@@ -70,4 +77,33 @@ plot(hclust(df))
 
 # Signal Processing
 
+
+## Spectral Density Estimation via `spectrum`
+
+```{r}
+x <- economics_long |> dplyr::filter(variable == "pce") |> pull(value)
+spe <- spectrum(x)
+spe
+```
+
+
+
+
+
+
+## Spectrogram
+
+```{r}
+library(signal)
+x <- economics_long |> dplyr::filter(variable == "pce") |> pull(value)
+sp <- specgram(x, n = 64)
+sp
+```
+
+## Spectrogram
+
+```{r}
+jet <- grDevices::colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan","#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
+plot(sp, col = jet(20))
+```
 
