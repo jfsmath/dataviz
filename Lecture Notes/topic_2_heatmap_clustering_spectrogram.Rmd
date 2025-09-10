@@ -122,7 +122,9 @@ $$
 ## Spectral Density Estimation via `spectrum`
 
 ```{r}
-x <- economics_long |> dplyr::filter(variable == "pce") |> pull(value)
+x <- economics_long |> 
+  dplyr::filter(variable == "pce") |> 
+  pull(value)
 spe <- spectrum(x)
 ```
 
