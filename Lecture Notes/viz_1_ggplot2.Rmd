@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Introduction to ggplot2"
+subtitle: "Introduction to `ggplot2`"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
