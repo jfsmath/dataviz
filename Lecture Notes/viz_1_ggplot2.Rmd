@@ -197,7 +197,7 @@ g + geom_point(
 
 ## `mpg` dataset
 
-```{r, out.width="80%"}
+```{r increase mpg point size globally, out.width="80%"}
 g + geom_point(
   aes(x = displ, y = hwy, col = class), size = 3)
 ```

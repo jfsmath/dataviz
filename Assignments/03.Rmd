@@ -1,7 +1,7 @@
 ---
-title: "Assignment 4"
+title: "Assignment 3"
 author: "Your Name and UID"
-date: "Due: 11:59 PM, September 29, 2025"
+date: "Due: 11:59 PM, September 22, 2025"
 output: html_document
 ---
 
