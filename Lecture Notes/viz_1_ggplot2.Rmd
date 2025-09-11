@@ -27,7 +27,7 @@ knitr::include_graphics("images/03_cheatsheet.png")
 
 - Avoid using word processors (like Google Docs or MS Word)
 
-- better to think of the data and code as what’s real, together with the text you writ
+- better to think of the data and code as what’s real, together with the text you write
 
 - Idea: your figures, tables, and text, and so on, can be procedurally and reproducibly generated from code, data, and written material stored in a simple, plain-text format.
 
