@@ -230,8 +230,7 @@ g_final <- g + geom_point(
     y = "Highway MPG",
     title = "Highway Mileage vs Engine Displacement",
     caption = "Source: mpg dataset"
-  ) + 
-  theme_bw()
+  ) + theme_bw()
 ```
 
 
