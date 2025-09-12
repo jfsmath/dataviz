@@ -22,7 +22,16 @@ library(terra)
 
 ## References
 
+This set of slides is mostly based on 
+
+- Chapter 6 of [ggplot2: Elegant Graphics for Data Analysis (3e)](https://ggplot2-book.org/maps.html)
+- Chapter 7 of [Data Visualization: A Practical Introduction](https://socviz.co/maps.html#maps)
+
+More in-depth reading:
+
 - [Geocomputation with R](https://r.geocompx.org/) by Lovelace, Nowosad, and Muenchow
+
+
 
 
 ## Data type: vector data
@@ -71,20 +80,22 @@ Source: MIT Open Courseware
 ```{r, eval = F}
 install.packages("maps")
 install.packages("sf")
+library(maps)
+library(sf) # for vector data
+# and terra is for raster data
+```
+
+When you are by yourself with a lots of electricity and time (to install and potentially debug):
+```{r, eval = F}
 install.packages("terra")
 install.packages("spData")
 install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
-library(maps)
-library(sf) # for vector data
-library(terra) # for raster data
-library(spData)
-library(spDataLarge)
 ```
+
 
 ```{r, echo = F}
 library(maps)
 library(sf)
-library(terra)
 library(ggplot2)
 ```
 
@@ -153,12 +164,7 @@ map("county", "maryland",
   col = heat.colors(10, alpha = 0.5))
 ```
 
-## Exercise: change the Maryland plot to Maryland colors
 
-\pause 
-```{r}
-
-```
 
 
 ## Extracting geospatial info via `map_data`
@@ -584,6 +590,18 @@ ggplot(md_counties,
 ```
 
 
+## Where to go from here (a lot of places)
+
+```{r, eval = F}
+# install.packages("leaflet")
+library(leaflet)
+popup = c("Robin", "Jakub", "Jannes")
+leaflet() |>
+  addProviderTiles("NASAGIBS.ViirsEarthAtNight2012") |>
+  addMarkers(lng = c(-3, 23, 11),
+             lat = c(52, 53, 49), 
+             popup = popup)
+```
 
 
 
