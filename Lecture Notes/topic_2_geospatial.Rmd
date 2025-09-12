@@ -11,13 +11,11 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,  message = FALSE)
-knitr::opts_chunk$set(fig.align='center', out.width = "85%")
+knitr::opts_chunk$set(fig.align='center', out.width = "100%")
 library(ggplot2)
 library(tidyverse)
 library(maps)
 ```
-
-
 
 
 
@@ -92,12 +90,9 @@ maps::map("state", fill = TRUE, col = heat.colors(49, alpha = 0.7))
 ## A local example
 
 ```{r}
-maps::map(
-  "county", 
-  "maryland",
+map("county", "maryland",
   fill = TRUE,
-  col = heat.colors(10, alpha = 0.5)
-)
+  col = heat.colors(10, alpha = 0.5))
 ```
 
 ## Exercise: change the Maryland plot to Maryland colors
@@ -141,7 +136,7 @@ str(md_counties)
 - Create a scatterplot of `md_counties` to see what each coordinates represent. 
 - Make sure to add a layer `coord_quickmap()` for better spatial geometry.
     
-```{r md_counties scatterplot}
+```{r md_counties scatterplot, out.width="70%"}
 ggplot(md_counties,
        aes(x = lon, y = lat)) + 
   geom_point(size = 0.2, aes(color = id)) + 
@@ -158,7 +153,7 @@ The key to complete the map is the `geom_polygon()` function.
 
 -   connect the boundary points of a region using lines
 
-```{r}
+```{r, out.width = "70%"}
 ggplot(md_counties, 
        aes(lon, lat, group = id)) + 
   geom_polygon(color = "white", aes(fill = id)) +
@@ -181,7 +176,7 @@ library(sf)
 ## Example: North Carolina SID
 
 ```{r}
-nc <- sf::st_read(
+nc <- st_read(
   system.file("shape/nc.shp", package = "sf"),
   quiet = TRUE)
 nc
@@ -204,11 +199,8 @@ The variable "SID74" is the number of sudden infant death in the period 1974-78.
 ```{r sid total}
 ggplot(nc) + 
   geom_sf(aes(fill = SID74)) + coord_sf() + 
-  scale_fill_gradient(low = "white",high = "red") + 
-  labs(
-    title = " Sudden Infant Death Syndrom by County in North Carolina 1974 ",
-    fill = "Sudden Infant Deaths\n in North Carolina 1974",
-    caption = "Source: nc.shp dataset")
+  scale_fill_gradient(low = "white",high = "red")
+# + labels
 ```
 
 
@@ -236,7 +228,7 @@ ggplot(nc) +
 
 ##
 
-```{r sid death rate}
+```{r sid death rate, echo = F}
 ggplot(nc) + 
   geom_sf(aes(fill = (SID74/BIR74))) + 
   coord_sf() + 
@@ -281,13 +273,12 @@ p74 / p79
 
 Anything misleading about the plot?
 
-
+## Fixing the scales
 
 ```{r sid 74 vs sid 79 fixed scales}
 range_values <- range(
   c(nc$SID74 / nc$BIR74, nc$SID79 / nc$BIR79), 
   na.rm = TRUE)
-
 p74 <- ggplot(nc) + 
   geom_sf(aes(fill = (SID74/BIR74))) + 
   coord_sf() + 
@@ -296,7 +287,6 @@ p74 <- ggplot(nc) +
     high = "red",
     labels = scales::label_percent(),
     limits = range_values)
-
 p79 <- ggplot(nc) + 
   geom_sf(aes(fill = (SID79/BIR79))) + 
   coord_sf() + 
