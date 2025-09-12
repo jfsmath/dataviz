@@ -15,21 +15,78 @@ knitr::opts_chunk$set(fig.align='center', out.width = "100%")
 library(ggplot2)
 library(tidyverse)
 library(maps)
+library(sf)
+library(terra)
 ```
+
+
+## References
+
+- [Geocomputation with R](https://r.geocompx.org/) by Lovelace, Nowosad, and Muenchow
+
+
+## Data type: vector data
+
+**Vector data**: points --> line segments & polygons (ordered points and line segments)
+
+![](images/topic_geospatial_sf-classes.png)
+\tiny\flushright
+Source: Geocomputation with R Chapter 2
+
+## Data type: raster data
+
+**Raster data**: pixels, (raster head + a matrix)
+
+![](images/topic_geospatial_raster.png)
+\tiny\flushright
+Source: Geocomputation with R Chapter 2
+
+
+## Choice of colors
+
+- Discrete vs continuous scales? 
+- "Bad" vs "Good" vs "Neutral"?
+
+```{r, echo = F, out.width="78%"}
+knitr::include_graphics("images/topic_geospatial_colorscales2.png")
+```
+\tiny\flushright 
+Source: Geocomputation with R Chapter 2
+
+
+## Choice of colors
+
+How to choose break points?
+
+```{r, echo = F, out.width="78%"}
+knitr::include_graphics("images/topic_geospatial_colorscales.png")
+```
+\tiny\flushright 
+Source: MIT Open Courseware
 
 
 
 ## Getting started
 
 ```{r, eval = F}
-# install.packages("maps")
+install.packages("maps")
+install.packages("sf")
+install.packages("terra")
+install.packages("spData")
+install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 library(maps)
-library(ggplot2)
-library(tidyverse)
+library(sf) # for vector data
+library(terra) # for raster data
+library(spData)
+library(spDataLarge)
 ```
 
-
-
+```{r, echo = F}
+library(maps)
+library(sf)
+library(terra)
+library(ggplot2)
+```
 
 
 ## Mapping basics: US domestic
@@ -85,6 +142,7 @@ maps::map("state", fill = TRUE, col = rainbow(49))
 # maps::map("state", fill = TRUE, col = rainbow(49))
 maps::map("state", fill = TRUE, col = heat.colors(49, alpha = 0.7))
 ```
+
 
 
 ## A local example
@@ -199,7 +257,9 @@ The variable "SID74" is the number of sudden infant death in the period 1974-78.
 ```{r sid total}
 ggplot(nc) + 
   geom_sf(aes(fill = SID74)) + coord_sf() + 
-  scale_fill_gradient(low = "white",high = "red")
+  scale_fill_gradient(low = "white",high = "red") + 
+    ggthemes::theme_map() 
+# a personal preference: ggthemes::theme_map()
 # + labels
 ```
 
@@ -268,7 +328,7 @@ p79 <- ggplot(nc) +
 
 ```{r sid comparison}
 library(patchwork)
-p74 / p79
+p74 / p79 & ggthemes::theme_map()
 ```
 
 Anything misleading about the plot?
@@ -302,7 +362,7 @@ p79 <- ggplot(nc) +
 
 ```{r sid comparison fixed scales}
 library(patchwork)
-p74 / p79
+p74 / p79 & ggthemes::theme_map()
 ```
 
 
@@ -321,7 +381,7 @@ ggplot(nc) +
     low = "green",
     mid = "white",
     high = "red",
-    labels = scales::label_percent())
+    labels = scales::label_percent()) +  ggthemes::theme_map()
 ```
 
 ## 
@@ -334,7 +394,7 @@ ggplot(nc) +
     low = "green",
     mid = "white",
     high = "red",
-    labels = scales::label_percent())
+    labels = scales::label_percent())+ggthemes::theme_map()
 ```
 
 ## Example: SID
@@ -375,7 +435,7 @@ ggplot() +
   geom_text_repel(
     data = nc_cities5,
     mapping = aes(x = long, y = lat, label = name),
-    color = "black", size = 2.5)
+    color = "black", size = 2.5)+ggthemes::theme_map()
 ```
 
 ## 
@@ -387,7 +447,8 @@ ggplot() +
   coord_sf() + 
   scale_fill_gradient2(
     low = "green",mid = "white",high = "red",
-    labels = scales::label_percent()) + 
+    labels = scales::label_percent(),
+    name = "Rate Increase") + 
   geom_point(
     data = nc_cities5, 
     mapping = aes(x = long, y = lat),
@@ -395,7 +456,13 @@ ggplot() +
   geom_text_repel(
     data = nc_cities5,
     mapping = aes(x = long, y = lat, label = name),
-    color = "black", size = 2.5)
+    color = "black", size = 2.5) + 
+  labs(title = "SID rate improvement from 74-79 to 79-81",
+       caption = "Source: nc dataset") + 
+  ggthemes::theme_map() + 
+  theme(
+    legend.position = "right",
+    )
 ```
 
 
@@ -407,8 +474,8 @@ Download the dataset from <https://data.imap.maryland.gov/datasets/maryland::mdc
 
 ```{r}
 mdcovid <- read.csv("data/MDCOVID19_CasesByCounty.csv")
-head(mdcovid)
-tail(mdcovid)
+head(mdcovid, 2)
+tail(mdcovid, 2)
 ```
 
 
@@ -489,7 +556,8 @@ ggplot(md_counties,
   labs(
     fill = "Case Number",
     title = "Covid cases by MD counties\n 03/15/2020 -- 10/22/2024",
-    caption = "Source: https://data.imap.maryland.gov")
+    caption = "Source: https://data.imap.maryland.gov") + 
+  ggthemes::theme_map()
 ```
 
 ## 
@@ -512,8 +580,12 @@ ggplot(md_counties,
   labs(
     fill = "Case Number",
     title = "Covid cases by MD counties\n 03/15/2020 -- 10/22/2024",
-    caption = "Source: https://data.imap.maryland.gov")
+    caption = "Source: https://data.imap.maryland.gov") + ggthemes::theme_map()
 ```
+
+
+
+
 
 
 
