@@ -27,8 +27,14 @@ library(GGally)
 Source: [xkcd](https://xkcd.com/552/)
 
 - For this lecture:
-```
-install.packages(c("corrplot", "ggcorrplot", "GGally", "factoextra", "rattle", "ggbiplot"))
+
+```{r, eval = F}
+install.packages(c("corrplot", 
+                   "ggcorrplot", 
+                   "GGally", 
+                   "factoextra", 
+                   "rattle", 
+                   "ggbiplot"))
 ```
 
 # Visualizing Correlation
