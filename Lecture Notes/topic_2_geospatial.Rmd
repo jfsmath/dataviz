@@ -595,11 +595,10 @@ ggplot(md_counties,
 ```{r, eval = F}
 # install.packages("leaflet")
 library(leaflet)
-popup = c("Robin", "Jakub", "Jannes")
+popup = c("Data350")
 leaflet() |>
   addProviderTiles("NASAGIBS.ViirsEarthAtNight2012") |>
-  addMarkers(lng = c(-3, 23, 11),
-             lat = c(52, 53, 49), 
+  addMarkers(lng = c(-77),lat = c(39), 
              popup = popup)
 ```
 
