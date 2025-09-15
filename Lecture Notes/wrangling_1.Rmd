@@ -81,9 +81,10 @@ filter(flights, month == 12, day == 14)
 
 ## `filter()`
 
-\tiny
+
 ```{r}
-head(filter(flights, month == 12, day == 14 & dep_delay > 30))
+head(filter(flights, 
+            month == 12, day == 14 & dep_delay > 30))
 ```
 
 \normalsize
@@ -144,13 +145,13 @@ table(NovDec$month)
 ##
 
 ```{r}
-head(arrange(flights, dep_time, carrier))
+head(arrange(flights, dep_time, carrier), 3)
 ```
 
 
 
 ```{r}
-head(arrange(flights, desc(dep_time), carrier))
+head(arrange(flights, desc(dep_time), carrier), 3)
 ```
 
 
@@ -162,7 +163,7 @@ Allows us to pick variables (columns) by name/order to zoom in on useful variabl
 
 ```{r}
 carrier_delay <- select(flights, dep_delay, arr_delay, carrier)
-carrier_delay
+head(carrier_delay, 4)
 ```
 
 
@@ -172,7 +173,7 @@ By putting a minus `-` in front of the list of variables
 
 
 ```{r}
-head(select(flights, -c(year:day)))
+head(select(flights, -c(year:day)), 4)
 ```
 
 ## Helpers of `select()`
@@ -187,8 +188,8 @@ head(select(flights, -c(year:day)))
 ## Example with `contains()`
 
 ```{r}
-head(select(flights, contains("time")))
-head(select(flights, -contains("time")))
+head(select(flights, contains("time")), 3)
+head(select(flights, -contains("time")), 3)
 ```
 
 ## Example with `num_range()`
@@ -198,9 +199,10 @@ It's useful when variable names are enumerated.
 
 
 ```{r}
-df <- data.frame(id = 1:5, mt_1 = rnorm(5,0,1),mt_2 = rnorm(5,0,1),
-                 mt_3 = rnorm(5,0,1), mt_4 = rnorm(5,0,1))
-head(df)
+df <- data.frame(id = 1:5, 
+                 mt_1 = rnorm(5,0,1),mt_2 = rnorm(5,0,1),
+                 mt_3 = rnorm(5,0,1), mt_4 =rnorm(5,0,1))
+head(df, 2)
 select(df, num_range("mt_", 2:3))
 ```
 
@@ -397,14 +399,15 @@ slice_sample(
 
 ## The pipeline `|>`
 
-The function in the last slide is hard to read, so we (always) use the pipeline
+The function in the last slide was hard to read, so we (always from now on) use the pipeline
 
 ```{r}
 flights |>
   group_by(carrier,month) |>
-  summarize(avg_delay = mean(dep_delay, na.rm = T),.group = "drop") |>
+  summarize(avg_delay = mean(dep_delay, na.rm = T),
+            .group = "drop") |>
   group_by(month) |>
-  slice_sample(n = 2)
+  head(2)
 ```
 
 
@@ -426,7 +429,7 @@ f_2( f_1( data , ...), ...)
 
 Consider the example from before:
 \small
-```
+```{r, eval = F}
 slice_sample(select(mutate(flights_red,
                             gain = arr_delay - dep_delay,
                             speed = distance / (air_time/60),
@@ -461,6 +464,14 @@ More can be found in the [tidyverse.org](https://www.tidyverse.org/blog/2023/04/
 
 
 
+## Joining datasets (Assignment 3, Exercise 3)
+
+```{r, eval = F}
+?join
+```
+
+![](images/wrangling_join.png)
+\tiny\flushright Source: statisticsglobe.com
 
 
 

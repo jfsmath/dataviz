@@ -80,15 +80,15 @@ Source: MIT Open Courseware
 ```{r, eval = F}
 install.packages("maps")
 install.packages("sf")
-library(maps)
-library(sf) # for vector data
-# and terra is for raster data
+install.packages("spData")
+library(maps) # lightweight, old
+library(sf) # working with vector data
+library(spData) # spatial datasets
 ```
 
 When you are by yourself with a lots of electricity and time (to install and potentially debug):
 ```{r, eval = F}
 install.packages("terra")
-install.packages("spData")
 install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 ```
 
@@ -97,11 +97,14 @@ install.packages("spDataLarge", repos = "https://geocompr.r-universe.dev")
 library(maps)
 library(sf)
 library(ggplot2)
+library(spData)
 ```
 
 
-## Mapping basics: US domestic
 
+
+
+## Mapping basics: US domestic
 
 
 ```{r}
@@ -156,6 +159,11 @@ maps::map("state", fill = TRUE, col = heat.colors(49, alpha = 0.7))
 
 
 
+
+
+
+
+
 ## A local example
 
 ```{r}
@@ -166,8 +174,106 @@ map("county", "maryland",
 
 
 
+## Example with `spData`
 
-## Extracting geospatial info via `map_data`
+- Documentation: <https://jakubnowosad.com/spData/>
+
+```{r}
+names(spData::world)
+spData::world |> slice_sample(n=5)
+```
+
+## Example with `spData`
+
+```{r}
+spData::world |> 
+  slice_sample(n=20) |>
+  plot()
+```
+
+## Example with `spData`
+
+```{r}
+plot(world["pop"])
+```
+
+## `spData`
+
+```{r}
+plot(spData::us_states)
+```
+## `spData`
+
+```{r}
+plot(urban_agglomerations)
+```
+
+
+##  `spData` 
+
+```{r, eval = F}
+gdp_breaks <- quantile(world$gdpPercap/1000, 
+                       probs = seq(0, 1, 0.25), na.rm = TRUE)
+ggplot(subset(world, !is.na(gdp_bin))) + 
+  geom_sf(aes(fill = gdpPercap/1000)) + 
+  scale_fill_gradient(
+    breaks = gdp_breaks, 
+    low = "white", high = "red", 
+    label = round(gdp_breaks)) + 
+  ggthemes::theme_map()
+```
+##  `spData` 
+
+```{r, echo = F}
+gdp_breaks <- quantile(world$gdpPercap/1000, 
+                       probs = seq(0, 1, 0.25), na.rm = TRUE)
+ggplot(subset(world, !is.na(gdpPercap))) + 
+  geom_sf(aes(fill = gdpPercap/1000)) + 
+  scale_fill_gradient(
+    breaks = gdp_breaks, 
+    low = "white", high = "red", 
+    label = round(gdp_breaks)) + 
+  ggthemes::theme_map()
+```
+
+
+## Discrete scales
+
+```{r, eval = F}
+gdp_breaks <- quantile(world$gdpPercap/1000, 
+                       probs = seq(0, 1, 0.25), na.rm = TRUE)
+world$gdp_bin <- cut(world$gdpPercap/1000, 
+                     breaks = gdp_breaks, include.lowest = T)
+color_bin <- colorRampPalette(c("white", "red"), bias = 5)(4)
+ggplot(subset(world, !is.na(gdp_bin))) + 
+  geom_sf(aes(fill = gdp_bin)) + 
+  scale_fill_manual(
+    values = color_bin) + 
+  ggthemes::theme_map()
+```
+
+## Discrete scales
+
+```{r, echo = F}
+gdp_breaks <- quantile(world$gdpPercap, 
+                       probs = seq(0, 1, 0.25), na.rm = TRUE)
+world$gdp_bin <- cut(world$gdpPercap, 
+                     breaks = gdp_breaks, include.lowest = F)
+color_bin <- colorRampPalette(c("white", "red"), bias = 5)(4)
+ggplot(subset(world, !is.na(gdp_bin))) + 
+  geom_sf(aes(fill = gdp_bin)) + 
+  scale_fill_manual(
+    values = color_bin, 
+    labels = round(gdp_breaks, -4)) + 
+  ggthemes::theme_map()
+```
+
+
+
+
+
+
+## Extracting geospatial info via `ggplot2::map_data`
 
 
 
@@ -235,6 +341,12 @@ What if the data is not lat/lon for boundaries?
 # install.packages("sf")
 library(sf)
 ```
+
+
+
+
+
+
 
 
 ## Example: North Carolina SID
@@ -588,6 +700,7 @@ ggplot(md_counties,
     title = "Covid cases by MD counties\n 03/15/2020 -- 10/22/2024",
     caption = "Source: https://data.imap.maryland.gov") + ggthemes::theme_map()
 ```
+
 
 
 ## Where to go from here (a lot of places)
