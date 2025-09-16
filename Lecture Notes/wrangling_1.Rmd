@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Data Transformation"
+subtitle: "Data Transformation/Wrangling"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
