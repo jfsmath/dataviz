@@ -1,0 +1,38 @@
+---
+title: "Rubric Template"
+author: "Fushuai Jiang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+## Group Roles (3 members)
+
+| Role | Responsibilities |
+|------|----------------|
+| **Project Manager** | - Organizes workflow, deadlines, and file submission<br>- Ensures each member is on track<br>- Contributes ≥2 plots and writes description for them |
+| **Data/Stat Lead** | - Performs data cleaning, transformations, and statistical analysis<br>- Provides technical support to others<br>- Contributes ≥2 plots and writes description for them |
+| **Visualization/Communication Lead** | - Designs clear, well-labeled, and aesthetically pleasing figures<br>- Standardizes figure captions and integrates plots into report<br>- Contributes ≥2 plots and writes description for them |
+| **All Members** | - Each member drafts text for their own plots<br>- Participates in at least one peer review session within the group<br>- Completes an individual reflection on contributions |
+
+> **Note:** Roles are flexible; members can overlap responsibilities. Every member must contribute technically, write text, and support quality control.
+
+---
+
+## Grading Rubric (100 pts)
+
+| Category | Points | Description |
+|----------|-------|------------|
+| **Completion of Requirements** | 20 | - 6–10 figures created<br>- Required number of faceted/multivariate figures<br>- Minimum number of plotting techniques used (including Additional Topics) |
+| **Guiding Questions / Depth of Exploration** | 20 | - Questions are thoughtful, relevant, and lead to meaningful insights<br>- Demonstrates understanding of dataset and context |
+| **Plot Design & Suitability** | 25 | - Figures are well-labeled and clear<br>- Appropriate plot types chosen for the data<br>- Effective use of aesthetics, faceting, and additional plotting techniques |
+| **Statistical Analysis & Insight** | 20 | - Uses transformations, summaries, or statistical measures to support findings<br>- Shows reasoning, interprets results, and expresses uncertainty where relevant |
+| **Communication & Reproducibility** | 10 | - Report is clearly written, logically structured<br>- Plots and text integrated well<br>- Fully reproducible code with `RMD` → `HTML` workflow |
+| **Teamwork / Professionalism** | 5 | - Peer evaluations and group collaboration<br>- Timely contribution of plots, text, and workflow support |
+| **Bonus: Creativity / Extra Insight** | 0–5 | - Optional: innovative plots, advanced analysis, or particularly insightful findings |
+
+---
+
+## Additional Notes
+
+- Each member must submit a **1-page reflection** describing their contributions (plots, analysis, writing, coordination).  
+- Plots must be **original** (no copying from external sources) and reproducible.  
+- Encourage rotation in leading the discussion of plots/questions within the group; teamwork is part of the grade.  
