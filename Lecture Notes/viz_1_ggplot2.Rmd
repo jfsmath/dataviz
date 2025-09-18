@@ -693,7 +693,9 @@ p + geom_bar(aes(fill = bigregion))
 ##
 
 ```{r, out.width="70%"}
-p + geom_bar(aes(fill = bigregion), position = "fill")
+ggplot(data = subset(gss_sm, partyid != "NA"),
+  mapping = aes(x = partyid)) + 
+  geom_bar(aes(fill = bigregion), position = "fill")
 ```
 - What should the $y$-axis be now? Fix all the labels. 
 - Look up `geom_bar` for more on `position`
