@@ -1,0 +1,19 @@
+---
+title: "Project 2"
+author: "Data 350"
+date: "Due date: October 17 2025 at midnight (EST)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+Sources of data to consider:
+
+
+- [Midical Expenditure Panel Survey](https://meps.ahrq.gov/mepsweb/data_stats/download_data_files.jsp)
+- [CDC National Environmental Public Health Tracking Network (Data Extractor)](https://ephtracking.cdc.gov/DataExplorer/?c=16)
+- 
