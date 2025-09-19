@@ -26,10 +26,10 @@ library(tidyverse)
 ## `gapminder` continued
 
 
-\tiny
+
 ```{r}
 library(gapminder)
-dplyr::slice_sample(gapminder, n = 15)
+head(gapminder, 10)
 ```
 
 
@@ -49,7 +49,8 @@ ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
 
 
 ```{r, out.width = "60%"}
-p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+p <- ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
 p + geom_smooth()
 ```
 
@@ -95,7 +96,20 @@ p + geom_smooth(method = "lm")
 
 ## We can use `size` to weigh the points:
 
-\tiny
+
+```{r, out.width="60%", eval = F}
+p1 <- ggplot(
+  data = subset(gapminder, continent %in% c("Asia", "Americas")),
+  aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point(aes(size = pop), color = "darkgreen", alpha = 0.6) + 
+  geom_smooth(method = "lm") + 
+  scale_x_log10(labels = scales::dollar) + 
+  ggthemes::theme_fivethirtyeight()
+p1
+```
+## We can use `size` to weigh the points:
+
+
 ```{r, out.width="60%"}
 p1 <- ggplot(
   data = subset(gapminder, continent %in% c("Asia", "Americas")),
@@ -106,7 +120,8 @@ p1 <- ggplot(
   ggthemes::theme_fivethirtyeight()
 p1
 ```
-\normalsize
+
+
 However, is there anything inconsistent between the plot and the regression model?
 
 ## Adjust the weight inside the statistical `geoms`
@@ -267,15 +282,28 @@ p
   - Need to use `position = position_dodge(0.9)` to separate the error bars, the 0.9 unit is a number achieved by trial and error!
 
 
-\tiny
-```{r, out.width="55%"}
+
+```{r, eval = F}
 p <- p + geom_errorbar(aes(
-  ymin = LCI, ymax = UCI, group = continent
-), position = position_dodge(0.9), width = 0.5)
+  ymin = LCI, ymax = UCI, 
+  group = continent), 
+  position = position_dodge(0.9), 
+  width = 0.5)
 p
 ```
 - As usual, go to `?geom_errorbar` for more additional help. 
 
+
+## `geom_errorbar()`
+
+```{r, eval = T}
+p <- p + geom_errorbar(aes(
+  ymin = LCI, ymax = UCI, 
+  group = continent), 
+  position = position_dodge(0.9), 
+  width = 0.5)
+p
+```
 
 ## Document the uncertainty
 
