@@ -1,0 +1,159 @@
+---
+title: "Dataframe Transformation worksheet"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# packages used by the exercises
+library(dplyr)
+library(nycflights13)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{css, echo=FALSE}
+ol.problems {
+  counter-reset: prob;
+  list-style: none;
+  padding-left: 0;
+}
+ol.problems > li {
+  counter-increment: prob;
+  margin-bottom: 1.25em;
+}
+ol.problems > li::before {
+  content: "Problem " counter(prob) ". ";
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 0.25em;
+}
+.choices {
+  list-style: none;
+  padding-left: 1.25em;
+}
+.choices li { margin: 0.12em 0; }
+```
+
+
+# dplyr Practice Exercises
+
+```{r libraries, echo = F}
+library(nycflights13)
+library(ggplot2)
+```
+
+
+<ol class="problems">
+
+<li>
+**cars — basic verbs.** The `cars` dataset has `speed` and `dist`.
+
+- a) Select only `speed`.  
+- b) Filter rows with `speed > 15`.  
+- c) Create `dist_per_speed = dist / speed`.  
+- d) Arrange by decreasing `dist`.  
+- e) Summarise `mean(speed)` and `mean(dist)`.
+
+*(Try to write one pipeline per item where sensible.)*
+</li>
+
+<li>
+**cgrouping & summary.**
+
+- a) Create a categorical variable `speed_group` where `speed <= 10` → "slow", `speed <= 20` → "medium", else "fast".  
+- b) For each `speed_group`, compute `n`, `mean(dist)`, `sd(dist)`.  
+- c) Use `filter()` + `slice_max()` to show the top 3 observations by `dist` for the "fast" group.
+</li>
+
+<li>
+**flights — selecting and filtering.**
+
+- a) Select `year, month, day, carrier, origin, dest, dep_delay, arr_delay, distance, air_time`.  
+- b) Filter flights in **June** with `dep_delay > 30`. How many were there?  
+- c) Filter flights by carrier `"UA"` (United) and `origin == "JFK"`; show a preview (first 6).
+</li>
+
+<li>
+**flights — mutate and new columns.**
+
+- a) Create `gain = dep_delay - arr_delay` and explain in one sentence what a positive `gain` means.  
+- b) Create `speed = distance / (air_time/60)` (mph). Show summary stats of `speed`.  
+- c) Add a logical column `long_flight = distance > 1000`.
+</li>
+
+<li>
+**arrange & top rows.**
+
+- a) Arrange to find the 10 flights with largest `arr_delay`.  
+- b) Arrange to find the 10 fastest flights by `speed`.  
+- c) Which flight (carrier + flight number) has the highest `gain`?
+</li>
+
+<li>
+**grouped summaries.**
+
+- a) For each `month`, compute average `dep_delay` and average `arr_delay`. Which month looks worst?  
+- b) For each `carrier`, compute `mean(arr_delay, na.rm=TRUE)` and `n()`; show carriers with at least 200 flights.  
+- c) For each `carrier`, compute the proportion of flights with `arr_delay <= 0` (on-time or early).
+</li>
+
+<li>
+**joins**
+
+- a) Join `flights` with `airlines` to get `name` for each `carrier`. Show a small result.  
+- b) Join `flights` with `planes` (by `tailnum`) and find the top 5 manufacturers (from `planes$manufacturer`) among flights with `arr_delay > 60`.  
+- c) Explain a situation where a `left_join` vs `inner_join` matters here.
+</li>
+
+<li>
+**select/filter/mutate.**
+
+- a) Select `carat, cut, color, clarity, price`.  
+- b) Filter `carat > 1` and `price < 5000`. How many diamonds match?  
+- c) Create `price_per_carat = price / carat` and show the 10 lowest `price_per_carat`.
+</li>
+
+<li>
+**group_by + summarise.**
+
+- a) For each `cut`, compute `n`, `mean(price)`, `median(price)`.  
+- b) For each `cut` × `color` combination, compute `mean(price_per_carat)` (use the column from previous problem).  
+- c) Identify which `cut` × `color` has the highest average `price_per_carat`.
+</li>
+
+<li>
+**combining verbs**
+
+- a) Using `diamonds`, find the top 3 `clarity` categories (by count) and compute their average `price`.  
+- b) Using `flights`, find the top 5 `dest` by number of flights from `EWR` and compute their mean `arr_delay`.  
+- c) Using `cars`, compute min/mean/max `dist` grouped by whether `speed > median(speed)`.
+</li>
+
+<li>
+**joins + summarise across datasets**
+
+- a) From `flights`, compute average `speed` per flight and keep `carrier` and `dest`.  
+- b) Group by `carrier` and compute average of that average speed (i.e., mean flight speed per carrier).  
+- c) Join with `airlines` to replace carrier codes with full airline names and show the top 5 fastest airlines (by mean speed).
+</li>
+
+<li>
+**data-cleaning**
+
+- a) Demonstrate how to remove rows with missing `air_time` or `distance` before computing `speed`.  
+- b) Show how to rename `dep_delay` to `departure_delay` and `arr_delay` to `arrival_delay`.  
+- c) Create a reproducible pipeline that: selects relevant columns, filters a month, computes speed, groups by carrier, and returns a clean summary table ready for plotting.
+</li>
+
+<li>
+**joins & duplicates**
+
+- a) Explain (in one or two sentences) how duplicates in the right table affect a `left_join` (e.g., joining `planes` to `flights` if `planes` had duplicate `tailnum`).  
+- b) Write R code that detects duplicate `tailnum` in `planes` and shows the duplicates.  
+- c) Suggest a safe join strategy when duplicates exist.
+</li>
+
+</ol>
+
+
+
