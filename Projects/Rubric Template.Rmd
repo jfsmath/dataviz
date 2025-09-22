@@ -17,6 +17,8 @@ output: html_document
 
 ---
 
+
+
 ## Grading Rubric (100 pts)
 
 | Category | Points | Description |

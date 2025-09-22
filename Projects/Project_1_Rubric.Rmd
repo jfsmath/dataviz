@@ -1,0 +1,42 @@
+---
+title: "Project 1 Rubric"
+author: "Data 350, Fall 2025"
+date: "`r Sys.Date()`"
+output: 
+  bookdown::html_document2: default
+---
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = F)
+```
+
+
+
+
+
+
+
+## Grading Rubric 
+
+- If you see nx6 in the "points" column, think about it in terms of negative scoring. The minimum/maximum for each plot is $0/n$, and the minimum/maximum for the section is $0/6n$ points. For each plot (even if there are more than six), you take points off according to the rubric and keep track of the total points (call it $k$) taken off. The score of that section is then $\max\{0, 24 - 6k\}$. This means that the more plots you have, the more you have to maintain (but don't think about it as a bad thing -- you may tell a better story with more than 6 plots). 
+- For the "Statistical Insight" category, it is fairly hard to give examples without creating a fair amount of bias. However, I would say that a good report (full score) uses most of the basic `dplyr` functions we had in class and accounts for the mean and the variance (two of the fundamental quantities associated with a distribution). The variance is where the uncertain comes from. 
+- Be lenient and round up. 
+
+| Category | Points | Description |
+|----------|:-------:|------------|
+| **Basic completion** | -  | If a project does not follow the instruction, do not proceed and report to the instructor. This includes: missing figures, missing report, knitting error, or other non-reproducible workflow |
+| **Depth of the guiding questions** | 10 | - Questions are thoughtful, relevant, and lead to meaningful insights about the dataset. <br>- Good questions are usually W/H questions instead of Y/N, and have multiple layers. Using the `gss_sm` dataset as an exampe: <br>- **3 pt Example** Is there a relationship between marital status and happiness? <br> - **8 pt Example** What factors are most likely to influence political ideologies, and ...? |
+|**Labeling**| 2x6 | - Each figure is well-labeled, with clear title, caption, and legends. Legend texts must be understandable for people with no access to the data. <br> - ($-1$) if a single figure has minor labeling issue (say $x$-axis is `displ` instead of "Engine Displacement" and no issue otherwise), -1. <br> - ($-2$) if a single figure has more than a minor issue. |
+| **Plot Design ** | 2x6 | - Every figure uses appropriate plot types and aesthetics chosen for the data <br> - Full points if the plot types and aesthetics mostly make sense <br> - $(-1)$ if there are clear alternatives. Example 1, `ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_line()` clearly does not tell as good a story as `+ geom_point() + geom_smooth()` in place of `geom_line()`; Example 2, `position = "dodge"` facilitates better cross-group comparison than `position = "stack"` <br> - $(-2)$ the choice is nonsensical or very hard to interpret |
+| **Statistical Insight** | 13 | - (5pt) Adequately utilizing transformations, summaries, or statistical measures to support findings. Examples include `dplyr` wranglings, average, median, variance, interquartile range, correlation, statistical tests, PCA ...  <br> - (5pt) Clearly Expresses uncertainty when relevant, e.g., CI for averages and smoothing models, visualizing the distribution of a parameter <br> - (3pt) Shows reasoning and interprets results in the report <br> - An example (out of many!) a full-section-score work uses most of the basic `dplyr` functions we had in class, accounts for the mean and the variance (or the right object to look at with non-normal data), and clearly documents their method/reasoning in the report.|
+| **Communication** | 8 | - (2pt) When appropriate, additional plot annotations to display metadata <br> - (6pt) Report is clearly written, logically structured. Plots and texts are integrated well. |
+| **TOTAL** | 55 | 
+| **Bonus** | 1 | - Advanced and relevant analysis, or particularly insightful findings |
+---
+
+
+
+
