@@ -50,7 +50,8 @@ library(GGally)
 
 \tiny
 ```{r}
-library(socviz, ggplot2)
+library(socviz)
+library(ggplot2)
 p <- ggplot(oecd_le, aes(x = year, y = lifeexp))
 p + geom_line(aes(group = country)) # + labels
 ```
