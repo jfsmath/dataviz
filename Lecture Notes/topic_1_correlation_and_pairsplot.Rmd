@@ -419,7 +419,9 @@ ggpairs(df, columns = c(1,2,3,5),
 
 ## Principal Component Analysis (PCA)
 
-- Very popular linear **dimension reduction techniques**
+- **Manifold Hypothesis:** real life high-dimensional data concentrates about a lower-dimensional "surface"
+
+- PCA: Very popular linear **dimension reduction techniques**
 
 
 
