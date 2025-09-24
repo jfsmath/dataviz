@@ -1,0 +1,67 @@
+---
+title: "Exploring Aggregate Predictors of Mental Health Outcomes"
+author: "Fushuai Jiang, University of Maryland"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+
+
+## Core Research Questions
+
+1. At the province/state level, are mental health outcomes (e.g. prevalence of poor mental health, hospitalizations for mental illness) more strongly associated with demographic composition (e.g. % youth, % female, % older adults) or socioeconomic indicators (median income, % with college degree, unemployment rate)?
+
+2. Do environmental factors (e.g. heat waves, cold spells) appear correlated with changes in population-level mental health outcomes?
+
+3. How do these associations vary over time (e.g. pre/post pandemic or across several years)?
+
+## Data source suggestion:
+
+Mental Health & Socioeconomic Indicators
+
+  - US: CDC’s Behavioral Risk Factor Surveillance System (BRFSS) summary tables, SAMHSA reports, or [CDC Data Explorer](https://ephtracking.cdc.gov/DataExplorer/)
+
+  - Demographics US Census Bureau (via `tidycensus` [R package](https://walker-data.com/tidycensus/)).
+
+  - Weather/Environment: NOAA (for US), Environment Canada, or UK Met Office (for Tom’s idea). Daily/monthly average temp, extreme event counts.
+  
+  
+## Workflow
+
+
+1. Data Wrangling
+
+  - Use tidyverse to import, clean, and merge aggregate datasets.
+
+  - Create a panel dataset: rows = region × year (or month), columns = mental health outcomes, demographics, SES, weather indicators.
+
+2. Exploratory Data Analysis
+
+  - Descriptive stats: distributions of mental health outcomes across regions.
+
+  - Geospatial plots: `choropleths` (via `sf` + `ggplot2`) to map prevalence across states/provinces.
+
+  - Trend analysis: line plots of outcomes over time, highlighting key events (e.g. 2020 pandemic start).
+
+  - Correlation heatmaps: demographic, SES, weather factors vs. mental health outcomes.
+
+3. Comparative Modeling (Exploratory, not causal)
+
+  - Simple linear models: regress aggregate mental health outcome on demographics vs. SES predictors. Compare R².
+
+  - Regularized regression (`glmnet`): check which predictors are retained.
+
+  - Event overlay: mark heat/cold waves on time series plots of outcomes, look for spikes.
+
+4. Communication Outputs
+
+  - Markdown report with visual summaries.
+
+  - Interactive dashboard (optional) with shiny or flexdashboard to allow filtering by region/year.
+
+
+
+
+
+
