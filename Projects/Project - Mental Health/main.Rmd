@@ -10,6 +10,7 @@ library(tidycensus)
 library(tidyverse)
 library(ggplot2)
 library(readr)
+library(maps)
 ```
 
 ## Main guiding questions
@@ -31,24 +32,26 @@ library(readr)
 - [US Census Data](https://data.census.gov/), integrated using the `tidycensus` [R package](https://walker-data.com/tidycensus/).
 
 
-## Loading the data
+## Loading and Cleaning the data
 
 ```{r}
 depression_og <- read_csv("data/cdc_depression_adjusted.csv")
 distress_og <- read_csv("data/cdc_mental_distress_adjusted.csv")
 ```
 
-## Cleaning
 
 ```{r depression cleaning}
 depression <- depression_og |> 
   rename(
     year = Year,
-    LCI = "Confidence Interval Low",
-    UCI = "Confidence Interval High", 
-    prevalence_distress = Value) |>
+    LCI_depression = "Confidence Interval Low",
+    UCI_depression = "Confidence Interval High", 
+    val_depression = Value) |>
   filter(year %in% c(2019, 2020, 2021)) |> 
-  select(State, County, year, prevalence_distress, LCI, UCI)
+  select(State, County, year, val_depression, LCI_depression, UCI_depression)
+depression$State <- tolower(depression$State)
+depression$County <- tolower(depression$County)
+head(depression)
 ```
 
 
@@ -56,10 +59,58 @@ depression <- depression_og |>
 distress <- distress_og |> 
   rename(
     year = Year,
-    LCI = "Confidence Interval Low",
-    UCI = "Confidence Interval High", 
-    prevalence_distress = Value) |>
+    LCI_distress = "Confidence Interval Low",
+    UCI_distress = "Confidence Interval High", 
+    val_distress = Value) |>
   filter(year %in% c(2019, 2020, 2021)) |> 
-  select(State, County, year, prevalence_distress, LCI, UCI)
+  select(State, County, year, val_distress, LCI_distress, UCI_distress)
+distress$State <- tolower(distress$State)
+distress$County <- tolower(distress$County)
+head(distress)
 ```
+
+
+
+
+## Initial visualization
+
+```{r}
+library(tigris)
+library(sf)
+library(dplyr)
+
+# grab county geometries
+counties_sf <- counties(cb = TRUE, year = 2021)
+
+# join your data
+depression_map <- counties_sf %>%
+  left_join(depression, by = c("NAME" = "county"))   # adjust join key!
+
+# now plot
+ggplot(depression_map) +
+  geom_sf(aes(fill = val_depression)) +
+  facet_wrap(~year)
+
+```
+
+
+Merging
+
+```{r}
+depression_map <- county_map |> left_join(depression, by = c("State", "County"))
+head(depression_map)
+```
+
+```{r}
+ggplot(depression_map) + 
+  geom_sf(aes(fill = val_depression)) + 
+  facet_wrap(~year)
+```
+
+
+
+
+
+
+
 
