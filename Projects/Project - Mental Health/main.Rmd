@@ -1,0 +1,65 @@
+---
+title: "Aggregate Predictors of Mental Health Outcomes"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidycensus)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+```
+
+## Main guiding questions
+
+1. At the province/state level, are mental health outcomes (e.g. prevalence of poor mental health, hospitalizations for mental illness) more strongly associated with demographic composition (e.g. % youth, % female, % older adults) or socioeconomic indicators (median income, % with college degree, unemployment rate)?
+
+2. Do environmental factors (e.g. heat waves, cold spells) appear correlated with changes in population-level mental health outcomes?
+
+3. How do these associations vary over time (e.g. pre/post pandemic or across several years)?
+
+
+
+## Data Source
+
+- [CDC Data Explorer](https://ephtracking.cdc.gov/DataExplorer/)
+  - Source 1: Age-adjusted prevalence of frequent mental distress among adults (model-based with confidence intervals)
+  - Source 2: Age-adjusted Prevalence of Depression Among Adults (model-based with confidence intervals)
+  - The methodology for the estimation can be found [here](https://www.cdc.gov/places/methodology/index.html)
+- [US Census Data](https://data.census.gov/), integrated using the `tidycensus` [R package](https://walker-data.com/tidycensus/).
+
+
+## Loading the data
+
+```{r}
+depression_og <- read_csv("data/cdc_depression_adjusted.csv")
+distress_og <- read_csv("data/cdc_mental_distress_adjusted.csv")
+```
+
+## Cleaning
+
+```{r depression cleaning}
+depression <- depression_og |> 
+  rename(
+    year = Year,
+    LCI = "Confidence Interval Low",
+    UCI = "Confidence Interval High", 
+    prevalence_distress = Value) |>
+  filter(year %in% c(2019, 2020, 2021)) |> 
+  select(State, County, year, prevalence_distress, LCI, UCI)
+```
+
+
+```{r distress cleaning}
+distress <- distress_og |> 
+  rename(
+    year = Year,
+    LCI = "Confidence Interval Low",
+    UCI = "Confidence Interval High", 
+    prevalence_distress = Value) |>
+  filter(year %in% c(2019, 2020, 2021)) |> 
+  select(State, County, year, prevalence_distress, LCI, UCI)
+```
+

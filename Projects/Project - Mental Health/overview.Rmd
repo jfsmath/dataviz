@@ -18,7 +18,7 @@ output: html_document
 
 ## Data source suggestion:
 
-Mental Health & Socioeconomic Indicators
+  - Mental Health & Socioeconomic Indicators
 
   - US: CDC’s Behavioral Risk Factor Surveillance System (BRFSS) summary tables, SAMHSA reports, or [CDC Data Explorer](https://ephtracking.cdc.gov/DataExplorer/)
 
@@ -32,33 +32,33 @@ Mental Health & Socioeconomic Indicators
 
 1. Data Wrangling
 
-  - Use tidyverse to import, clean, and merge aggregate datasets.
+    - Use tidyverse to import, clean, and merge aggregate datasets.
 
-  - Create a panel dataset: rows = region × year (or month), columns = mental health outcomes, demographics, SES, weather indicators.
+    - Create a panel dataset: rows = region × year (or month), columns = mental health outcomes, demographics, SES, weather indicators.
 
 2. Exploratory Data Analysis
 
-  - Descriptive stats: distributions of mental health outcomes across regions.
+    - Descriptive stats: distributions of mental health outcomes across regions.
 
-  - Geospatial plots: `choropleths` (via `sf` + `ggplot2`) to map prevalence across states/provinces.
+    - Geospatial plots: `choropleths` (via `sf` + `ggplot2`) to map prevalence across states/provinces.
 
-  - Trend analysis: line plots of outcomes over time, highlighting key events (e.g. 2020 pandemic start).
+    - Trend analysis: line plots of outcomes over time, highlighting key events (e.g. 2020 pandemic start).
 
-  - Correlation heatmaps: demographic, SES, weather factors vs. mental health outcomes.
+    - Correlation heatmaps: demographic, SES, weather factors vs. mental health outcomes.
 
 3. Comparative Modeling (Exploratory, not causal)
 
-  - Simple linear models: regress aggregate mental health outcome on demographics vs. SES predictors. Compare R².
+    - Simple linear models: regress aggregate mental health outcome on demographics vs. SES predictors. Compare R².
 
-  - Regularized regression (`glmnet`): check which predictors are retained.
+    - Regularized regression (`glmnet`): check which predictors are retained.
 
-  - Event overlay: mark heat/cold waves on time series plots of outcomes, look for spikes.
+    - Event overlay: mark heat/cold waves on time series plots of outcomes, look for spikes.
 
 4. Communication Outputs
 
-  - Markdown report with visual summaries.
+    - Markdown report with visual summaries.
 
-  - Interactive dashboard (optional) with shiny or flexdashboard to allow filtering by region/year.
+    - Interactive dashboard (if time permits) with shiny or flexdashboard to allow filtering by region/year.
 
 
 
