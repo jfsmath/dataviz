@@ -35,18 +35,32 @@ ol.problems > li::before {
 ```
 
 
-## `cars` dataset
+## `cars`
 
 
 <ol class="problems">
 
 <li> Look at the `cars` dataset. Do the following (in one-pipeline if you are fluent) 
 
-- a) Select only `speed`.  
+- a) Put `speed` to the front.  
 - b) Filter rows with `speed > 15`.  
 - c) Create `dist_per_speed = dist / speed`.  
 - d) Arrange by decreasing `dist_per_speed`.  
 - e) Summarize the averages of all three variables.
+
+```{r}
+cars |>
+  select(speed, everything()) |>
+  filter(speed > 15) |>
+  mutate(
+    dist_per_speed = dist/speed
+  ) |>
+  arrange(desc(dist_per_speed)) |>
+  summarize(
+    avg_speed = mean(speed), mean(dist), mean(dist_per_speed)
+  )
+```
+
 
 </li>
 
@@ -54,11 +68,43 @@ ol.problems > li::before {
 Summary and groups
 
 - a) Create a categorical variable `speed_group` where `speed <= 10` → "slow", `speed <= 20` → "medium", else "fast".  
+
+```{r}
+# placeholder vector
+v <- rep(NA, length(cars$speed))
+
+# indices for slow medium fast
+ind_slow <- cars$speed <= 10
+ind_medium <- (cars$speed > 10) & (cars$speed <= 20)
+ind_fast <- cars$speed > 20
+
+# assignment
+v[ind_slow] <- "slow"
+v[ind_medium] <- "medium"
+v[ind_fast] <- "fast"
+
+cars$speed_group <- v
+head(cars)
+```
+Look up `?case_when`
+
+```{r}
+cars |> 
+  mutate(
+    speed_group2 = case_when(
+      speed <= 10 ~ "slow",
+      speed <= 20 ~ "medium",
+      TRUE ~ "fast")) %>%
+  {.$speed_group != .$speed_group2} |> sum(na.rm= T)
+```
+
+
 - b) For each `speed_group`, compute `n`, `mean(dist)`, `sd(dist)`.  
 - c) Use `filter()` + `slice_max()` to show the top 3 observations by `dist` for the "fast" group.
 </li>
 
 
+## nycflights13::nycflights
 
 
 <li> Consider the `nycflights13::flights` dataset in class. Do the following (in one-pipeline when it makes sense) 
