@@ -97,8 +97,11 @@ depression_map <- counties_sf |>
 
 
 ```{r}
-ggplot(depression_map) +
-  geom_sf(aes(fill = val_depression)) 
+depression_map |> 
+  filter(!State %in% c("Alaska", "Hawaii")) |> 
+ggplot() +
+  geom_sf(aes(fill = val_depression)) + 
+  coord_sf(datum = NA)
 ```
 
 
