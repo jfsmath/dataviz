@@ -105,6 +105,28 @@ depression_map_ctgs |> pull(State) |> unique()
 depression_map_ctgs |> pull(STATE_NAME) |> unique()
 ```
 
+```{r depression 2020}
+plot_depression_2020 <- depression_map_ctgs |> 
+ggplot() +
+  geom_sf(aes(fill = val_depression)) + 
+  coord_sf(datum = NA, xlim = c(-125, -66), ylim = c(24, 50)) + 
+  ggthemes::theme_map() + 
+  scale_fill_viridis_c(option = "magma", name = "Depression Prevalance in %", direction = -1) + 
+  theme(legend.position = "bottom")
+plot_depression_2020
+```
+
+```{r depression 2020 dmv}
+depression_map_ctgs |> filter(STATE_NAME %in% c("Maryland", "Virginia", "District of Columbia")) |> 
+ggplot() +
+  geom_sf(aes(fill = val_depression)) + 
+  coord_sf(datum = NA) + 
+  ggthemes::theme_map() + 
+  scale_fill_viridis_c(option = "magma", name = "Depression Prevalance (in %)", direction = -1) + 
+  labs(title = "Depression Prevalence in the DMV Area", 
+       caption = "Data source: CDC")
+```
+
 
 
 ```{r depression by year, fig.width = 24, fig.height=8}
@@ -133,6 +155,9 @@ Now we compute the first and second "derivatives"
 dep_val_19 <- depression_map_ctgs |> filter(year == 2019) |> pull(val_depression)
 dep_val_20 <- depression_map_ctgs |> filter(year == 2020) |> pull(val_depression)
 dep_val_21 <- depression_map_ctgs |> filter(year == 2021) |> pull(val_depression)
+dep_improv_20 <- dep_val_20 - dep_val_19
+dep_improv_21 <- dep_val_21 - dep_val_20
+dep_accel <- 0.5 * (dep_improv_21 - dep_improv_20)
 ```
 
 
