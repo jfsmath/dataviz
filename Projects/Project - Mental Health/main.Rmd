@@ -105,7 +105,7 @@ depression_map_ctgs |> pull(State) |> unique()
 depression_map_ctgs |> pull(STATE_NAME) |> unique()
 ```
 
-```{r depression 2020}
+```{r depression 2020, out.width = 24, out.height=18}
 plot_depression_2020 <- depression_map_ctgs |> 
 ggplot() +
   geom_sf(aes(fill = val_depression)) + 
