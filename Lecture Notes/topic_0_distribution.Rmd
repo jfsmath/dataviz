@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Visualizing Density"
+subtitle: "Visualizing Data Distribution"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
@@ -69,19 +69,20 @@ ggplot(gapminder, aes(lifeExp)) + stat_bin()
 
 ```{r}
 library(patchwork)
-p1 <- ggplot(gapminder, aes(lifeExp)) + geom_histogram(bins = 100)
-p2 <- ggplot(gapminder, aes(lifeExp)) + geom_histogram(binwidth = 2)
+p1 <- ggplot(gapminder, aes(lifeExp)) + 
+  geom_histogram(bins = 100)
+p2 <- ggplot(gapminder, aes(lifeExp)) + 
+  geom_histogram(binwidth = 2)
 p1 + p2
 ```
 
 
 ## Example: `diamonds` dataset
 
-\tiny
+
 ```{r}
-library(dplyr)
 str(diamonds)
-slice_sample(diamonds, n = 5)
+head(diamonds, 3)
 ```
 
 
@@ -94,13 +95,16 @@ ggplot(diamonds, aes(carat)) + geom_histogram()
 
 ## Additional functinality
 
-\tiny
+
 ```{r, out.width = "60%", message = F}
 ggplot(diamonds, aes(x = color, y = carat)) + 
   geom_histogram(stat = "summary_bin", fun = median)
 ```
 
-\normalsize 
+
+## Additional functinality
+
+
 - `geom_histogram` now has two aesthetics input inherited from `ggplot`
 - `stat = "summary_bin"`: instead of counting, it applies the `summary` function to `y`
 - `fun = median`: for each `x`, compute the `median` of `y`
@@ -117,7 +121,7 @@ ggplot(diamonds, aes(x = color, y = carat)) +
 
 ## Exercise: recreation using `geom_col`
 
-**Exercise:** Look up `?geom_col` and recreate the plot using one long pipeline. \pause
+**Exercise:** Look up `?geom_col` and recreate the plot using one long pipeline (hint: summarize). \pause
 
 ```{r, out.width = "50%"}
 diamonds |> group_by(color) |> 
