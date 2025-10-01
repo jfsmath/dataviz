@@ -44,6 +44,8 @@ distress_og <- read_csv("data/cdc_mental_distress_adjusted.csv")
 ```
 
 
+
+
 ```{r depression cleaning}
 depression <- depression_og |> 
   rename(
@@ -96,17 +98,23 @@ depression_map <- counties_sf |>
   left_join(depression, by = c("NAME" = "County"))   # adjust join key!
 ```
 
-```{r}
+```{r filtering contiguous US}
 depression_map_ctgs <- depression_map |> 
   filter(!State %in% c("Alaska", "Hawaii")) |> 
   filter(!is.na(State)) |> 
   filter(!STATE_NAME %in% c("United States Virgin Islands", "Puerto Rico"))
-depression_map_ctgs |> pull(State) |> unique()
-depression_map_ctgs |> pull(STATE_NAME) |> unique()
+# depression_map_ctgs |> pull(State) |> unique()
+# depression_map_ctgs |> pull(STATE_NAME) |> unique()
+```
+
+```{r separate years}
+depression_map_2019 <- depression_map_ctgs |> filter(year == 2019)
+depression_map_2020 <- depression_map_ctgs |> filter(year == 2020)
+depression_map_2021 <- depression_map_ctgs |> filter(year == 2021)
 ```
 
 ```{r depression 2020, out.width = 24, out.height=18}
-plot_depression_2020 <- depression_map_ctgs |> 
+plot_depression_2020 <- depression_map_2020 |> 
 ggplot() +
   geom_sf(aes(fill = val_depression)) + 
   coord_sf(datum = NA, xlim = c(-125, -66), ylim = c(24, 50)) + 
@@ -116,8 +124,8 @@ ggplot() +
 plot_depression_2020
 ```
 
-```{r depression 2020 dmv}
-depression_map_ctgs |> filter(STATE_NAME %in% c("Maryland", "Virginia", "District of Columbia")) |> 
+```{r depression 2020 dmv-area}
+depression_map_2020 |> filter(STATE_NAME %in% c("Maryland", "Virginia", "District of Columbia")) |> 
 ggplot() +
   geom_sf(aes(fill = val_depression)) + 
   coord_sf(datum = NA) + 
@@ -145,21 +153,74 @@ plot_depression_by_year
 
 
 ```{r}
-ggsave("depression_by_year.png", plot = plot_depression_by_year, width = 24, height = 12, dpi = 300)
+# ggsave("depression_by_year.png", plot = plot_depression_by_year, width = 24, height = 12, dpi = 300)
 ```
 
 
 Now we compute the first and second "derivatives"
 
+
 ```{r}
-dep_val_19 <- depression_map_ctgs |> filter(year == 2019) |> pull(val_depression)
-dep_val_20 <- depression_map_ctgs |> filter(year == 2020) |> pull(val_depression)
-dep_val_21 <- depression_map_ctgs |> filter(year == 2021) |> pull(val_depression)
-dep_improv_20 <- dep_val_20 - dep_val_19
-dep_improv_21 <- dep_val_21 - dep_val_20
-dep_accel <- 0.5 * (dep_improv_21 - dep_improv_20)
+depression_diff_2020 <- depression_map_2020 |> 
+  mutate(
+    diff = val_depression - depression_map_2019$val_depression
+  ) |> 
+  select(-c("val_depression", "LCI_depression", "UCI_depression")) |> 
+  select(diff, everything())
+# head(depression_diff_2020)
+
+
 ```
 
+There is an issue computing the difference between 2021 and 2020, because the 2020 data has `r length(depression_map_2020$val_depression)` entries, while the 2021 data has `r length(depression_map_2021$val_depression)` entries. To fix this, we create a substitute by `inner_join`-ing the two dataset. 
+
+```{r}
+depression_diff_2021 <- depression_map_2021 |>
+  inner_join(
+    depression_map_2020 |>
+      st_drop_geometry() |>                # drop geometry to avoid conflicts
+      select(GEOID, val_depression) |>
+      rename(val_depression_2020 = val_depression),
+    by = "GEOID"
+  ) |>
+  mutate(
+    diff = val_depression - val_depression_2020
+  ) |>
+  select(diff, everything())
+```
+
+Taking a look at the DMV area
+```{r dmv area 2021 change}
+ggplot(
+  subset(depression_diff_2021, 
+         STATE_NAME %in% c("Maryland", "Virginia", "District of Columbia"))) + 
+  geom_sf(aes(fill = diff), color = "grey") + 
+  coord_sf(datum = NA) + 
+  ggthemes::theme_map() + 
+  scale_fill_gradient2(low = "darkgreen", mid = "white", high = "purple", midpoint = 0)
+```
+
+
+
+```{r depression improvement in 2020}
+depression_diff_2020 |> 
+  ggplot() + 
+  geom_sf(aes(fill = diff), color = NA) + 
+  coord_sf(datum = NA, xlim = c(-125, -66), ylim = c(24, 50)) + 
+  ggthemes::theme_map() + 
+  scale_fill_gradient2(low = "green", mid = "white", high = "red", midpoint = 0)
+```
+
+
+```{r depression improvement in 2020 DMV area}
+depression_diff_2020 |> 
+  filter(STATE_NAME %in% c("Maryland", "Virginia", "District of Columbia")) |> 
+  ggplot() + 
+  geom_sf(aes(fill = diff), color = "grey") + 
+  coord_sf(datum = NA) + 
+  ggthemes::theme_map() + 
+  scale_fill_gradient2(low = "darkgreen", mid = "white", high = "purple", midpoint = 0)
+```
 
 
 
