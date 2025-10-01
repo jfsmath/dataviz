@@ -120,7 +120,7 @@ rm(state_list)
 
 Visualizing the changes over the course of 3 years.
 
-```{r plotting depression in the dmv area 3 years, fig.width=24, fig.height=18}
+```{r plotting depression in the dmv area 3 years, fig.width=12, fig.height=18}
 state_list <- c("Maryland", "District of Columbia", "Virginia")
 cdc_map |> 
   filter(state %in% state_list) |> 
@@ -128,15 +128,34 @@ cdc_map |>
   coord_sf() + 
   scale_fill_viridis_c(option = "magma", direction = -1) + 
   ggthemes::theme_map() + 
-  facet_wrap(~year, ncol = 2) +
+  facet_wrap(~year, ncol = 1) +
   theme(
-    legend.position = "right"
+    legend.position = "bottom"
   ) + 
   labs(title = "Prevalence of Depression in the DMV Area",
        fill = "Prevalence (in %)", 
        caption = "Source: CDC data overlayed with 2020 ACS Census")
 rm(state_list)
 ```
+
+## Variable selection from Census
+
+### Demographic and socioeconomics indicators
+
+We search for age, gender, education, income, employment
+
+```{r}
+census_var_demo <- 
+  census_var |> 
+  filter(
+    str_detect(concept, regex("education|poverty", ignore_case = TRUE)))
+```
+
+
+
+
+
+
 
 
 
