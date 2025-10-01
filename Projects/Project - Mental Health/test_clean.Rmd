@@ -1,0 +1,142 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = TRUE)
+library(tidycensus)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(maps)
+library(tigris)
+library(sf)
+library(viridis)
+library(paletteer)
+
+# Census API: 12356c4c0007681b582c5dbc170870776edb27b5
+# To activate:
+# census_api_key("12356c4c0007681b582c5dbc170870776edb27b5", install = TRUE)
+```
+
+
+## Loading and cleaning the CDC data
+
+
+```{r load and clean cdc data}
+
+# variables to select
+cdc_vars <- c("State", "County", "Year", "Value", "Confidence Interval Low", "Confidence Interval High")
+# common renaming
+cdc_vars_rename <- c(
+  "state" = "State",
+  "county" = "County", 
+  "year" = "Year", 
+  "est" = "Value", 
+  "lci" = "Confidence Interval Low",
+  "uci" = "Confidence Interval High")
+
+# depression data cleaning
+# note that all confidence interval values were previous stored as characters
+depr_cdc <- read_csv("data/cdc_depression_adjusted.csv") |> 
+  select(all_of(cdc_vars)) |>
+  rename(cdc_vars_rename) |> 
+  mutate(
+    across(c("est", "lci", "uci"),
+                ~ as.numeric(sub("%", "",.))))
+
+# distress data, need to remove 2018
+dist_cdc <- read_csv("data/cdc_mental_distress_adjusted.csv") |> 
+  select(all_of(cdc_vars)) |>
+  rename(cdc_vars_rename) |> 
+  filter(! year == 2018) |> 
+  mutate(
+    across(c("est", "lci", "uci"),
+                ~ as.numeric(sub("%", "",.))))
+
+# merge
+cdc <- inner_join(
+  depr_cdc, dist_cdc,
+  by = c("state", "county", "year"),
+  suffix = c("_depr", "_dist"))
+
+# remove extra objects
+rm(dist_cdc, depr_cdc, cdc_vars, cdc_vars_rename)
+
+glimpse(cdc)
+```
+
+
+## Loading map data from `tidycensus`
+
+
+My personal Census API key: `12356c4c0007681b582c5dbc170870776edb27b5`. To activate, run `census_api_key("12356c4c0007681b582c5dbc170870776edb27b5", install = TRUE)`. We can view the variables by using `load_variables()` function. See `?load_variables` for more.
+
+```{r loading census map ACS 2020}
+# loading a sample map data 
+# from ACS 2020
+counties <- get_acs(
+  geography = "county",
+  variables = "B19013_001",
+  year = 2020,
+  geometry = TRUE) |>
+  separate_wider_delim(NAME,
+                       delim = ", ",
+                       names = c("county", "state")) |> 
+  mutate(
+    county = gsub(" County$", "", county),
+    state = trimws(state)) |> 
+  select(-c("variable", "estimate", "moe"))
+
+glimpse(counties)
+```
+
+## Merging Census map with CDC data and geospatial plots
+
+```{r merging census with cdc}
+cdc_map <- left_join(cdc, counties, by = c("state", "county"))
+# the geometry column is not sf so convert
+cdc_map <- st_as_sf(cdc_map)
+# glimpse(cdc_map)
+```
+We take a look at the plot in the DMV area
+
+```{r plotting depression in the dmv area}
+state_list <- c("Maryland", "District of Columbia", "Virginia")
+cdc_map |> 
+  filter(state %in% state_list) |> 
+  ggplot() + geom_sf(aes(fill = est_depr), color = NA) + 
+  coord_sf() + 
+  scale_fill_viridis_c(option = "magma", direction = -1) + 
+  ggthemes::theme_map() + 
+  labs(title = "Prevalence of Depression in the DMV Area",
+       fill = "Prevalence (in %)", 
+       caption = "Source: CDC data overlayed with 2020 ACS Census")
+rm(state_list)
+```
+
+
+Visualizing the changes over the course of 3 years.
+
+```{r plotting depression in the dmv area 3 years, fig.width=24, fig.height=18}
+state_list <- c("Maryland", "District of Columbia", "Virginia")
+cdc_map |> 
+  filter(state %in% state_list) |> 
+  ggplot() + geom_sf(aes(fill = est_depr), color = NA) + 
+  coord_sf() + 
+  scale_fill_viridis_c(option = "magma", direction = -1) + 
+  ggthemes::theme_map() + 
+  facet_wrap(~year, ncol = 2) +
+  theme(
+    legend.position = "right"
+  ) + 
+  labs(title = "Prevalence of Depression in the DMV Area",
+       fill = "Prevalence (in %)", 
+       caption = "Source: CDC data overlayed with 2020 ACS Census")
+rm(state_list)
+```
+
+
+

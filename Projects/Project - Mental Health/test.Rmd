@@ -116,7 +116,7 @@ depression_map_2021 <- depression_map_ctgs |> filter(year == 2021)
 ```{r depression 2020, out.width = 24, out.height=18}
 plot_depression_2020 <- depression_map_2020 |> 
 ggplot() +
-  geom_sf(aes(fill = val_depression), color = NA) + 
+  geom_sf(aes(fill = val_depression)) + 
   coord_sf(datum = NA, xlim = c(-125, -66), ylim = c(24, 50)) + 
   ggthemes::theme_map() + 
   scale_fill_viridis_c(option = "magma", name = "Depression Prevalance in %", direction = -1) + 
