@@ -70,11 +70,11 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 
 With a little bit of work, you can start showing off at a party
 
-\small
-```{r}
+
+```{r, echo = F, message=F}
 drvtype = c("4-wheel", "Front-wheel", "Rear-wheel")
 coltype = c("purple", "blue", "forestgreen")
-p <- ggplot(mpg, aes(x = displ, y = hwy)) + 
+ggplot(mpg, aes(x = displ, y = hwy)) + 
   ggthemes::theme_tufte() + 
   geom_point() + 
   geom_smooth(aes(color = drv, fill = drv)) + 
@@ -88,11 +88,25 @@ p <- ggplot(mpg, aes(x = displ, y = hwy)) +
 ```
 
 
-##
+## Example: `mpg`
 
-```{r, echo = F}
-p
+```{r, eval = F, message=F}
+drvtype = c("4-wheel", "Front-wheel", "Rear-wheel")
+coltype = c("purple", "blue", "forestgreen")
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  ggthemes::theme_tufte() + 
+  geom_point() + 
+  geom_smooth(aes(color = drv, fill = drv)) + 
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway MPG", color = "Drive type",
+    title = "MPG vs Engine displacement for various drive types") + 
+  scale_color_manual(labels = drvtype, values = coltype) + 
+  scale_fill_manual(labels = drvtype, values = coltype) + 
+  guides(fill = "none")
 ```
+
+
 
 
 ## Example: `Oxboys`
@@ -120,7 +134,7 @@ ggplot(Oxboys,
 - Say I want to figure out the over height trend across all subjects. 
 
 \tiny
-```{r, out.width="65%"}
+```{r, out.width="65%", message = F}
 ggplot(Oxboys, 
        aes(x = age, y = height, group = Subject)) + 
   geom_line() + geom_smooth(method = "lm", se = F)
@@ -179,12 +193,15 @@ IQR(x_extreme) - IQR(x)
 \pause
 ```{r}
 p <- ggplot(gapminder, 
-            aes(x = continent, y = lifeExp, fill = continent)) + 
-  geom_boxplot() + ggthemes::theme_pander() + 
+            aes(x = continent, y = lifeExp, 
+                fill = continent)) + 
+  geom_boxplot() + 
+  ggthemes::theme_pander() + 
   labs(
-    x = "Continent", y = "Life Expectancy", fill = "Continent", 
-    title = "Life expectancy of each continent", caption = "Source: gapminder"
-  )
+    x = "Continent", y = "Life Expectancy", 
+    fill = "Continent", 
+    title = "Life expectancy of each continent", 
+    caption = "Source: gapminder")
 ```
 
 
