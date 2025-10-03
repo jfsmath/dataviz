@@ -155,7 +155,7 @@ key_vars <- v20 |>
     concept2 = str_squish(concept))
 
 # Quick: list the most frequent concepts (so you can see what to pick)
-key_vars |>
+key_vars_freq <- key_vars |>
   count(concept2, sort = TRUE) |>
   slice_head(n = 50) 
 ```
