@@ -140,13 +140,34 @@ rm(state_list)
 
 ## Variable selection from Census
 
+First we load all the variable names + explanations from the 2020 ACS.
+
+```{r}
+v20 <- load_variables(2020, "acs5", cache = TRUE)
+```
+
+
+```{r}
+key_vars <- v20 |>
+  mutate(
+    table = str_extract(name, "^[A-Za-z0-9]+"),     # e.g. "B01001"
+    label2 = str_squish(label),
+    concept2 = str_squish(concept))
+
+# Quick: list the most frequent concepts (so you can see what to pick)
+key_vars |>
+  count(concept2, sort = TRUE) |>
+  slice_head(n = 50) 
+```
+
+
 ### Demographic and socioeconomics indicators
 
 We search for age, gender, education, income, employment
 
 ```{r}
 census_var_demo <- 
-  census_var |> 
+  v20 |> 
   filter(
     str_detect(concept, regex("education|poverty", ignore_case = TRUE)))
 ```
