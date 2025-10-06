@@ -161,22 +161,79 @@ key_vars_freq <- key_vars |>
 ```
 
 
-### Demographic and socioeconomics indicators
-
-We search for age, gender, education, income, employment
-
 ```{r}
-census_var_demo <- 
-  v20 |> 
-  filter(
-    str_detect(concept, regex("education|poverty", ignore_case = TRUE)))
+library(dplyr)
+library(stringr)
+
+# Step 0: take your census_var tibble
+# census_var has columns: name, label, concept
+
+census_var2 <- v20 %>%
+  mutate(
+    table = str_extract(name, "^[A-Za-z0-9]+"),     # e.g. "B01001"
+    label2 = str_squish(label),
+    concept2 = str_squish(concept)
+  )
+
+# Quick: list the most frequent concepts (so you can see what to pick)
+census_var2 %>%
+  count(concept2, sort = TRUE) %>%
+  slice_head(n = 50) %>%
+  print(n = 50)
+
 ```
 
 
 
+```{r}
+# domain keywords to search in the concept (careful, keep them conservative)
+domains <- list(
+  age_sex      = "SEX BY AGE|SEX BY AGE (|AGE BY SEX|AGE",
+  education    = "EDUCATIONAL ATTAINMENT|EDUCATION ATTAINMENT",
+  income       = "MEDIAN HOUSEHOLD INCOME|MEDIAN INCOME|INCOME",
+  employment   = "EMPLOYMENT|EMPLOYMENT STATUS|LABOR FORCE|UNEMPLOYED",
+  poverty      = "POVERTY STATUS|POVERTY",
+  race         = "\\bRACE\\b|HISPANIC|HISPANIC ORIGIN",
+  housing      = "HOUSING|TENURE|HEATING|PLUMBING|AIR CONDITIONING|VEHICLES",
+  disability   = "DISABILITY|DISABLED"
+)
+
+filter_by_domain <- function(df, keyword_regex) {
+  df %>%
+    filter(
+      str_detect(concept2, regex(keyword_regex, ignore_case = TRUE)) |
+      str_detect(label2,   regex(keyword_regex, ignore_case = TRUE))
+    )
+}
+
+# Example: get compact lists
+vars_age_sex    <- filter_by_domain(census_var2, domains$age_sex)
+vars_education  <- filter_by_domain(census_var2, domains$education)
+vars_income     <- filter_by_domain(census_var2, domains$income)
+vars_employment <- filter_by_domain(census_var2, domains$employment)
+vars_poverty    <- filter_by_domain(census_var2, domains$poverty)
+vars_race       <- filter_by_domain(census_var2, domains$race)
+vars_housing    <- filter_by_domain(census_var2, domains$housing)
+vars_disability <- filter_by_domain(census_var2, domains$disability)
+
+# See how many variables each produced:
+tibble(
+  domain = c("age_sex","education","income","employment","poverty","race","housing","disability"),
+  n_vars = c(nrow(vars_age_sex), nrow(vars_education), nrow(vars_income), nrow(vars_employment),
+             nrow(vars_poverty), nrow(vars_race), nrow(vars_housing), nrow(vars_disability))
+)
+
+```
 
 
+```{r}
+# show distinct tables in the age/sex candidate set
+vars_age_sex %>% distinct(table, concept2) %>% arrange(table)
 
+# show a few label examples
+vars_education %>% distinct(table, label2) %>% slice_head(n = 20)
+
+```
 
 
 
