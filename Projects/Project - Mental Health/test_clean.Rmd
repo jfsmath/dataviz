@@ -142,26 +142,14 @@ rm(state_list)
 
 First we load all the variable names + explanations from the 2020 ACS.
 
-```{r}
+```{r r extracting variables 0}
 v20 <- load_variables(2020, "acs5", cache = TRUE)
 ```
 
 
-```{r}
-key_vars <- v20 |>
-  mutate(
-    table = str_extract(name, "^[A-Za-z0-9]+"),     # e.g. "B01001"
-    label2 = str_squish(label),
-    concept2 = str_squish(concept))
-
-# Quick: list the most frequent concepts (so you can see what to pick)
-key_vars_freq <- key_vars |>
-  count(concept2, sort = TRUE) |>
-  slice_head(n = 50) 
-```
 
 
-```{r}
+```{r extracting variables 1}
 library(dplyr)
 library(stringr)
 
@@ -185,26 +173,28 @@ census_var2 %>%
 
 
 
-```{r}
+```{r extracting variables 2}
 # domain keywords to search in the concept (careful, keep them conservative)
 domains <- list(
-  age_sex      = "SEX BY AGE|SEX BY AGE (|AGE BY SEX|AGE",
-  education    = "EDUCATIONAL ATTAINMENT|EDUCATION ATTAINMENT",
-  income       = "MEDIAN HOUSEHOLD INCOME|MEDIAN INCOME|INCOME",
-  employment   = "EMPLOYMENT|EMPLOYMENT STATUS|LABOR FORCE|UNEMPLOYED",
-  poverty      = "POVERTY STATUS|POVERTY",
-  race         = "\\bRACE\\b|HISPANIC|HISPANIC ORIGIN",
-  housing      = "HOUSING|TENURE|HEATING|PLUMBING|AIR CONDITIONING|VEHICLES",
-  disability   = "DISABILITY|DISABLED"
+  age_sex    = c("AGE", "SEX", "SEX BY AGE"),
+  education  = c("EDUCATION", "SCHOOL ENROLLMENT", "EDUCATIONAL ATTAINMENT"),
+  income     = c("INCOME", "EARNINGS", "HOUSEHOLD INCOME"),
+  employment = c("LABOR FORCE", "EMPLOYMENT STATUS", "OCCUPATION", "INDUSTRY"),
+  poverty    = c("POVERTY", "PUBLIC ASSISTANCE"),
+  race       = c("RACE", "ETHNICITY", "HISPANIC"),
+  housing    = c("HOUSING", "TENURE", "OCCUPANCY", "VALUE", "MORTGAGE"),
+  disability = c("DISABILITY", "HEALTH INSURANCE", "DISABLED")
 )
 
-filter_by_domain <- function(df, keyword_regex) {
+filter_by_domain <- function(df, keyword_vector) {
+  pattern <- paste(keyword_vector, collapse = "|")  # simpler, no escaping needed now
   df %>%
     filter(
-      str_detect(concept2, regex(keyword_regex, ignore_case = TRUE)) |
-      str_detect(label2,   regex(keyword_regex, ignore_case = TRUE))
+      str_detect(concept2, regex(pattern, ignore_case = TRUE)) |
+      str_detect(label2,   regex(pattern, ignore_case = TRUE))
     )
 }
+
 
 # Example: get compact lists
 vars_age_sex    <- filter_by_domain(census_var2, domains$age_sex)
@@ -216,24 +206,33 @@ vars_race       <- filter_by_domain(census_var2, domains$race)
 vars_housing    <- filter_by_domain(census_var2, domains$housing)
 vars_disability <- filter_by_domain(census_var2, domains$disability)
 
-# See how many variables each produced:
+```
+After the first refinement, we have extracted the following amount of variables. 
+
+```{r number of variables after first extraction}
 tibble(
   domain = c("age_sex","education","income","employment","poverty","race","housing","disability"),
-  n_vars = c(nrow(vars_age_sex), nrow(vars_education), nrow(vars_income), nrow(vars_employment),
-             nrow(vars_poverty), nrow(vars_race), nrow(vars_housing), nrow(vars_disability))
-)
-
+  n_vars = c(
+    nrow(vars_age_sex),
+    nrow(vars_education),
+    nrow(vars_income),
+    nrow(vars_employment),
+    nrow(vars_poverty),
+    nrow(vars_race),
+    nrow(vars_housing),
+    nrow(vars_disability)))
 ```
 
-
+Further refinement
 ```{r}
-# show distinct tables in the age/sex candidate set
-vars_age_sex %>% distinct(table, concept2) %>% arrange(table)
-
-# show a few label examples
-vars_education %>% distinct(table, label2) %>% slice_head(n = 20)
-
+vars_income_refined <- vars_income %>%
+  filter(
+    # keep if concept mentions income, earnings, or related
+    str_detect(concept2, regex("INCOME|EARNINGS|HOUSEHOLD INCOME", ignore_case = TRUE)) &
+      # exclude very detailed cross-tabulations
+      !str_detect(concept2, regex("BY RACE|BY SEX|BY AGE|BY NATIVITY|BY EDUCATION|BY EMPLOY", ignore_case = TRUE))
+  ) %>%
+  distinct(concept2, .keep_all = TRUE)
 ```
-
 
 
