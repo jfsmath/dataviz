@@ -1,6 +1,6 @@
 ---
 title: "Data Visualization in R"
-subtitle: "Correlation and Pairs Plot"
+subtitle: "Visualization Correlation"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
 output: beamer_presentation
