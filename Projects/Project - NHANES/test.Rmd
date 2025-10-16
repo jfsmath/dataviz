@@ -18,12 +18,17 @@ library(sf)
 library(viridis)
 library(paletteer)
 library(patchwork)
+library(GGally)
 set.seed(2025)
 # Census API: 12356c4c0007681b582c5dbc170870776edb27b5
 # To activate:
 # census_api_key("12356c4c0007681b582c5dbc170870776edb27b5", install = TRUE)
 ```
 
+
+# Overview
+
+In this note, we visually explore the NHANES (National Health and Nutrition Examination Survey) 
 
 ```{r}
 df <- NHANESraw
@@ -32,6 +37,8 @@ df <- NHANESraw
 ```{r}
 slice_sample(df, n = 10)
 ```
+
+# Preliminary cleaning of NHANES
 
 ```{r nhanes cleaning}
 df <- df |>
@@ -49,7 +56,9 @@ df <- df |>
       HealthGen == "Excellent" ~ 5))
 ```
 
+# Preliminary Visualization
 
+## Smoking and Alcohol
 
 ```{r smoke and alcohol by education}
 p_smoke <- df |> 
@@ -63,5 +72,54 @@ p_drink <- df |>
 (p_smoke | p_drink) & theme(
   axis.text.x = element_text(angle = 75, vjust = 0.5)
 )
+```
+
+
+## Poverty and Education
+
+```{r poverty and education by gender, echo = F}
+df |> 
+  slice_sample(n=2000) |>
+  drop_na(Education, Poverty) |>
+  ggplot(aes(x = Education, y = Poverty)) + 
+  geom_boxplot(aes(color = Gender)) + 
+  geom_jitter(aes(color = Gender), size = 0.2, alpha = 0.3) +
+  labs(y = "Family Income to Poverty Guidelines Ratio")
+```
+
+```{r}
+variables <- c("AlcoholYear", "HealthGen_num", "PhysActiveDays", "Poverty", "Gender", "Race1")
+df |> 
+  slice_sample(n = 2000) |>
+  drop_na(any_of(variables)) |> 
+  select(all_of(variables)) |> 
+  ggpairs(aes(color = Race1),
+        diag = list(continuous = wrap("densityDiag", alpha= 0.3, color = NA)),
+        upper = list(continuous = wrap("cor", size = 2.7)), 
+        lower = list(continuous = wrap("points", size = 0.2, alpha = 0.8)))
+rm(variables)
+```
+
+```{r}
+
+df |> 
+  slice_sample(n = 2000) |> 
+  select(Poverty, BMI, Race1, Gender) |> 
+  ggpairs(aes(color = Gender))
+```
+
+
+```{r}
+set.seed(2025)
+ggplot() + 
+  geom_point(
+    data = slice_sample(df, n = 2000), 
+    aes(x = Poverty, y = BMI, color = Race1), 
+    alpha= 0.4, size = 0.3) +
+  geom_smooth(
+    data = df, 
+    mapping = aes(x = Poverty, y = BMI, color = Race1, fill = Race1),
+    method = "lm", se = TRUE, alpha = 0.2, size = 1) +
+coord_cartesian(ylim = c(20, 32))
 ```
 
