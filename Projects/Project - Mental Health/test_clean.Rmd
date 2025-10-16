@@ -212,15 +212,15 @@ After the first refinement, we have extracted the following amount of variables.
 ```{r number of variables after first extraction}
 tibble(
   domain = c("age_sex","education","income","employment","poverty","race","housing","disability"),
-  n_vars = c(
-    nrow(vars_age_sex),
-    nrow(vars_education),
-    nrow(vars_income),
-    nrow(vars_employment),
-    nrow(vars_poverty),
-    nrow(vars_race),
-    nrow(vars_housing),
-    nrow(vars_disability)))
+    n_vars = c(
+      nrow(vars_age_sex),
+      nrow(vars_education),
+      nrow(vars_income),
+      nrow(vars_employment),
+      nrow(vars_poverty),
+      nrow(vars_race),
+      nrow(vars_housing),
+      nrow(vars_disability)))
 ```
 
 Further refinement

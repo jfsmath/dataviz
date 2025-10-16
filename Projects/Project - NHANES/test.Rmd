@@ -1,0 +1,60 @@
+---
+title: "Exploration with NHANES"
+output: html_notebook
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = TRUE)
+library(tidycensus)
+library(NHANES)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(maps)
+library(tigris)
+library(sf)
+library(viridis)
+library(paletteer)
+library(patchwork)
+set.seed(2025)
+# Census API: 12356c4c0007681b582c5dbc170870776edb27b5
+# To activate:
+# census_api_key("12356c4c0007681b582c5dbc170870776edb27b5", install = TRUE)
+```
+
+
+```{r}
+df <- NHANESraw
+```
+
+```{r}
+slice_sample(df, n = 10)
+```
+
+```{r nhanes cleaning}
+df <- df |>
+  mutate(
+    Year = case_when(
+    SurveyYr == "2009_10" ~ 2009,
+    SurveyYr == "2011_12" ~ 2011)) |> 
+  select(Year, everything())
+```
+
+
+
+```{r smoke and alcohol by education}
+p_smoke <- df |> 
+  slice_sample(n=2000) |> 
+  ggplot(aes(x = Education, y = SmokeAge)) + 
+  geom_boxplot(aes(color = Gender))
+p_drink <- df |> 
+  slice_sample(n=2000) |> 
+  ggplot(aes(x = Education, y = AlcoholYear)) + 
+  geom_boxplot(aes(color = Gender))
+(p_smoke | p_drink) & theme(
+  axis.text.x = element_text(angle = 75, vjust = 0.5)
+)
+```
+
