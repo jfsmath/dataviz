@@ -39,7 +39,14 @@ df <- df |>
     Year = case_when(
     SurveyYr == "2009_10" ~ 2009,
     SurveyYr == "2011_12" ~ 2011)) |> 
-  select(Year, everything())
+  select(Year, everything()) |> 
+  mutate(
+    HealthGen_num = case_when(
+      HealthGen == "Poor" ~ 1,
+      HealthGen == "Fair" ~ 2,
+      HealthGen == "Good" ~ 3,
+      HealthGen == "Vgood" ~ 4,
+      HealthGen == "Excellent" ~ 5))
 ```
 
 
