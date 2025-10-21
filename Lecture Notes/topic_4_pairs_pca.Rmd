@@ -21,7 +21,7 @@ library(GGally)
 ```
 
 
-
+# Pairs Plot
 
 
 
@@ -130,6 +130,8 @@ ggpairs(df, columns = c(1,2,3,5),
 ```
 
 
+
+# Principal Component Analysis
 
 ## Principal Component Analysis (PCA)
 
@@ -293,6 +295,30 @@ ggbiplot::ggbiplot(pca.iris,circle = T,
 - The projected lengths onto PC1 and PC2 correspond to the weight of the coefficients (called **loading**)
 - The plots says petal length and width mostly align PC1, Sepal width and sepal length both contribute negatively to PC2
 - **Possible Interpretation:** PC1 captures petal l/w and a good chunk of sepal length, while PC2 mostly captures sepal width and a bit of sepal length
+
+
+
+# Factor Analysis
+
+
+## What is Factor Analysis
+
+- **Goal**: identify underlying relationships between observed variables. 
+
+- It assumes that observed variables are influenced by a smaller number of unobserved variables called factors. 
+
+- **Example:** Hard to measure "social anxiety". But we can measure whether social anxiety is high or low with a set of variables like 
+  - “uncomfortable in large groups” and 
+  - “nervous talking with strangers.”
+
+
+## More math
+
+- The **common factor model**
+
+
+
+
 
 
 
