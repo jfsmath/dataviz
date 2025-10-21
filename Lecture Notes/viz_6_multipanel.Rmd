@@ -420,7 +420,9 @@ ggplot(mpg2, aes(cty, model)) + geom_point() +
 ## Example: `gapminder` + `oecd_le`, alternative visualization
 
 ```{r, warning = F}
-oecd2 <- left_join(socviz::oecd_le, gapminder::gapminder, by = "country")
+oecd2 <- left_join(socviz::oecd_le, 
+                   gapminder::gapminder, 
+                   by = "country")
 sum(is.na(oecd2$continent))
 unique(oecd2[is.na(oecd2$continent), ]$country)
 ```
