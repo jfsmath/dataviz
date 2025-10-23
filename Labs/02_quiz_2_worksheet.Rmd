@@ -1,0 +1,83 @@
+---
+title: "Worksheet: Quiz 2 Prep"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# packages used by the exercises
+library(ggplot2)
+library(tidyverse)
+library(socviz)
+knitr::opts_chunk$set(echo = TRUE, message = T, warning = T)
+```
+
+```{css, echo=FALSE}
+ol.problems {
+  counter-reset: prob;
+  list-style: none;
+  padding-left: 0;
+}
+ol.problems > li {
+  counter-increment: prob;
+  margin-bottom: 1.3em;
+}
+ol.problems > li::before {
+  content: "Problem " counter(prob) ". ";
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 0.2em;
+}
+.choices {
+  list-style: none;
+  padding-left: 1.3em;
+}
+.choices li {margin: 0.15em 0;}
+```
+
+
+We will use the `gss_sm` dataset from the `socviz` library.
+
+```{r}
+glimpse(gss_sm)
+```
+
+
+
+1. Create a dataframe called `df` from the `gss_sm` dataset, deleting the variables from `to_delete`, and draw 500 random samples. 
+```{r}
+set.seed(2025)
+to_delete <- c("id", "grass", "wtssall", "partners_rc", "income_rc")
+
+rm(to_delete)
+```
+
+
+
+
+
+
+2. How many unique values are there in `income16`? The following convert them to the lowest numeric values. 
+```{r}
+gss_sm |> 
+  mutate(income16_num = as.numeric(stringr::str_extract(income16, "\\d+"))) |> 
+  pull(income16_num)
+```
+
+
+
+3. Find out how many unique political views there are, and create a new numerical variable called `polviews_num`. How would you design this numerical variable? Do the same for education and happiness and call them `degree_num` and `happy_num`.  
+
+
+
+4. Create a scatterplot with a linear smoothing model with numerical income vs numerical degree. Distinguish the color by the numerical political views and shape by religious preference. 
+
+
+5. 
+
+
+
+
+
+
+
+
