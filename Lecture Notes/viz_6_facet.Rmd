@@ -538,3 +538,142 @@ p3
 ```
 
 
+
+
+## Patchwork
+
+`patchwork`: show multiple plots side-by-side using `+`
+
+```{r}
+library(patchwork)
+p1 + p2 + p3
+```
+
+## Arranging the `geom_` side-by-side
+
+```{r}
+p1 <- ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy))
+p2 <- ggplot(mpg) + 
+  geom_bar(aes(x = as.character(year), fill = drv), position = "dodge") + labs(x = "year")
+p3 <- ggplot(mpg) + 
+  geom_density(aes(x = hwy, fill = drv), color = NA) + facet_grid(rows = vars(drv))
+p4 <- ggplot(mpg) + 
+  stat_summary(aes(x = drv, y = hwy, fill = drv), geom = "col", fun.data = mean_se) + 
+  stat_summary(aes(x = drv, y = hwy), geom = "errorbar", fun.data = mean_se, width = 0.5)
+```
+
+## 
+```{r}
+p1+p2+p3+p4
+```
+
+
+
+## `+plot_layout()`
+
+```{r}
+p1 + p2 + p3 + p4 +  plot_layout(nrow = 1)
+```
+
+## Forcing a single row `|` 
+
+```{r}
+p1 | p2
+```
+
+## Forcing a single column `/`
+
+```{r}
+p1 / p2
+```
+
+
+
+## Mix and match
+
+```{r}
+((p1 + p2) / p3) | p4 
+```
+
+
+## Using the `design` function
+
+```{r}
+picasso <- "AAB
+C#B
+CDD"
+p1 + p2 + p3 + p4 + plot_layout(design = picasso)
+```
+
+## Removing redundant legends using `guides`
+
+```{r}
+p1 + p2 + p3 + p4 + plot_layout(
+  design = picasso,
+  guides = "collect")
+```
+
+
+## You can group them as well
+
+```{r}
+p12 <- p1 + p2
+p12 | p4 
+```
+
+## Modifying all plots
+
+What's wrong with the following plots
+
+```{r}
+p12 <- p1 + p2
+p12 | p4 + ggthemes::theme_solarized(light = F)
+```
+
+## Modifying all plots
+
+The fix: using `&` and change the order of the operation (expect trial and error :-))
+
+```{r}
+(p12 | p4) & ggthemes::theme_solarized(light = F)
+```
+
+## Plots and annotations
+
+After assemply, plots are a single object and annotation (via `plot_annotation`) works on the whole figure
+
+```{r}
+p123 <- p1 | (p2 / p3)
+p123 + plot_annotation(
+    title = "Effect of Drive Train", 
+    caption = "Source: mpg dataset", 
+    tag_levels = "a")
+```
+
+
+
+## Plots and annotations
+
+
+
+```{r}
+p123[[2]] <- p123[[2]] + plot_layout(tag_level = "new")
+p123 + plot_annotation(tag_levels = c("A", "1"))
+```
+
+
+
+## Plots within Plots via `inset_element()`
+
+
+```{r}
+p1 + inset_element(p2, 
+  left = 0.5, right = 0.9, bottom = 0.4, top = 0.95) + 
+  plot_annotation(tag_levels = "i")& 
+  ggthemes::theme_excel()
+```
+
+
+
+
