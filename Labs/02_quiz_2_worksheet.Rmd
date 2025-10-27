@@ -1,5 +1,5 @@
 ---
-title: "Worksheet: Quiz 2 Prep"
+title: "Worksheet 2"
 output: html_document
 ---
 
@@ -11,28 +11,8 @@ library(socviz)
 knitr::opts_chunk$set(echo = TRUE, message = T, warning = T)
 ```
 
-```{css, echo=FALSE}
-ol.problems {
-  counter-reset: prob;
-  list-style: none;
-  padding-left: 0;
-}
-ol.problems > li {
-  counter-increment: prob;
-  margin-bottom: 1.3em;
-}
-ol.problems > li::before {
-  content: "Problem " counter(prob) ". ";
-  font-weight: bold;
-  display: inline-block;
-  margin-right: 0.2em;
-}
-.choices {
-  list-style: none;
-  padding-left: 1.3em;
-}
-.choices li {margin: 0.15em 0;}
-```
+
+
 
 
 We will use the `gss_sm` dataset from the `socviz` library.
@@ -57,8 +37,6 @@ rm(to_delete)
 
 
 2. How many unique values are there in `income16`? The command `as.numeric(stringr::str_extract(income16, "\\d+"))` will convert them to the lowest numeric values. Do so. 
-
-
 
 
 

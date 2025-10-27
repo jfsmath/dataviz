@@ -66,7 +66,7 @@ lm4 <- summary(lm(y4~x4, anscombe[, c(4,8)]))
 
 - To build models of the form
 $$
-Y = \beta_0x_0 + \beta_1x_1 + \cdots + \beta_px_p + \epsilon
+Y = \beta_0 + \beta_1x_1 + \cdots + \beta_px_p + \epsilon
 $$
 the syntax is simply
 ```
