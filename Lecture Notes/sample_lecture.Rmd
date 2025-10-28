@@ -2,8 +2,10 @@
 title: "Elements of Data Visualization in R"
 author: "Fushuai Jiang"
 date: "`r Sys.Date()`"
-output: beamer_presentation
-
+output: 
+  beamer_presentation:
+classoption:
+  titlepage: false
 urlcolor: blue
 
 ---
@@ -26,17 +28,19 @@ knitr::include_graphics("images/futurama.png")
 
 
 
-## An iconic visualization example
-
-```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%"}
-knitr::include_graphics("images/02_minrad.png")
-```
-
 
 
 
 
 # Principles of Modern Data Visualization
+
+
+## An iconic visualization example
+
+```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%", echo = F}
+knitr::include_graphics("images/02_minrad.png")
+```
+
 
 
 
@@ -288,7 +292,7 @@ glimpse(gapminder)
 
 
 
-## Basic syntax and Layers
+## Layers `ggplot() + geom_`
 
 ```{r}
 ggplot(
@@ -297,7 +301,7 @@ ggplot(
   geom_point()
 ```
 
-## Scales
+## `scale_<aes>_<method>`
 
 ```{r}
 ggplot(
