@@ -28,7 +28,11 @@ knitr::include_graphics("images/futurama.png")
 
 ## An iconic visualization example
 
-![Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812](images/02_minrad.png)
+```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%"}
+knitr::include_graphics("images/02_minrad.png")
+```
+
+
 
 
 
@@ -203,12 +207,12 @@ Source: OpenAI announcement of GPT5
 
 ## Plot Types and Honesty
 
-```{r, fig.align='center', out.width="75%", echo = F, fig.cap=''}
+```{r, fig.align='center', out.width="80%", echo = F, fig.cap=''}
 knitr::include_graphics("images/02_democracy.png")
 ```
 
 - Misleading plot types? 
-- Misleading usage of data? The survey is on the scale of 0-10, the plot is for 10 only!
+- Misleading usage of data? \pause The survey is on the scale of 0-10, the plot is for 10 only!
 
 
 ## Telling the truth about data
