@@ -47,9 +47,12 @@ rm(to_delete)
 4. Create a scatterplot with a linear smoothing model with numerical income vs numerical degree. Distinguish the color by the numerical political views and shape by religious preference. 
 
 
-5. Create a boxplot visualizing the age distribution for each political view, distinguish gender by sex, faceted by race. Use the `scale_` function to change the color to `c("41B073", "5B2D9C")`.
+5. In a single sequence, create a bar chart of average happiness for each religion, separated by big regions. 
 
-6. Select all the genuine numerical variables (after conversions in the previous steps) and create a correlogram. What are the top 3 pairs of most correlated variables?
+
+6. Create a boxplot visualizing the age distribution for each political view, distinguish gender by sex, faceted by race. Use the `scale_` function to change the color to `c("41B073", "5B2D9C")`.
+
+7. Select all the genuine numerical variables (after conversions in the previous steps) and create a correlogram. What are the top 3 pairs of most correlated variables?
 
 
 
