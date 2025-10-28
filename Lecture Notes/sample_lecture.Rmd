@@ -201,6 +201,14 @@ Source: OpenAI announcement of GPT5
 
 \end{columns}
 
+## Plot Types and Honesty
+
+```{r, fig.align='center', out.width="75%", echo = F, fig.cap=''}
+knitr::include_graphics("images/02_democracy.png")
+```
+
+- Misleading plot types? 
+- Misleading usage of data? The survey is on the scale of 0-10, the plot is for 10 only!
 
 
 ## Telling the truth about data
