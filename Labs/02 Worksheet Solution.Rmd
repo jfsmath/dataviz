@@ -1,0 +1,141 @@
+---
+title: "Worksheet 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# packages used by the exercises
+library(ggplot2)
+library(tidyverse)
+library(socviz)
+knitr::opts_chunk$set(echo = TRUE, message = T, warning = T)
+```
+
+
+
+
+
+We will use the `gss_sm` dataset from the `socviz` library.
+
+```{r}
+glimpse(gss_sm)
+```
+
+
+
+1. Create a dataframe called `df` from the `gss_sm` dataset, deleting the variables from `to_delete`, and draw 500 random samples. 
+```{r}
+set.seed(2025)
+to_delete <- c("id", "grass", "wtssall", "partners_rc", "income_rc")
+
+df <- gss_sm |> select(- to_delete) |> slice_sample(n = 500)
+glimpse(df)
+rm(to_delete)
+```
+
+
+
+
+
+
+2. How many unique values are there in `income16`? The command `as.numeric(stringr::str_extract(income16, "\\d+"))` will convert them to the lowest numeric values. Do so. 
+
+
+```{r}
+# unique(gss_sm$income16)
+df |> pull(income16) |> unique() |> length()
+```
+
+
+```{r}
+df <- df |> mutate(
+  income16_num = as.numeric(stringr::str_extract(income16, "\\d+")))
+df
+```
+
+
+
+3. Find out how many unique political views there are, and create a new numerical variable called `polviews_num`. How would you design this numerical variable? Do the same for education and happiness and call them `degree_num` and `happy_num`.  
+
+```{r}
+df |> pull(polviews) |> unique()
+```
+```{r}
+df <- df |> mutate(
+  polviews_num = case_when(
+    polviews == "Moderate" ~ 0,
+    polviews == "Slightly Liberal" ~ 1,
+    polviews == "Liberal" ~ 2,
+    polviews == "Extremely Liberal" ~ 3,
+    polviews == "Slightly Conservative" ~ -1,
+    polviews == "Conservative" ~ -2, 
+    polviews == "Extremely Conservative" ~ -3))
+df |> select(polviews_num, polviews, everything())
+```
+
+
+
+4. Create a scatterplot with a linear smoothing model with numerical income vs age. Distinguish the color by the numerical political views and shape by religious preference. Update the color spectrum. 
+
+```{r}
+ggplot(df, aes(income16_num, age)) + 
+  geom_point(aes(color = polviews_num, shape = religion)) + 
+  geom_smooth(method = "lm") + 
+  scale_color_gradient2(
+   low = "red", high = "blue", mid = "green", midpoint = 0 
+  )
+```
+
+
+5. In a single sequence, create a bar chart of average political views for each religion, separated by big regions. 
+
+```{r}
+df |> group_by(religion, bigregion) |> 
+  summarize(pol_avg = mean(polviews_num, na.rm = T)) |> 
+  ggplot(aes(x = religion, y = pol_avg)) + 
+  geom_col(aes(fill = bigregion), position = "dodge")
+```
+
+
+
+
+6. Create a boxplot visualizing the age distribution for each political view, distinguish sex by colors, faceted by race. Use the `scale_` function to change the color to `c("41B073", "5B2D9C")`.
+
+
+```{r}
+ggplot(df, aes(x = polviews, y = age)) + 
+  geom_boxplot(aes(fill = sex)) + 
+  facet_wrap(~race) + 
+  scale_fill_manual(values = c("#906de3", "#2e8b28"))
+```
+
+
+7. Select all the genuine numerical variables (after conversions in the previous steps) and create a correlogram. What are the top 3 pairs of most correlated variables?
+
+
+8. Create two artificial datasets to test different kinds of joining methods. 
+
+```{r}
+df1 <- data.frame(
+  state = c("MD", "MD", "VA", "VA", "CA"),
+  food = c("crab", "wings", "chicken", "Mama Chang", "tacos"))
+  
+df2 <- data.frame(
+  state = c("MD", "MD", "CA", "CA"),
+  uni = c("UMD", "UMBC", "UCLA", "UCD"))
+```
+
+```{r}
+left_join(df1, df2, by = "state") |> dim()
+```
+
+
+```{r}
+inner_join(df1, df2, by = "state") |> dim()
+```
+
+
+```{r}
+full_join(df1, df2, by = "state") |> dim()
+```
+
