@@ -28,7 +28,7 @@ knitr::include_graphics("images/futurama.png")
 
 ## An iconic visualization example
 
-```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%"}
+```{r, echo = F, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%"}
 knitr::include_graphics("images/02_minrad.png")
 ```
 
@@ -207,7 +207,7 @@ Source: OpenAI announcement of GPT5
 
 ## Plot Types and Honesty
 
-```{r, fig.align='center', out.width="80%", echo = F, fig.cap=''}
+```{r, fig.align='center', out.width="100%", echo = F, fig.cap=''}
 knitr::include_graphics("images/02_democracy.png")
 ```
 
@@ -472,7 +472,7 @@ ggplot(subset(gapminder, year %in% c(1957, 2007)),
 library(GGally)
 gapminder |> select(-c("country", "year")) |> 
   ggpairs(aes(color = continent),
-          diag = list(continuous = wrap("densityDiag", alpha= 0.3)),
+          diag = list(continuous = wrap("densityDiag", alpha= 0.5, color = NA)),
           upper = list(continuous = wrap("cor", size = 2.7)), 
           lower = list(continuous = wrap("points", size = 0.2, alpha = 0.8)))
 ```

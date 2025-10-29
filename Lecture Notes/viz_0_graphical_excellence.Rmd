@@ -379,7 +379,7 @@ knitr::include_graphics("images/02_democracy.png")
 
 
 
-- Even misleading:  the survey question asked respondents to rate the importance of living in a democracy **\textcolor{red}{on a ten point scale}**
+- Even more misleading: the survey question asked respondents to rate the importance of living in a democracy **\textcolor{red}{on a ten point scale}**
 
 - The graph showed the difference across ages of people who had given a score of “10” only
 
