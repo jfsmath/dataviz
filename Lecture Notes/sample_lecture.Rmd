@@ -28,15 +28,7 @@ knitr::include_graphics("images/futurama.png")
 
 
 
-<<<<<<< HEAD
-## An iconic visualization example
 
-```{r, echo = F, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%"}
-knitr::include_graphics("images/02_minrad.png")
-```
-
-=======
->>>>>>> 5bdc17fb5bfd9c95e5e3f7625aabf4019b0c4ac6
 
 
 
@@ -44,12 +36,13 @@ knitr::include_graphics("images/02_minrad.png")
 # Principles of Modern Data Visualization
 
 
-## An iconic visualization example
+## An iconic infographic
 
 ```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%", echo = F}
 knitr::include_graphics("images/02_minrad.png")
 ```
 
+Charles Joseph Minard: 
 
 
 
