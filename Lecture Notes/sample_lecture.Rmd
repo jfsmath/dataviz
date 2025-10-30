@@ -38,15 +38,15 @@ knitr::include_graphics("images/futurama.png")
 
 ## An iconic infographic
 
-```{r, fig.cap='Charles Joseph Minard: Napoleon’s retreat from Moscow in 1812', out.width="100%", echo = F}
+```{r, fig.cap='Napoleon’s retreat from Moscow in 1812 by Minard', out.width="100%", echo = F}
 knitr::include_graphics("images/02_minrad.png")
 ```
 
-Charles Joseph Minard: 
+Charles Joseph Minard, 1781–1870, French civil Engineer, recognized for infographics in civil engineering and statistics, especially "flow maps".
 
 
 
-## Graphics **reveal** data
+## Graphics should **reveal** data
 
 “Anscombe’s quartet” from Anscombe, Francis J. “Graphs in statistical analysis.” The American Statistician 27.1 (1973): 17-21. 
 
@@ -119,7 +119,6 @@ g_se
 knitr::include_graphics("images/02_jackman.png")
 ```
 
-Source: Figure 1.2 in Healy
 
 
 
@@ -128,7 +127,8 @@ Source: Figure 1.2 in Healy
 
 
 
-## Data-to-ink ratio
+
+## What could go wrong? Data-to-Ink Ratio
 
 
 \begin{columns}
@@ -146,11 +146,7 @@ knitr::include_graphics("images/02_forbes.png")
 \end{columns}
 
 
-
-
-
-
-## More Junks
+## What could go wrong? Data-to-Ink Ratio
 
 
 ```{r, fig.align='center', out.width="80%", echo = F, fig.cap='Figure 1.4 in Healy, A chart with a considerable amount of junk. '}
@@ -161,7 +157,7 @@ knitr::include_graphics("images/02_healy2.png")
 
 
 
-## Bad Data
+## What could go wrong? Bad Model and Bad Data
 
 - Much more likely to create a good looking figure out of bad data
 
@@ -174,8 +170,7 @@ knitr::include_graphics("images/02_spurious_correlation.png")
 
 
 
-
-## Bad Data
+## What could go wrong? Bad Model and Bad Data
 
 Graphics can't save you from bad models or bad data
 
@@ -294,7 +289,7 @@ glimpse(gapminder)
 
 
 
-## Layers `ggplot() + geom_`
+## How to Build Layers: `ggplot() + geom_`
 
 ```{r}
 ggplot(
@@ -307,9 +302,8 @@ ggplot(
 
 ```{r}
 ggplot(
-  data = gapminder,
-  mapping = aes(x = gdpPercap, y = lifeExp)) + 
-  geom_point() + 
+  data = gapminder) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
   scale_x_log10()
 ```
 
