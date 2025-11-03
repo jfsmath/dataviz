@@ -29,7 +29,10 @@ knitr::include_graphics("images/futurama.png")
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
@@ -39,6 +42,7 @@ knitr::include_graphics("images/futurama.png")
 # Principles of Modern Data Visualization
 
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 ## An iconic infographic
 
@@ -53,15 +57,29 @@ knitr::include_graphics("images/02_minrad.png")
 Minard: 1781-1870, French civil engineer, noted for infographics in civil engineering and statistics
 
 Charles Joseph Minard, 1781–1870, French civil Engineer, recognized for infographics in civil engineering and statistics, especially "flow maps".
+=======
+## An iconic infographics
+
+```{r, fig.cap='Napoleon’s retreat from Moscow in 1812 by Charles Joseph Minard', out.width="100%", echo = F}
+knitr::include_graphics("images/02_minrad.png")
+```
+Minard: 1781-1870, French civil engineer, noted for infographics in civil engineering and statistics
+>>>>>>> Stashed changes
 
 
 ## Fundamental function: Graphics should **reveal** data
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## Graphics should **reveal** data
 
 “Anscombe’s quartet” from Anscombe, Francis J. “Graphs in statistical analysis.” The American Statistician 27.1 (1973): 17-21. 
 =======
+“Anscombe’s quartet” from Anscombe, Francis J. *Graphs in statistical analysis.* The American Statistician 27.1 (1973): 17-21. 
+>>>>>>> Stashed changes
+=======
+## Fundamental function: Graphics should **reveal** data
+
 “Anscombe’s quartet” from Anscombe, Francis J. *Graphs in statistical analysis.* The American Statistician 27.1 (1973): 17-21. 
 >>>>>>> Stashed changes
 
@@ -144,7 +162,11 @@ knitr::include_graphics("images/02_jackman.png")
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## What could go wrong? Data-to-Ink Ratio
+=======
+## What could go wrong: data-to-ink ratio
+>>>>>>> Stashed changes
 =======
 ## What could go wrong: data-to-ink ratio
 >>>>>>> Stashed changes
@@ -174,6 +196,9 @@ knitr::include_graphics("images/02_forbes.png")
 
 
 ## What could go wrong: data-to-ink ratio
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 
@@ -186,7 +211,11 @@ knitr::include_graphics("images/02_healy2.png")
 
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## What could go wrong? Bad Model and Bad Data
+=======
+## What Could Go Wrong? Bad Models and Bad Data
+>>>>>>> Stashed changes
 =======
 ## What Could Go Wrong? Bad Models and Bad Data
 >>>>>>> Stashed changes
@@ -207,6 +236,9 @@ knitr::include_graphics("images/02_spurious_correlation.png")
 =======
 
 ## What Could Go Wrong? Bad Models and Bad Data
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 Graphics can't save you from bad models or bad data
