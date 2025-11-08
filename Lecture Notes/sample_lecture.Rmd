@@ -380,6 +380,19 @@ g(\mathbb{E}[Y]) = c_0 + \sum_{i=1}^m f_i(x_i)
   - `loess` [locally estimated scatterplot smoothing](https://en.wikipedia.org/wiki/Local_regression) ($< 1000$ data points)
 
 
+## Alternative smoothing model
+
+```{r}
+ggplot(gapminder,aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point(aes(color = continent, size = pop), 
+             alpha = 0.2) + 
+  scale_x_log10() + 
+  geom_smooth(aes(color = continent, weight = pop),
+              method = "glm")
+```
+
+
+
 ## Digression: Communicating Uncertainty
 
 - The grey band in `geom_smooth()` is by default the 95% CI
@@ -400,8 +413,8 @@ g(\mathbb{E}[Y]) = c_0 + \sum_{i=1}^m f_i(x_i)
 ## Labels: every aesthetic element needs a label!
 
 
-```{r, out.width="60%", eval = F}
-p <- p + labs(
+```{r gapminder with labels, out.width="60%", eval = T}
+p_with_labels <- p + labs(
   x = "GDP Per Capita", 
   y = "Life Expectancy", 
   color = "Continent",
@@ -414,8 +427,8 @@ p <- p + labs(
 ## Labels: every aesthetic element needs a label!
 
 
-```{r, out.width="100%"}
-p
+```{r gapminder with labels display, out.width="100%"}
+p_with_labels
 ```
 
 ## Labels for outliers
@@ -423,7 +436,8 @@ p
 ```{r}
 library(ggrepel)
 p + geom_text_repel(
-  data = subset(gapminder, gdpPercap > 30000 & lifeExp < 70),
+  data = subset(gapminder, 
+                gdpPercap > 30000 & lifeExp < 70),
   mapping = aes(label = country))
 ```
 
