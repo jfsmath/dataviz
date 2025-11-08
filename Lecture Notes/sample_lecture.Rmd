@@ -28,7 +28,13 @@ knitr::include_graphics("images/futurama.png")
 
 
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 
 
@@ -36,22 +42,49 @@ knitr::include_graphics("images/futurama.png")
 # Principles of Modern Data Visualization
 
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## An iconic infographic
 
 ```{r, fig.cap='Napoleon’s retreat from Moscow in 1812 by Minard', out.width="100%", echo = F}
+=======
+## An iconic infographics
+
+```{r, fig.cap='Napoleon’s retreat from Moscow in 1812 by Charles Joseph Minard', out.width="100%", echo = F}
+>>>>>>> Stashed changes
 knitr::include_graphics("images/02_minrad.png")
 ```
+Minard: 1781-1870, French civil engineer, noted for infographics in civil engineering and statistics
 
 Charles Joseph Minard, 1781–1870, French civil Engineer, recognized for infographics in civil engineering and statistics, especially "flow maps".
+=======
+## An iconic infographics
+
+```{r, fig.cap='Napoleon’s retreat from Moscow in 1812 by Charles Joseph Minard', out.width="100%", echo = F}
+knitr::include_graphics("images/02_minrad.png")
+```
+Minard: 1781-1870, French civil engineer, noted for infographics in civil engineering and statistics
+>>>>>>> Stashed changes
 
 
+## Fundamental function: Graphics should **reveal** data
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## Graphics should **reveal** data
 
 “Anscombe’s quartet” from Anscombe, Francis J. “Graphs in statistical analysis.” The American Statistician 27.1 (1973): 17-21. 
+=======
+“Anscombe’s quartet” from Anscombe, Francis J. *Graphs in statistical analysis.* The American Statistician 27.1 (1973): 17-21. 
+>>>>>>> Stashed changes
+=======
+## Fundamental function: Graphics should **reveal** data
+
+“Anscombe’s quartet” from Anscombe, Francis J. *Graphs in statistical analysis.* The American Statistician 27.1 (1973): 17-21. 
+>>>>>>> Stashed changes
 
 ```{r}
-str(anscombe)
+glimpse(anscombe)
 ```
 
 ## Anscombe's quartet
@@ -115,7 +148,7 @@ g_se
 
  
 
-```{r, out.width="45%", fig.align='center', fig.cap='"The impact of outliers on income inequality" by Robert W. Jackman, in response to Hewitt (1977)', echo=FALSE}
+```{r, out.width="50%", fig.align='center', fig.cap='"The impact of outliers on income inequality" by Robert W. Jackman, in response to Hewitt (1977)', echo=FALSE}
 knitr::include_graphics("images/02_jackman.png")
 ```
 
@@ -128,14 +161,22 @@ knitr::include_graphics("images/02_jackman.png")
 
 
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## What could go wrong? Data-to-Ink Ratio
+=======
+## What could go wrong: data-to-ink ratio
+>>>>>>> Stashed changes
+=======
+## What could go wrong: data-to-ink ratio
+>>>>>>> Stashed changes
 
 
 \begin{columns}
 
 \column{0.4\textwidth}
 
-{\it The number of information-carrying (variable) dimensions depicted should not exceed the number of dimensions in the data.}
+{\it The number of information-carrying (variable) dimensions depicted should not exceed the number of dimensions in the data. -- Edward Tufte}
   
 \column{0.65\textwidth}
 ```{r, fig.align='center', out.width="80%", echo = F, fig.cap='Forbes, Connected Cars By The Numbers 2015'}
@@ -146,7 +187,19 @@ knitr::include_graphics("images/02_forbes.png")
 \end{columns}
 
 
+<<<<<<< Updated upstream
 ## What could go wrong? Data-to-Ink Ratio
+=======
+
+
+
+
+
+## What could go wrong: data-to-ink ratio
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 
 ```{r, fig.align='center', out.width="80%", echo = F, fig.cap='Figure 1.4 in Healy, A chart with a considerable amount of junk. '}
@@ -157,7 +210,15 @@ knitr::include_graphics("images/02_healy2.png")
 
 
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 ## What could go wrong? Bad Model and Bad Data
+=======
+## What Could Go Wrong? Bad Models and Bad Data
+>>>>>>> Stashed changes
+=======
+## What Could Go Wrong? Bad Models and Bad Data
+>>>>>>> Stashed changes
 
 - Much more likely to create a good looking figure out of bad data
 
@@ -170,7 +231,15 @@ knitr::include_graphics("images/02_spurious_correlation.png")
 
 
 
+<<<<<<< Updated upstream
 ## What could go wrong? Bad Model and Bad Data
+=======
+
+## What Could Go Wrong? Bad Models and Bad Data
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 Graphics can't save you from bad models or bad data
 
