@@ -1,0 +1,106 @@
+---
+title: "EDA Project Part 2 & 3"
+author: "Data 350"
+date: "Due date: December 7 2025 at midnight (EST)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Overview
+
+In this portion of the project, you will improve upon your previous EDA report to build an interactive dashboard using Shiny and create a set of slides to present your findings. Think of it as "something to show for" on your resume, so take pride in your work!
+
+
+
+## Preparation
+
+1. Study the feedback that your peers gave you to see if they make sense. If so, figure out how to incorporate it into the project. Note that each group member may have received comments from different peers, so gather them.  
+
+2. A number of the EDA projects, though having good individual questions, lack an overall theme, i.e., how do you describe the goal of of your project in 1 or 2 sentences? If this is the case, I'd like to you to dig a bit deeper to **come up with a unifying theme**. Note that this may mean you have completely redo a plot or two. Incorporate this theme into 
+
+  - the title of your Shiny app, and
+  - the title of your slides.
+
+3. If I have re-arranged your group assignment, you are allowed to merge/discard/redo your previous projects **if appropriate**, but make 100% sure to credits where they are due. 
+
+
+
+## Instruction for your Shiny app
+
+
+1. The app must have an well-organized interface with **multiple visualization tabs and one summary tab**.
+2. Each group member is responsible for at least one tab, *not including* the summary tab.
+3. For the visualization tab:
+
+    - Each tab must be interactive
+    - Each tab must correspond to a different plot type (okay if say tab 1 is `geom_point() + geom_smooth()` and tab 2 is `geom_boxplot + geom_smooth()`)
+    - Each plot must include at least 4 variables
+    - Each tab needs to have check boxes or radio button
+    
+4. For the data summary tab:
+
+    - The tab must allow the user to choose some of the variables of interest and output the summary statistics, and bonus for outputting the distribution on top of that
+    - you must include an **action button**: the user will only see the updated output **after** clicking the button.
+
+
+## Instruction for your slides and presentation
+
+1. The slides are clean and well organized, suitable for a typical scientific report
+2. There must be an intro + background on the dataset, the theme of the project, and where you're coming from (i.e. motivation to study these questions)
+3. This is a data visualization course, so in the main body of the slides, pictures speak louder than words!! Use concise bullet points only (or none at all). **Do not include paragraphs of writings**. When you present, speak over plots not the words. 
+4. Each member should present their own plots. Otherwise, it's up to you who presents the intro, background, and conclusion. 
+5. Bonus for a short demo of the Shiny app. 
+6. The recorded presentation should be 10-15 minutes long. Feel free to make edits if you see necessary. Upload the final video to YouTube. Set it to private and include the shared link in your submission (see 1st bullet point in submission). 
+
+
+## Submission
+
+A `zip` file consisting of 
+
+  - one `RMD` file and one `HTML` file, same as in the previous project, but **MAKE SURE TO INCLUDE YOUR YOUTUBE LINK AT THE VERY BEGINNING**
+  - one `R` file for your Shiny app
+  - one set of slides in **PDF** format (work in Google Slides then save to PDF)
+
+
+## Grading structure
+
+The precise rubric will be published via ELMS. In addition to the criteria from the previous projects, you will be graded on the functionality of your Shiny app and the quality of your presentation. 
+  
+
+
+## Group Structure 
+
+> **Optional but recommended:** switching your role from the previous project for a more well-rounded experience.
+
+> **Caution:** Please let me know of communication issues as soon as possible. You are not expected to pick up substantial slacks from your group members. 
+
+
+| Role | Responsibilities |
+|------|----------------|
+| **Project Leader/Manager** | - Guides the overall direction of the EDA project <br> - Organizes workflow, deadlines, communication (with team members and the instructor), and file submission  |
+|||
+| **Data/Stat Lead** | - Performs data cleaning, transformations, and statistical analysis <br>- Provides technical support to others |
+|||
+| **Visualization/Communication Lead** | - Designs clear, well-labeled, and statistically informed figures <br>- Standardizes figures/texts and integrate them into report<br>|
+|||
+| **All Members** | - Each member is responsible for $\geq 1$ Shiny tabs and their own portion of the presentation and slides <br> - Each member is responsible for writing a group member review, to be submitted separately |
+
+
+
+
+## Post-production
+
+Each member is required to submit a report including an individual reflection and a group member evaluation. Both will be available only to the instructor/grader. Each report must include the following key information:
+
+- Your roles and your plots (1 paragraph)
+- Summary of your work (1 paragraph)
+- Evaluation of each of your team member's work, i.e., what aspects are done well and what could be improved for each member. (1 paragraph for each member)
+
+
+
+
+
