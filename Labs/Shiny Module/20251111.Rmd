@@ -56,8 +56,81 @@ knitr::opts_chunk$set(echo = TRUE)
 Build a Shiny app to visualize `mpg`:
 
   - input: choice of year using radio buttons
-  - output: scatterplot with `displ` against `hwy`
+  - output: scatterplot with `displ` against `hwy` (use `renderPlot`)
 
+```{r}
+library(shiny)
+library(ggplot2)
+library(dplyr)
+
+ui <- fluidPage(
+  radioButtons(
+    "my_year",
+    "Choose a Manufacture Year",
+    choices = unique(mpg$year),
+    
+    # choosing a default, by picking the first year in the dataframe
+    selected = mpg$year[1] 
+  ),
+  
+  plotOutput("plot")
+)
+
+server <- function(input, output, session) {
+  
+  # two tasks
+  # first match the input year
+  # then create plot
+  
+  output$plot <- renderPlot({
+    mpg |>
+      filter(year == input$my_year) |>
+      ggplot() + geom_point(aes(x = displ, y = hwy))
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+## `mpg` with checkbox group
+
+```{r}
+library(shiny)
+library(ggplot2)
+library(dplyr)
+
+ui <- fluidPage(
+  checkboxGroupInput(
+    "my_year",
+    "Choose a Manufacture Year",
+    choices = unique(mpg$year),
+    
+    # choosing a default, by picking the 2nd year in the dataframe
+    selected = mpg$year[2] 
+  ),
+  
+  plotOutput("plot")
+)
+
+server <- function(input, output, session) {
+  
+  # two tasks
+  # first match the input year
+  # then create plot
+  
+  output$plot <- renderPlot({
+    mpg |>
+      filter(year %in% input$my_year) |>
+      ggplot() + geom_point(aes(x = displ, y = hwy))
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+ 
  
  
 
@@ -85,7 +158,6 @@ server <- function(input, output, session) {
 
 shinyApp(ui,server, session)
 ```
-
 
 
 
@@ -176,14 +248,134 @@ shinyApp(ui, server, session)
 
 ```
 
+## Modified reactivity
+
+```{r}
+library(shiny)
+library(ggplot2)
+
+## Customized functions taken from 3.4.1
+
+freqpoly <- function(x1, x2, binwidth = 0.1, xlim = c(-3, 3)) {
+  df <- data.frame(
+    x = c(x1, x2),
+    g = c(rep("x1", length(x1)), rep("x2", length(x2)))
+  )
+  
+  ggplot(df, aes(x, colour = g)) +
+    geom_freqpoly(binwidth = binwidth, size = 1) +
+    coord_cartesian(xlim = xlim)
+}
+
+t_test <- function(x1, x2) {
+  test <- t.test(x1, x2)
+  
+  # use sprintf() to format t.test() results compactly
+  sprintf(
+    "p value: %0.3f\n[%0.2f, %0.2f]",
+    test$p.value, test$conf.int[1], test$conf.int[2]
+  )
+}
 
 
 
-## Modify the `mpg` visualizer with an action button
+
+## UI
+
+ui <- fluidPage(
+  fluidRow(
+    column(4,
+           "Distribution 1",
+           numericInput("n1", label = "n", value = 1000, min = 1),
+           numericInput("mean1", label = "µ", value = 0, step = 0.1),
+           numericInput("sd1", label = "σ", value = 0.5, min = 0.1, step = 0.1)
+    ),
+    column(4,
+           "Distribution 2",
+           numericInput("n2", label = "n", value = 1000, min = 1),
+           numericInput("mean2", label = "µ", value = 0, step = 0.1),
+           numericInput("sd2", label = "σ", value = 0.5, min = 0.1, step = 0.1)
+    ),
+    column(4,
+           "Frequency polygon",
+           numericInput("binwidth", label = "Bin width", value = 0.1, step = 0.1),
+           sliderInput("range", label = "range", value = c(-3, 3), min = -5, max = 5)
+    )
+  ),
+  fluidRow(
+    column(9, plotOutput("hist")),
+    column(3, verbatimTextOutput("ttest"))
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # turn xi into reactive elements
+  # they should be treated as functions in the future
+  x1 <- reactive(rnorm(input$n1, input$mean1, input$sd1))
+  x2 <- reactive(rnorm(input$n2, input$mean2, input$sd2))
+  
+  output$hist <- renderPlot({
+    # () after xi because they are functions
+    freqpoly(x1(), x2(), binwidth = input$binwidth, xlim = input$range)
+  }, res = 96)
+  
+  output$ttest <- renderText({
+    t_test(x1(), x2())
+  })
+}
 
 
+shinyApp(ui, server)
+
+```
 
 
+## `eventReactive`
+
+Syntax: `eventReactive(<event_id>, {what to do after event happens})`
+
+Example: create an action button for the mpg shiny
+
+```{r}
+library(shiny)
+library(ggplot2)
+library(dplyr)
+
+ui <- fluidPage(
+  checkboxGroupInput(
+    "my_year",
+    "Choose a Manufacture Year",
+    choices = unique(mpg$year),
+    # choosing a default, by picking the 2nd year in the dataframe
+    selected = mpg$year[2] 
+  ),
+  actionButton("generate_plot", "Plot it!"), #Boolean
+  plotOutput("plot")
+)
+
+server <- function(input, output, session) {
+  
+  
+  # two tasks (made reactive)
+  # first match the input year
+  # then create plot
+  
+  # create a dataframe that reacts to the action button
+  # if the event generate_plot happens (i.e., click action utton)
+  # then do the filter
+  data <- eventReactive(input$generate_plot, {
+    mpg |> filter(year %in% input$my_year)
+  })
+  
+  output$plot <- renderPlot({
+      ggplot(data()) + geom_point(aes(x = displ, y = hwy))
+  })
+  
+}
+
+shinyApp(ui, server)
+```
 
 
 
