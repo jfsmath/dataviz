@@ -1,11 +1,9 @@
 library(shiny)
 library(gapminder)
 library(ggplot2)
-library(tidyverse)
+library(dplyr)
 
 
-# the plotly library is for interactivity with the plots
-library(plotly) 
 
 
 
