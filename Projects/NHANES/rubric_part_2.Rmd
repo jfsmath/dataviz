@@ -1,0 +1,35 @@
+---
+title: "Project 2&3 Rubric"
+author: "Data 350, Fall 2025"
+date: "`r Sys.Date()`"
+output: 
+  bookdown::html_document2: default
+---
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = F)
+```
+
+
+
+
+
+
+| Category | Percentage | Description |
+|----------|:-------:|------------|
+| **Basic completion** | --  | If a project does not follow the instruction, do not proceed and report to the instructor. This includes: <br> - missing files, there should be exactly three files: `app.R`, `report.Rmd`, and `slides.pdf` (not necessarily these names) and a working YouTube link to the presentation <br> - compiling errors <br> - other non-reproducible workflow (such as discrepancies between plots in the slides and the plots in the Rmd file) |
+| **Depth of the guiding theme/questions** | 15 | - There is a unifying theme (using `gss_sm` as an example, something along the line of "sociopolitical factors vs happiness...). Another way to think about this is a **one-line elevator pitch that you can remember** <br> - Individual questions are relevant to the theme, thoughtful, and lead to meaningful insights about the dataset. |
+|**Labeling for Rmd/slides**| 10 | - Each figure is well-labeled, with clear title, caption, and legends. Legend texts must be understandable for people with no access to the data. <br> - (-1) if a single figure has minor labeling issue (say $x$-axis is `displ` instead of "Engine Displacement" and no issue otherwise) <br> - (-22) if a single figure has more than a minor issue |
+|**Labeling for Shiny app**| 10 | - Each interactive figure is well-labeled, with clear title, caption, and legends. <br> - Variable selection must be understandable for people with no access to the data (use, e.g., a named vector when specifying `choices`). <br> - (-1) if a single figure has minor labeling issue <br> - (-22) if a single figure has more than a minor issue |
+| **Plot Design ** | 20 | - Every figure uses appropriate plot types and aesthetics chosen for the data <br> - Full points if the plot types and aesthetics mostly make sense <br> - (-2) if there are clear alternatives. Example 1, `ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) + geom_line()` clearly does not tell as good a story as `+ geom_point() + geom_smooth()` in place of `geom_line()`; Example 2, `position = "dodge"` facilitates better cross-group comparison than `position = "stack"` <br> - (-5) the choice is nonsensical or very hard to interpret |
+| **Statistical Insight** | 20 | - (5) Adequately utilizing transformations, summaries, or statistical measures to support findings. Examples include `dplyr` wranglings, average, median, variance, interquartile range, correlation, statistical tests, PCA ...  <br> - (5) Clearly Expresses uncertainty when relevant, e.g., CI for averages and smoothing models, visualizing the distribution of a parameter  <br> - (5) When appropriate, additional plot annotations to display metadata<br> - (5) Shows reasoning and interprets results in the presentation|
+| **Presentation** | 20 |  <br> - (5) Slides are well structured (intro, body, concluding remarks) <br> - (5) Slides have appropriate plot-to-text ratio, with plots doing the "heavy lifting" and short supplementary texts, ideally in bullet points <br> - (10) Clear well-paced presentation, with focus on the plots|
+| **TOTAL** | 95 | 
+---
+
+
+
+
